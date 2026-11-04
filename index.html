@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WKS ToolTrack - Production & Regrind System (Cloud Sync)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS (xlsx) Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF & AutoTable untuk Export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkSlate: '#0b1329',
+                        steelBlue: '#1e3a8a',
+                        brandBlue: '#2563eb',
+                        accentRed: '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .modal-enter { animation: fadeIn 0.2s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .sidebar-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="fixed inset-0 bg-darkSlate z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-800 modal-enter">
+            <div class="text-center mb-6">
+                <span class="bg-red-100 text-accentRed text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider editable-text" data-key="login_badge">Sistem Manufaktur</span>
+                <h1 class="text-2xl font-black text-slate-900 mt-2">WKS <span class="text-accentRed">ToolTrack</span></h1>
+                <p class="text-sm text-slate-500 mt-1 editable-text" data-key="login_subtitle">Masuk dengan akun User atau Supplier</p>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 text-blue-900 text-xs p-3 rounded-xl mb-6 shadow-inner">
+                <strong>Default Kredensial:</strong><br>
+                • User: <code>USER</code> / <code>USER</code><br>
+                • Supplier: <code>SUPPLIER</code> / <code>SUPPLIER</code>
+            </div>
+            <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Username</label>
+                    <input type="text" id="loginUser" required placeholder="USER atau SUPPLIER" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none uppercase bg-slate-50 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password</label>
+                    <input type="password" id="loginPass" required placeholder="••••••••" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50">
+                </div>
+                <button type="submit" class="w-full bg-brandBlue hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-500/30">
+                    Masuk ke Sistem
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APPLICATION -->
+    <div id="mainApp" class="hidden flex-1 flex flex-col">
+        
+        <!-- TOP HEADER WITH SIDEBAR TOGGLE -->
+        <header class="bg-darkSlate text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleSidebar()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <span class="font-black text-lg tracking-wider editable-text" data-key="brand_badge">WKS <span class="text-accentRed">TOOL</span></span>
+                    <h2 class="font-bold text-sm sm:text-base text-slate-300 hidden md:block border-l border-slate-700 pl-3 editable-text" data-key="navbar_title">Grinding & Regrind Tracker (Cloud Sync)</h2>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="text-right">
+                        <p id="navUserRole" class="text-xs font-bold text-accentRed uppercase tracking-wider"></p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- SIDEBAR NAVIGATION (DRAWER) -->
+        <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+        <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-darkSlate text-white z-50 shadow-2xl flex flex-col justify-between p-6 transform -translate-x-full sidebar-transition border-r border-slate-800">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-accentRed"></span>
+                        <h3 class="font-black text-lg tracking-wider">WKS <span class="text-accentRed">MENU</span></h3>
+                    </div>
+                    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <nav class="space-y-2">
+                    <button id="btnNavProgress" onclick="switchMainView('progress'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        <span>📈 Tracking Progress</span>
+                    </button>
+                    <button id="btnNavMaster" onclick="switchMainView('master'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                        <span>📁 Data Master</span>
+                    </button>
+                    <button id="btnNavStock" onclick="switchMainView('stock'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        <span>📦 Buffer Stok & Scrap</span>
+                    </button>
+                    <button id="btnBuilder" onclick="toggleBuilderMode(); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <span>🛠️ Mode Builder (Off)</span>
+                    </button>
+                    <button id="btnChangePass" onclick="openModalChangePass(); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                        <span>🔑 Ubah Password</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800">
+                <button onclick="logout()" class="w-full flex items-center justify-center space-x-2 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-3 rounded-xl text-sm font-bold transition border border-red-500/30">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <span>Keluar Sistem</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTENT CONTAINER -->
+        <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+            
+            <!-- VIEW 1: PROGRESS TRACKING -->
+            <div id="viewProgress" class="space-y-6">
+                <!-- METRIC CARDS -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider editable-text" data-key="stat_total_label">Total Aktif</p>
+                        <p id="statTotal" class="text-3xl font-black text-slate-900 mt-1">0</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider editable-text" data-key="stat_new_label">New Grinding</p>
+                        <p id="statNew" class="text-3xl font-black text-blue-600 mt-1">0</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider editable-text" data-key="stat_regrind_label">Re Grinding</p>
+                        <p id="statRegrind" class="text-3xl font-black text-amber-600 mt-1">0</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider editable-text" data-key="stat_done_label">Selesai (Completed)</p>
+                        <p id="statDone" class="text-3xl font-black text-emerald-600 mt-1">0</p>
+                    </div>
+                </div>
+
+                <!-- TABS NAVIGATION -->
+                <div class="flex border-b border-slate-200 space-x-8">
+                    <button onclick="switchTab('active')" id="tabActiveBtn" class="pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition">
+                        Daftar Item Aktif (Progress)
+                    </button>
+                    <button onclick="switchTab('completed')" id="tabCompletedBtn" class="pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition">
+                        List Selesai (Completed)
+                    </button>
+                </div>
+
+                <!-- CONTROLS & SEARCH BAR -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="w-full md:w-96 relative">
+                        <input type="text" id="searchBox" oninput="renderTables()" placeholder="Cari Item Number atau Nama Barang..." class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                        <select id="filterType" onchange="renderTables()" class="border border-slate-300 rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none font-medium">
+                            <option value="all">Semua Type Grinding</option>
+                            <option value="New Grinding">New Grinding</option>
+                            <option value="Re Grinding">Re Grinding</option>
+                        </select>
+                        <button id="btnAddItem" onclick="openModalAddItem()" class="bg-brandBlue hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-blue-500/20 hidden">
+                            + Input Item Baru
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION: ACTIVE ITEMS -->
+                <div id="sectionActive" class="space-y-4">
+                    <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                        <th class="p-4 font-bold">Item Number</th>
+                                        <th class="p-4 font-bold">Detail Barang</th>
+                                        <th class="p-4 font-bold">Diameter</th>
+                                        <th class="p-4 font-bold">QTY</th>
+                                        <th class="p-4 font-bold">Type Grinding</th>
+                                        <th class="p-4 font-bold">Tahapan Saat Ini</th>
+                                        <th class="p-4 text-center font-bold">Aksi (Update)</th>
+                                        <th class="p-4 text-center font-bold">Keterangan</th>
+                                        <th class="p-4 text-center font-bold">Update Terakhir</th>
+                                        <th id="thSupplierAccess" class="p-4 text-center font-bold hidden">Akses Supplier</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activeTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="activeMobileCards" class="grid grid-cols-1 gap-4 md:hidden"></div>
+                </div>
+
+                <!-- SECTION: COMPLETED ITEMS -->
+                <div id="sectionCompleted" class="space-y-4 hidden">
+                    <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                        <th class="p-4 font-bold">Item Number</th>
+                                        <th class="p-4 font-bold">Detail Barang</th>
+                                        <th class="p-4 font-bold">Diameter</th>
+                                        <th class="p-4 font-bold">QTY</th>
+                                        <th class="p-4 font-bold">Type Grinding</th>
+                                        <th class="p-4 text-center font-bold">Status</th>
+                                        <th class="p-4 text-center font-bold">Hapus</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="completedTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="completedMobileCards" class="grid grid-cols-1 gap-4 md:hidden"></div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: MASTER TABLES -->
+            <div id="viewMaster" class="space-y-6 hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">📊 Manajemen Data Master</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Kelola katalog master, Tool Life (Pcs), dan export laporan langsung ke format PDF.</p>
+                    </div>
+                    <div>
+                        <button onclick="openModalAddMasterTable()" class="bg-brandBlue hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-blue-500/20">
+                            + Buat Tabel Master Baru
+                        </button>
+                    </div>
+                </div>
+
+                <div id="masterTablesContainer" class="space-y-8"></div>
+            </div>
+
+            <!-- VIEW 3: BUFFER STOK & SCRAP MANAGEMENT -->
+            <div id="viewStock" class="space-y-6 hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">📦 Manajemen Buffer Stok & Scrap Tool</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Kelola data stok gudang dinamis, update quantity, dan daftar afkir (scrap).</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="exportStockAndScrapPDF()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-rose-500/20 flex items-center space-x-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>📥 Export PDF</span>
+                        </button>
+                        <button onclick="openModalAddBufferStock()" class="bg-brandBlue hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-blue-500/20">
+                            + Tambah Item Buffer Stok
+                        </button>
+                        <button onclick="openModalAddScrap()" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-red-500/20">
+                            + Catat Tool Scrap
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUB-SECTION 1: BUFFER STOK GUDANG -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div class="bg-slate-900 text-white p-4 font-bold text-sm flex justify-between items-center">
+                        <span>📊 Data Buffer Stok Gudang (Cloud Realtime)</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th class="p-4">Item Number</th>
+                                    <th class="p-4">Deskripsi Tool</th>
+                                    <th class="p-4 text-center">Stok Saat Ini (Qty)</th>
+                                    <th class="p-4 text-center">Minimum Buffer</th>
+                                    <th class="p-4 text-center">Status Stok</th>
+                                    <th class="p-4 text-center">Update Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bufferStockTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUB-SECTION 2: DAFTAR SCRAP / TOOL AFKIR -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div class="bg-red-900 text-white p-4 flex justify-between items-center text-sm font-bold">
+                        <span>🗑️ Daftar Tool Scrap / Afkir (Max Regrind / Rusak Patah)</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th class="p-4">Item Number</th>
+                                    <th class="p-4">Nama / Deskripsi Tool</th>
+                                    <th class="p-4 text-center">Riwayat Regrind</th>
+                                    <th class="p-4">Alasan Scrap</th>
+                                    <th class="p-4 text-center">Tanggal & Dicatat Oleh</th>
+                                    <th class="p-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scrapTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL: ADD BUFFER STOCK ITEM -->
+    <div id="modalAddBufferStock" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Tambah Item Buffer Stok Mandiri</h3>
+            <form onsubmit="handleSaveBufferStock(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Item Number</label>
+                    <input type="text" id="bufferItemNumber" required placeholder="Misal: BUF-2026-001" class="w-full border border-slate-300 rounded-xl p-3 text-sm font-mono bg-slate-50/50 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Deskripsi Tool</label>
+                    <input type="text" id="bufferDesc" required placeholder="Misal: Endmill Carbide D10" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Stok Saat Ini (Pcs)</label>
+                        <input type="number" id="bufferCurrentStock" required min="0" value="5" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Minimum Buffer (Pcs)</label>
+                        <input type="number" id="bufferMinStock" required min="0" value="2" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 font-bold">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalAddBufferStock')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md shadow-blue-500/20">Simpan Buffer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD NEW ITEM (PROGRESS) -->
+    <div id="modalAddItem" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 modal-enter border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Input Item Baru</h3>
+            <form id="formAddItem" onsubmit="handleAddItem(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama Tool (Deskripsi)</label>
+                    <input type="text" id="newItemName" required placeholder="Misal: Endmill 4-Flute Carbide" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Item Number</label>
+                    <input type="text" id="newItemNumber" required placeholder="Misal: WKS-2026-001" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none font-mono bg-slate-50/50 font-bold">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Diameter</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 font-bold">Ø</span>
+                            <input type="text" id="newItemDiameter" required placeholder="10.0" class="w-full pl-9 pr-3 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">QUANTITY (QTY)</label>
+                        <input type="number" id="newItemQty" required min="1" value="1" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-bold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Type Grinding</label>
+                        <select id="newItemType" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-medium">
+                            <option value="New Grinding">New Grinding</option>
+                            <option value="Re Grinding">Re Grinding</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Keterangan Prioritas</label>
+                        <select id="newItemPriority" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-medium">
+                            <option value="Reguler">Reguler</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalAddItem')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md shadow-blue-500/20">Simpan Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD SCRAP ITEM -->
+    <div id="modalAddScrap" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Catat Tool Scrap / Afkir Baru</h3>
+            <form onsubmit="handleSaveScrap(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Item Number</label>
+                    <input type="text" id="scrapItemNumber" required placeholder="Misal: WKS-2026-001" class="w-full border border-slate-300 rounded-xl p-3 text-sm font-mono bg-slate-50/50 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama / Deskripsi Tool</label>
+                    <input type="text" id="scrapDesc" required placeholder="Misal: Endmill 4-Flute D10" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Riwayat Regrind</label>
+                    <input type="text" id="scrapRegrindCount" required placeholder="Misal: 5 dari 5 Kali (Max Reached)" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Alasan Scrap</label>
+                    <select id="scrapReason" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-medium">
+                        <option value="Max Regrind Reached (Batas Maksimal)">Max Regrind Reached (Batas Maksimal)</option>
+                        <option value="Chipped Edge / Rusak Sisi Tajam">Chipped Edge / Rusak Sisi Tajam</option>
+                        <option value="Bent / Patah Total">Bent / Patah Total</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalAddScrap')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition shadow-md shadow-red-500/20">Simpan Scrap</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD MASTER TABLE -->
+    <div id="modalAddMasterTable" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Buat Tabel Master Baru</h3>
+            <form onsubmit="handleCreateMasterTable(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama / Judul Tabel</label>
+                    <input type="text" id="inputMasterTableName" required placeholder="Misal: Katalog Endmill Carbide" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalAddMasterTable')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md shadow-blue-500/20">Buat Tabel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD ROW TO MASTER TABLE -->
+    <div id="modalAddMasterRow" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Tambah Baris ke Tabel Master</h3>
+            <form onsubmit="handleSaveMasterRow(event)" class="space-y-4">
+                <input type="hidden" id="activeMasterTableId">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Item Number</label>
+                    <input type="text" id="rowItemNumber" required placeholder="Misal: WKS-2026-001" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none font-mono bg-slate-50/50 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Deskripsi Tool</label>
+                    <input type="text" id="rowDesc" required placeholder="Misal: Endmill 4-Flute D10" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Tool Life (Default: Pcs)</label>
+                    <input type="text" id="rowToolLife" required placeholder="Misal: 500 Pcs" value="500 Pcs" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Keterangan</label>
+                    <input type="text" id="rowNote" placeholder="Misal: Stok Gudang Utama" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalAddMasterRow')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md shadow-blue-500/20">Tambah Baris</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: UPDATE PROGRESS -->
+    <div id="modalUpdateProgress" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-900 mb-1">Update Progress Tahapan</h3>
+            <p id="updateItemInfo" class="text-xs text-slate-500 mb-4 font-mono font-bold bg-slate-100 p-2 rounded-lg"></p>
+            <form id="formUpdateProgress" onsubmit="handleUpdateProgress(event)" class="space-y-4">
+                <input type="hidden" id="updateItemId">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Pilih Tahapan Selanjutnya</label>
+                    <select id="updateStageSelect" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-medium"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Keterangan Prioritas</label>
+                    <select id="updatePrioritySelect" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-medium">
+                        <option value="Reguler">Reguler</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalUpdateProgress')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md shadow-blue-500/20">Perbarui Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CHANGE PASSWORD -->
+    <div id="modalChangePass" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Ubah Password Akun User</h3>
+            <form onsubmit="handlePasswordChange(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password Baru</label>
+                    <input type="password" id="newPasswordInput" required placeholder="Masukkan password baru" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalChangePass')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md shadow-blue-500/20">Simpan Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK & JAVASCRIPT LOGIC -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script>
+        // ================= FIREBASE CONFIG (YANG ANDA BERIKAN) =================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmjNnFluKLQ6frDNXuj2-H2Y0JwzErZ1Q",
+            authDomain: "wks-tooltracker.firebaseapp.com",
+            databaseURL: "https://wks-tooltracker-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "wks-tooltracker",
+            storageBucket: "wks-tooltracker.firebasestorage.app",
+            messagingSenderId: "924639370694",
+            appId: "1:924639370694:web:671d61433e976c1759a6c7",
+            measurementId: "G-G4VSBPSV89"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const stagesDefinition = {
+            "New Grinding": [
+                "1. PREPARE MANUAL",
+                "2. GRINDING CNC",
+                "3. VISUAL CHECK (dinolite)",
+                "4. FINAL INSPECTION (zoller)",
+                "5. DELIVERY (coating & aerolap)",
+                "6. FINISHED"
+            ],
+            "Re Grinding": [
+                "1. PREPARE MANUAL",
+                "2. GRINDING CNC",
+                "3. VISUAL CHECK (dinolite)",
+                "4. FINAL INSPECTION (zoller)",
+                "5. DELIVERY (coating & aerolap)",
+                "6. FINISHED"
+            ]
+        };
+
+        let authCredentials = JSON.parse(localStorage.getItem('wks_auth')) || {
+            USER: "USER",
+            SUPPLIER: "SUPPLIER"
+        };
+
+        let masterTables = [];
+        let bufferStockItems = [];
+        let scrapItems = [];
+        let items = [];
+
+        let currentUser = sessionStorage.getItem('wks_current_user') || null;
+        let currentTab = 'active'; 
+        let currentMainView = 'progress'; 
+        let builderModeActive = false;
+        let customTexts = JSON.parse(localStorage.getItem('wks_custom_texts')) || {};
+
+        // ================= REALTIME LISTENERS (FIREBASE SYNC) =================
+        window.addEventListener('DOMContentLoaded', () => {
+            applyCustomTexts();
+            if(currentUser) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                setupUIRoles();
+            }
+            initFirebaseListeners();
+        });
+
+        function initFirebaseListeners() {
+            db.ref('wks_tool_items').on('value', (snapshot) => {
+                const data = snapshot.val();
+                items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                if(currentUser) renderTables();
+            });
+
+            db.ref('wks_master_tables').on('value', (snapshot) => {
+                const data = snapshot.val();
+                masterTables = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                if(currentUser) renderMasterTablesContainer();
+            });
+
+            db.ref('wks_buffer_stock').on('value', (snapshot) => {
+                const data = snapshot.val();
+                bufferStockItems = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                if(currentUser) renderStockAndScrap();
+            });
+
+            db.ref('wks_scrap_items').on('value', (snapshot) => {
+                const data = snapshot.val();
+                scrapItems = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+                if(currentUser) renderStockAndScrap();
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUser').value.trim().toUpperCase();
+            const p = document.getElementById('loginPass').value.trim();
+
+            if((u === 'USER' && p === authCredentials.USER) || (u === 'SUPPLIER' && p === authCredentials.SUPPLIER)) {
+                currentUser = u;
+                sessionStorage.setItem('wks_current_user', currentUser);
+                setupUIRoles();
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                renderTables();
+                renderMasterTablesContainer();
+                renderStockAndScrap();
+            } else {
+                alert('Username atau Password salah!');
+            }
+        }
+
+        function setupUIRoles() {
+            document.getElementById('navUserRole').innerText = `Role: ${currentUser} (Cloud Sync Active)`;
+            if(currentUser === 'USER') {
+                document.getElementById('btnAddItem').classList.remove('hidden');
+                document.getElementById('btnChangePass').classList.remove('hidden');
+                document.getElementById('btnBuilder').classList.remove('hidden');
+                document.getElementById('btnNavMaster').classList.remove('hidden');
+                document.getElementById('thSupplierAccess').classList.remove('hidden');
+            } else {
+                document.getElementById('btnAddItem').classList.add('hidden');
+                document.getElementById('btnChangePass').classList.add('hidden');
+                document.getElementById('btnBuilder').classList.add('hidden');
+                document.getElementById('btnNavMaster').classList.add('hidden');
+                document.getElementById('thSupplierAccess').classList.add('hidden');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            sessionStorage.removeItem('wks_current_user');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+            if(builderModeActive) toggleBuilderMode();
+        }
+
+        function switchMainView(view) {
+            currentMainView = view;
+            document.getElementById('viewProgress').classList.add('hidden');
+            document.getElementById('viewMaster').classList.add('hidden');
+            document.getElementById('viewStock').classList.add('hidden');
+
+            if(view === 'progress') {
+                document.getElementById('viewProgress').classList.remove('hidden');
+                renderTables();
+            } else if(view === 'master') {
+                document.getElementById('viewMaster').classList.remove('hidden');
+                renderMasterTablesContainer();
+            } else if(view === 'stock') {
+                document.getElementById('viewStock').classList.remove('hidden');
+                renderStockAndScrap();
+            }
+        }
+
+        // ================= EXPORT PDF MASTER & STOCK =================
+        function exportMasterTablePDF(tableId) {
+            const table = masterTables.find(t => t.id === tableId);
+            if(!table || !table.rows) return alert('Tabel master kosong.');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(15, 23, 42);
+            doc.text(`WKS TOOLTRACK — ${table.tableName.toUpperCase()}`, 14, 18);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100, 116, 139);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
+            
+            const rowsArray = Object.keys(table.rows).map(k => table.rows[k]);
+            const headers = [["Item Number", "Deskripsi Tool", "Tool Life (Pcs)", "Keterangan"]];
+            const data = rowsArray.map(r => [r.itemNumber, r.desc, r.toolLife || '-', r.note || '-']);
+            doc.autoTable({ startY: 32, head: headers, body: data, theme: 'grid' });
+            doc.save(`Master_${table.tableName.replace(/\s+/g, '_')}_WKS.pdf`);
+        }
+
+        function exportStockAndScrapPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(15, 23, 42);
+            doc.text("WKS TOOLTRACK — LAPORAN BUFFER STOK & SCRAP", 14, 18);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100, 116, 139);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
+
+            doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.text("1. Data Buffer Stok Gudang", 14, 35);
+            const bufferHeaders = [["Item Number", "Deskripsi Tool", "Stok Saat Ini", "Min Buffer", "Status Stok"]];
+            const bufferData = bufferStockItems.map(b => [b.itemNumber, b.desc, `${b.currentStock} Pcs`, `${b.minStock} Pcs`, b.currentStock <= b.minStock ? "MENIPIS" : "AMAN"]);
+            doc.autoTable({ startY: 39, head: bufferHeaders, body: bufferData, theme: 'grid' });
+
+            const finalY = doc.lastAutoTable.finalY + 12;
+            doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(185, 28, 28);
+            doc.text("2. Daftar Tool Scrap / Afkir", 14, finalY);
+            const scrapHeaders = [["Item Number", "Nama / Deskripsi", "Regrind", "Alasan", "Tanggal"]];
+            const scrapData = scrapItems.map(s => [s.itemNumber, s.desc, s.regrindCount, s.reason, s.date]);
+            doc.autoTable({ startY: finalY + 4, head: scrapHeaders, body: scrapData, theme: 'grid' });
+            doc.save(`Laporan_Buffer_Stok_Scrap_WKS_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        // ================= BUFFER STOCK & SCRAP ACTIONS =================
+        function renderStockAndScrap() {
+            const bufferTbody = document.getElementById('bufferStockTableBody');
+            bufferTbody.innerHTML = '';
+            if(bufferStockItems.length === 0) {
+                bufferTbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada item buffer stok.</td></tr>`;
+            } else {
+                bufferStockItems.forEach(b => {
+                    const isLow = b.currentStock <= b.minStock;
+                    const statusBadge = isLow ? `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">⚠️ Stok Menipis</span>` : `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Aman</span>`;
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-4 font-mono font-bold text-brandBlue">${b.itemNumber}</td>
+                        <td class="p-4 font-medium text-slate-900">${b.desc}</td>
+                        <td class="p-4 text-center font-bold text-slate-800 text-base">${b.currentStock} Pcs</td>
+                        <td class="p-4 text-center text-slate-600">${b.minStock} Pcs</td>
+                        <td class="p-4 text-center">${statusBadge}</td>
+                        <td class="p-4 text-center">
+                            <div class="inline-flex items-center space-x-1.5">
+                                <button onclick="adjustBufferStock('${b.id}', 1)" class="px-3 py-1.5 bg-blue-50 text-brandBlue hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition shadow-sm">+ Tambah</button>
+                                <button onclick="adjustBufferStock('${b.id}', -1)" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white rounded-lg text-xs font-bold transition shadow-sm">- Kurang</button>
+                                ${currentUser === 'USER' ? `<button onclick="deleteBufferStock('${b.id}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition">Hapus</button>` : ''}
+                            </div>
+                        </td>
+                    `;
+                    bufferTbody.appendChild(tr);
+                });
+            }
+
+            const scrapTbody = document.getElementById('scrapTableBody');
+            scrapTbody.innerHTML = '';
+            if(scrapItems.length === 0) {
+                scrapTbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada tool scrap.</td></tr>`;
+            } else {
+                scrapItems.forEach(s => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-4 font-mono font-bold text-red-600">${s.itemNumber}</td>
+                        <td class="p-4 font-medium text-slate-900">${s.desc}</td>
+                        <td class="p-4 text-center"><span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-lg font-bold">${s.regrindCount}</span></td>
+                        <td class="p-4 text-slate-700 font-medium">${s.reason}</td>
+                        <td class="p-4 text-center text-xs text-slate-500">${s.date} (${s.recordedBy})</td>
+                        <td class="p-4 text-center">${currentUser === 'USER' ? `<button onclick="deleteScrap('${s.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition">Hapus</button>` : '-'}</td>
+                    `;
+                    scrapTbody.appendChild(tr);
+                });
+            }
+        }
+
+        function openModalAddBufferStock() {
+            document.getElementById('bufferItemNumber').value = '';
+            document.getElementById('bufferDesc').value = '';
+            document.getElementById('modalAddBufferStock').classList.remove('hidden');
+        }
+
+        function handleSaveBufferStock(e) {
+            e.preventDefault();
+            const newItem = {
+                itemNumber: document.getElementById('bufferItemNumber').value.trim(),
+                desc: document.getElementById('bufferDesc').value.trim(),
+                currentStock: parseInt(document.getElementById('bufferCurrentStock').value) || 0,
+                minStock: parseInt(document.getElementById('bufferMinStock').value) || 0
+            };
+            db.ref('wks_buffer_stock').push(newItem);
+            closeModal('modalAddBufferStock');
+        }
+
+        function adjustBufferStock(id, amount) {
+            const item = bufferStockItems.find(b => b.id === id);
+            if(item) {
+                const newStock = Math.max(0, item.currentStock + amount);
+                db.ref(`wks_buffer_stock/${id}`).update({ currentStock: newStock });
+            }
+        }
+
+        function deleteBufferStock(id) {
+            if(confirm('Hapus item buffer stok ini?')) db.ref(`wks_buffer_stock/${id}`).remove();
+        }
+
+        function openModalAddScrap() {
+            document.getElementById('scrapItemNumber').value = '';
+            document.getElementById('scrapDesc').value = '';
+            document.getElementById('scrapRegrindCount').value = '';
+            document.getElementById('modalAddScrap').classList.remove('hidden');
+        }
+
+        function handleSaveScrap(e) {
+            e.preventDefault();
+            const newItem = {
+                itemNumber: document.getElementById('scrapItemNumber').value.trim(),
+                desc: document.getElementById('scrapDesc').value.trim(),
+                regrindCount: document.getElementById('scrapRegrindCount').value.trim(),
+                reason: document.getElementById('scrapReason').value,
+                date: new Date().toISOString().split('T')[0],
+                recordedBy: currentUser
+            };
+            db.ref('wks_scrap_items').push(newItem);
+            closeModal('modalAddScrap');
+        }
+
+        function deleteScrap(id) {
+            if(confirm('Hapus catatan scrap ini?')) db.ref(`wks_scrap_items/${id}`).remove();
+        }
+
+        // ================= MASTER TABLES ACTIONS =================
+        function renderMasterTablesContainer() {
+            const container = document.getElementById('masterTablesContainer');
+            container.innerHTML = '';
+            if(masterTables.length === 0) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200">Belum ada tabel master.</div>`;
+                return;
+            }
+
+            masterTables.forEach((table) => {
+                const tableDiv = document.createElement('div');
+                tableDiv.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
+                
+                let rowsHTML = '';
+                const rowsObj = table.rows || {};
+                const rowKeys = Object.keys(rowsObj);
+                if(rowKeys.length === 0) {
+                    rowsHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada data baris.</td></tr>`;
+                } else {
+                    rowKeys.forEach((rKey) => {
+                        const row = rowsObj[rKey];
+                        rowsHTML += `
+                            <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                                <td class="p-4 font-mono font-bold text-brandBlue">${row.itemNumber}</td>
+                                <td class="p-4 font-medium text-slate-900">${row.desc}</td>
+                                <td class="p-4"><span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-lg font-bold">${row.toolLife || '-'}</span></td>
+                                <td class="p-4 text-slate-600">${row.note || '-'}</td>
+                                ${currentUser === 'USER' ? `
+                                    <td class="p-4 text-center">
+                                        <button onclick="deleteMasterRow('${table.id}', '${rKey}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm">
+                                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </td>
+                                ` : ''}
+                            </tr>
+                        `;
+                    });
+                }
+
+                tableDiv.innerHTML = `
+                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                        <h4 class="font-bold text-sm tracking-wide">📂 ${table.tableName}</h4>
+                        <div class="flex flex-wrap items-center gap-2">
+                            ${currentUser === 'USER' ? `
+                                <button onclick="openModalAddMasterRow('${table.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm">+ Tambah Baris</button>
+                                <button onclick="exportMasterTablePDF('${table.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm">📥 Export PDF</button>
+                                <button onclick="deleteMasterTable('${table.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition">Hapus</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th class="p-4 font-bold">Item Number</th>
+                                    <th class="p-4 font-bold">Deskripsi Tool</th>
+                                    <th class="p-4 font-bold">Tool Life (Pcs)</th>
+                                    <th class="p-4 font-bold">Keterangan</th>
+                                    ${currentUser === 'USER' ? `<th class="p-4 text-center font-bold">Aksi</th>` : ''}
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHTML}</tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(tableDiv);
+            });
+        }
+
+        function openModalAddMasterTable() {
+            document.getElementById('inputMasterTableName').value = '';
+            document.getElementById('modalAddMasterTable').classList.remove('hidden');
+        }
+
+        function handleCreateMasterTable(e) {
+            e.preventDefault();
+            const name = document.getElementById('inputMasterTableName').value.trim();
+            db.ref('wks_master_tables').push({ tableName: name, rows: {} });
+            closeModal('modalAddMasterTable');
+        }
+
+        function deleteMasterTable(tableId) {
+            if(confirm('Hapus seluruh tabel master ini?')) db.ref(`wks_master_tables/${tableId}`).remove();
+        }
+
+        function openModalAddMasterRow(tableId) {
+            document.getElementById('activeMasterTableId').value = tableId;
+            document.getElementById('rowItemNumber').value = '';
+            document.getElementById('rowDesc').value = '';
+            document.getElementById('rowToolLife').value = '500 Pcs';
+            document.getElementById('rowNote').value = '';
+            document.getElementById('modalAddMasterRow').classList.remove('hidden');
+        }
+
+        function handleSaveMasterRow(e) {
+            e.preventDefault();
+            const tableId = document.getElementById('activeMasterTableId').value;
+            const newRow = {
+                itemNumber: document.getElementById('rowItemNumber').value.trim(),
+                desc: document.getElementById('rowDesc').value.trim(),
+                toolLife: document.getElementById('rowToolLife').value.trim(),
+                note: document.getElementById('rowNote').value.trim()
+            };
+            db.ref(`wks_master_tables/${tableId}/rows`).push(newRow);
+            closeModal('modalAddMasterRow');
+        }
+
+        function deleteMasterRow(tableId, rowKey) {
+            if(confirm('Hapus baris ini?')) db.ref(`wks_master_tables/${tableId}/rows/${rowKey}`).remove();
+        }
+
+        // ================= PROGRESS TRACKING ACTIONS =================
+        function openModalAddItem() {
+            document.getElementById('newItemName').value = '';
+            document.getElementById('newItemNumber').value = '';
+            document.getElementById('newItemDiameter').value = '';
+            document.getElementById('newItemQty').value = '1';
+            document.getElementById('modalAddItem').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function handleAddItem(e) {
+            e.preventDefault();
+            const newItem = {
+                item_number: document.getElementById('newItemNumber').value.trim(),
+                item_name: document.getElementById('newItemName').value.trim(),
+                diameter: document.getElementById('newItemDiameter').value.trim(),
+                qty: parseInt(document.getElementById('newItemQty').value) || 1,
+                type_grinding: document.getElementById('newItemType').value,
+                priority: document.getElementById('newItemPriority').value,
+                current_stage_index: 0,
+                supplier_access: false,
+                last_updated_by: currentUser
+            };
+            db.ref('wks_tool_items').push(newItem);
+            closeModal('modalAddItem');
+        }
+
+        function toggleBuilderMode() {
+            builderModeActive = !builderModeActive;
+            const btn = document.getElementById('btnBuilder');
+            const editables = document.querySelectorAll('.editable-text');
+            if(builderModeActive) {
+                btn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold bg-emerald-600 text-white transition";
+                editables.forEach(el => { el.contentEditable = "true"; el.classList.add("border", "border-dashed", "border-amber-400", "px-1", "bg-amber-50/50"); el.addEventListener('blur', saveCustomText); });
+            } else {
+                btn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition";
+                editables.forEach(el => { el.contentEditable = "false"; el.classList.remove("border", "border-dashed", "border-amber-400", "px-1", "bg-amber-50/50"); });
+            }
+        }
+
+        function saveCustomText(e) {
+            const key = e.target.getAttribute('data-key');
+            if(key) { customTexts[key] = e.target.innerText.trim(); localStorage.setItem('wks_custom_texts', JSON.stringify(customTexts)); }
+        }
+
+        function applyCustomTexts() {
+            document.querySelectorAll('.editable-text').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if(key && customTexts[key]) el.innerText = customTexts[key];
+            });
+        }
+
+        function openModalChangePass() {
+            document.getElementById('newPasswordInput').value = '';
+            document.getElementById('modalChangePass').classList.remove('hidden');
+        }
+
+        function handlePasswordChange(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('newPasswordInput').value.trim();
+            if(newPass) {
+                authCredentials.USER = newPass;
+                localStorage.setItem('wks_auth', JSON.stringify(authCredentials));
+                alert('Password berhasil diubah!');
+                closeModal('modalChangePass');
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            if(tab === 'active') {
+                document.getElementById('tabActiveBtn').className = "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition";
+                document.getElementById('tabCompletedBtn').className = "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition";
+                document.getElementById('sectionActive').classList.remove('hidden');
+                document.getElementById('sectionCompleted').classList.add('hidden');
+            } else {
+                document.getElementById('tabCompletedBtn').className = "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition";
+                document.getElementById('tabActiveBtn').className = "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition";
+                document.getElementById('sectionCompleted').classList.remove('hidden');
+                document.getElementById('sectionActive').classList.add('hidden');
+            }
+            renderTables();
+        }
+
+        function renderTables() {
+            const keyword = document.getElementById('searchBox').value.toLowerCase();
+            const filterType = document.getElementById('filterType').value;
+            const activeTbody = document.getElementById('activeTableBody');
+            const completedTbody = document.getElementById('completedTableBody');
+            const activeCards = document.getElementById('activeMobileCards');
+            const completedCards = document.getElementById('completedMobileCards');
+            
+            activeTbody.innerHTML = ''; completedTbody.innerHTML = ''; activeCards.innerHTML = ''; completedCards.innerHTML = '';
+            let totalActive = 0, countNew = 0, countRegrind = 0, countDone = 0;
+
+            items.forEach(item => {
+                const stages = stagesDefinition[item.type_grinding];
+                if(item.current_stage_index >= stages.length - 1) countDone++;
+                else { totalActive++; if(item.type_grinding === 'New Grinding') countNew++; else countRegrind++; }
+            });
+
+            document.getElementById('statTotal').innerText = totalActive;
+            document.getElementById('statNew').innerText = countNew;
+            document.getElementById('statRegrind').innerText = countRegrind;
+            document.getElementById('statDone').innerText = countDone;
+
+            const filtered = items.filter(item => (item.item_number.toLowerCase().includes(keyword) || item.item_name.toLowerCase().includes(keyword)) && (filterType === 'all' || item.type_grinding === filterType));
+
+            filtered.forEach(item => {
+                const stages = stagesDefinition[item.type_grinding];
+                const isFinished = item.current_stage_index >= stages.length - 1;
+                const currentStageName = stages[item.current_stage_index] || stages[0];
+                const progressPercentage = Math.round(((item.current_stage_index + 1) / stages.length) * 100);
+
+                if(!isFinished) {
+                    const canUpdate = (currentUser === 'USER') || (currentUser === 'SUPPLIER' && item.supplier_access);
+                    const updateButtonHTML = canUpdate ? `<button onclick="openModalUpdate('${item.id}')" class="bg-slate-900 hover:bg-brandBlue text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">Update Status</button>` : `<span class="text-xs text-slate-400 italic">Dikunci</span>`;
+                    const toggleAccessHTML = currentUser === 'USER' ? `<td class="p-4 text-center"><button onclick="toggleSupplierAccess('${item.id}', ${item.supplier_access})" class="px-3 py-1.5 rounded-xl text-xs font-bold ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${item.supplier_access ? 'OPEN' : 'TUTUP'}</button></td>` : '';
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-4 font-mono font-bold text-brandBlue">${item.item_number}</td>
+                        <td class="p-4 font-medium text-slate-900">${item.item_name}</td>
+                        <td class="p-4 text-slate-600">${item.diameter}</td>
+                        <td class="p-4"><span class="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
+                        <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">${item.type_grinding}</span></td>
+                        <td class="p-4">
+                            <div class="space-y-1">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700">${currentStageName}</span>
+                                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden"><div class="bg-brandBlue h-full" style="width: ${progressPercentage}%"></div></div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center">${updateButtonHTML}</td>
+                        <td class="p-4 text-center"><span class="px-3 py-1 rounded-lg text-xs font-bold ${item.priority === 'Urgent' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'}">${item.priority}</span></td>
+                        <td class="p-4 text-center"><span class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">${item.last_updated_by || 'SYSTEM'}</span></td>
+                        ${toggleAccessHTML}
+                    `;
+                    activeTableBody.appendChild(tr);
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="font-mono font-bold text-brandBlue text-sm">${item.item_number}</span>
+                                <h4 class="font-bold text-slate-900 text-base mt-0.5">${item.item_name}</h4>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-full font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">${item.type_grinding}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+                            <div>Diameter: <strong class="text-slate-900">${item.diameter}</strong></div>
+                            <div>QTY: <strong class="text-blue-700">${item.qty || 1} Pcs</strong></div>
+                            <div>Prioritas: <strong class="${item.priority === 'Urgent' ? 'text-red-600' : 'text-slate-900'}">${item.priority}</strong></div>
+                            <div>Update: <strong class="text-slate-900">${item.last_updated_by || 'SYSTEM'}</strong></div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-bold text-slate-700">
+                                <span>Progress: ${currentStageName}</span>
+                                <span>${progressPercentage}%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-brandBlue h-full" style="width: ${progressPercentage}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                            ${currentUser === 'USER' ? `
+                                <button onclick="toggleSupplierAccess('${item.id}', ${item.supplier_access})" class="text-xs font-bold px-3 py-1.5 rounded-xl ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'}">
+                                    ${item.supplier_access ? 'Supplier: OPEN' : 'Supplier: TUTUP'}
+                                </button>
+                            ` : '<div></div>'}
+                            ${updateButtonHTML}
+                        </div>
+                    `;
+                    activeCards.appendChild(card);
+
+                } else {
+                    const deleteButtonHTML = currentUser === 'USER' ? `<button onclick="deleteItem('${item.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition">Hapus</button>` : '-';
+                    
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-4 font-mono font-bold text-slate-400 line-through">${item.item_number}</td>
+                        <td class="p-4 font-medium text-slate-700">${item.item_name}</td>
+                        <td class="p-4 text-slate-500">${item.diameter}</td>
+                        <td class="p-4"><span class="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
+                        <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-600">${item.type_grinding}</span></td>
+                        <td class="p-4 text-center"><span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700">Finished</span></td>
+                        <td class="p-4 text-center">${deleteButtonHTML}</td>
+                    `;
+                    completedTableBody.appendChild(tr);
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3 opacity-80";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="font-mono font-bold text-slate-400 text-sm line-through">${item.item_number}</span>
+                                <h4 class="font-bold text-slate-700 text-base mt-0.5">${item.item_name}</h4>
+                            </div>
+                            <span class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700">Finished</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100 text-xs text-slate-500">
+                            <span>Diameter: ${item.diameter} | QTY: ${item.qty || 1} Pcs</span>
+                            ${deleteButtonHTML}
+                        </div>
+                    `;
+                    completedCards.appendChild(card);
+                }
+            });
+        }
+
+        function toggleSupplierAccess(id, currentStatus) {
+            db.ref(`wks_tool_items/${id}`).update({ supplier_access: !currentStatus });
+        }
+
+        function openModalUpdate(id) {
+            const item = items.find(i => i.id === id);
+            if(!item) return;
+            document.getElementById('updateItemId').value = item.id;
+            document.getElementById('updateItemInfo').innerText = `${item.item_number} — ${item.item_name} (${item.diameter}) | QTY: ${item.qty || 1} Pcs`;
+            document.getElementById('updatePrioritySelect').value = item.priority;
+            const select = document.getElementById('updateStageSelect');
+            select.innerHTML = '';
+            stagesDefinition[item.type_grinding].forEach((stage, index) => {
+                const opt = document.createElement('option'); opt.value = index; opt.text = stage;
+                if(index === item.current_stage_index) opt.selected = true;
+                select.appendChild(opt);
+            });
+            document.getElementById('modalUpdateProgress').classList.remove('hidden');
+        }
+
+        function handleUpdateProgress(e) {
+            e.preventDefault();
+            const id = document.getElementById('updateItemId').value;
+            const newStage = parseInt(document.getElementById('updateStageSelect').value);
+            const newPriority = document.getElementById('updatePrioritySelect').value;
+            
+            db.ref(`wks_tool_items/${id}`).update({
+                current_stage_index: newStage,
+                priority: newPriority,
+                last_updated_by: currentUser
+            });
+            closeModal('modalUpdateProgress');
+        }
+
+        function deleteItem(id) {
+            if(confirm('Hapus item ini?')) db.ref(`wks_tool_items/${id}`).remove();
+        }
+    </script>
+</body>
+</html>
