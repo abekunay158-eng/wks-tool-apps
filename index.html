@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WKS ToolTrack - Production & Regrind System (Cloud Sync)</title>
+    <title>WKS ToolTrack - Production & Regrind System</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (xlsx) Library -->
@@ -76,10 +76,11 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
                     <span class="font-black text-lg tracking-wider editable-text" data-key="brand_badge">WKS <span class="text-accentRed">TOOL</span></span>
-                    <h2 class="font-bold text-sm sm:text-base text-slate-300 hidden md:block border-l border-slate-700 pl-3 editable-text" data-key="navbar_title">Grinding & Regrind Tracker (Cloud Sync)</h2>
+                    <h2 class="font-bold text-sm sm:text-base text-slate-300 hidden md:block border-l border-slate-700 pl-3 editable-text" data-key="navbar_title">Grinding & Regrind Tracker</h2>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <div class="text-right">
+                    <div class="text-right flex items-center space-x-2">
+                        <span id="syncIndicator" class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" title="Menghubungkan ke Firebase..."></span>
                         <p id="navUserRole" class="text-xs font-bold text-accentRed uppercase tracking-wider"></p>
                     </div>
                 </div>
@@ -276,7 +277,7 @@
                 <!-- SUB-SECTION 1: BUFFER STOK GUDANG -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="bg-slate-900 text-white p-4 font-bold text-sm flex justify-between items-center">
-                        <span>📊 Data Buffer Stok Gudang (Cloud Realtime)</span>
+                        <span>📊 Data Buffer Stok Gudang (Dinamis)</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
@@ -525,24 +526,40 @@
         </div>
     </div>
 
-    <!-- FIREBASE SDK & JAVASCRIPT LOGIC -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-    <script>
-        // ================= FIREBASE CONFIG (YANG ANDA BERIKAN) =================
+    <!-- FIREBASE SDKs (Modular v10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
         const firebaseConfig = {
-  apiKey: "AIzaSyD6A786HqnLBxh7YBOLq2Pc0wUeXknvHyw",
-  authDomain: "wks-apps.firebaseapp.com",
-  databaseURL: "https://wks-apps-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "wks-apps",
-  storageBucket: "wks-apps.firebasestorage.app",
-  messagingSenderId: "516512788704",
-  appId: "1:516512788704:web:fb79df0e4391b8952d2085"
-};
+            apiKey: "AIzaSyD6A786HqnLBxh7YBOLq2Pc0wUeXknvHyw",
+            authDomain: "wks-apps.firebaseapp.com",
+            databaseURL: "https://wks-apps-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "wks-apps",
+            storageBucket: "wks-apps.firebasestorage.app",
+            messagingSenderId: "516512788704",
+            appId: "1:516512788704:web:fb79df0e4391b8952d2085"
+        };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
+        // Make firebase database methods globally accessible
+        window.db = db;
+        window.dbRef = ref;
+        window.dbSet = set;
+        window.dbOnValue = onValue;
+        window.dbUpdate = update;
+        window.dbRemove = remove;
+
+        // Trigger initialization after firebase loaded
+        if (typeof window.initFirebaseSync === 'function') {
+            window.initFirebaseSync();
+        }
+    </script>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
         const stagesDefinition = {
             "New Grinding": [
                 "1. PREPARE MANUAL",
@@ -562,23 +579,109 @@
             ]
         };
 
-        let authCredentials = JSON.parse(localStorage.getItem('wks_auth')) || {
-            USER: "USER",
-            SUPPLIER: "SUPPLIER"
-        };
-
+        let authCredentials = { USER: "USER", SUPPLIER: "SUPPLIER" };
         let masterTables = [];
         let bufferStockItems = [];
         let scrapItems = [];
         let items = [];
+        let customTexts = {};
 
         let currentUser = sessionStorage.getItem('wks_current_user') || null;
         let currentTab = 'active'; 
         let currentMainView = 'progress'; 
         let builderModeActive = false;
-        let customTexts = JSON.parse(localStorage.getItem('wks_custom_texts')) || {};
 
-        // ================= REALTIME LISTENERS (FIREBASE SYNC) =================
+        window.initFirebaseSync = function() {
+            const indicator = document.getElementById('syncIndicator');
+
+            // 1. Sync Auth & Passwords
+            window.dbOnValue(window.dbRef(window.db, 'auth'), (snapshot) => {
+                if(snapshot.exists()) {
+                    authCredentials = snapshot.val();
+                } else {
+                    window.dbSet(window.dbRef(window.db, 'auth'), authCredentials);
+                }
+            });
+
+            // 2. Sync Tool Items
+            window.dbOnValue(window.dbRef(window.db, 'tool_items'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    items = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    const defaultItems = [
+                        { id: "1", item_number: "WKS-2026-001", item_name: "Endmill 4-Flute Carbide", diameter: "Ø10.0", qty: 5, type_grinding: "New Grinding", current_stage_index: 1, priority: "Reguler", supplier_access: false, last_updated_by: "USER" }
+                    ];
+                    window.dbSet(window.dbRef(window.db, 'tool_items'), defaultItems);
+                    items = defaultItems;
+                }
+                indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block";
+                indicator.title = "Terhubung ke Firebase (Real-time)";
+                if(currentUser) renderTables();
+            });
+
+            // 3. Sync Master Tables
+            window.dbOnValue(window.dbRef(window.db, 'master_tables'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    masterTables = Array.isArray(val) ? val : Object.values(val);
+                    masterTables.forEach(t => { if(!t.rows) t.rows = []; else if(!Array.isArray(t.rows)) t.rows = Object.values(t.rows); });
+                } else {
+                    const defaultMasters = [
+                        {
+                            id: "table_1",
+                            tableName: "Katalog Endmill Standard",
+                            rows: [
+                                { id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }
+                            ]
+                        }
+                    ];
+                    window.dbSet(window.dbRef(window.db, 'master_tables'), defaultMasters);
+                    masterTables = defaultMasters;
+                }
+                if(currentUser) renderMasterTablesContainer();
+            });
+
+            // 4. Sync Buffer Stock
+            window.dbOnValue(window.dbRef(window.db, 'buffer_stock'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    bufferStockItems = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    const defaultBuffer = [
+                        { id: "b1", itemNumber: "BUF-2026-001", desc: "Endmill Carbide D10", currentStock: 4, minStock: 2 },
+                        { id: "b2", itemNumber: "BUF-2026-002", desc: "Drill Bit D6.5", currentStock: 1, minStock: 3 }
+                    ];
+                    window.dbSet(window.dbRef(window.db, 'buffer_stock'), defaultBuffer);
+                    bufferStockItems = defaultBuffer;
+                }
+                if(currentUser) renderStockAndScrap();
+            });
+
+            // 5. Sync Scrap Items
+            window.dbOnValue(window.dbRef(window.db, 'scrap_items'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    scrapItems = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    const defaultScrap = [
+                        { id: "s1", itemNumber: "WKS-2026-999", desc: "Roughing Endmill D12", regrindCount: "5 dari 5 Kali", reason: "Max Regrind Reached", date: "2026-11-03", recordedBy: "USER" }
+                    ];
+                    window.dbSet(window.dbRef(window.db, 'scrap_items'), defaultScrap);
+                    scrapItems = defaultScrap;
+                }
+                if(currentUser) renderStockAndScrap();
+            });
+
+            // 6. Sync Custom Texts (Builder Mode)
+            window.dbOnValue(window.dbRef(window.db, 'custom_texts'), (snapshot) => {
+                if(snapshot.exists()) {
+                    customTexts = snapshot.val() || {};
+                    applyCustomTexts();
+                }
+            });
+        };
+
         window.addEventListener('DOMContentLoaded', () => {
             applyCustomTexts();
             if(currentUser) {
@@ -586,34 +689,7 @@
                 document.getElementById('mainApp').classList.remove('hidden');
                 setupUIRoles();
             }
-            initFirebaseListeners();
         });
-
-        function initFirebaseListeners() {
-            db.ref('wks_tool_items').on('value', (snapshot) => {
-                const data = snapshot.val();
-                items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                if(currentUser) renderTables();
-            });
-
-            db.ref('wks_master_tables').on('value', (snapshot) => {
-                const data = snapshot.val();
-                masterTables = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                if(currentUser) renderMasterTablesContainer();
-            });
-
-            db.ref('wks_buffer_stock').on('value', (snapshot) => {
-                const data = snapshot.val();
-                bufferStockItems = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                if(currentUser) renderStockAndScrap();
-            });
-
-            db.ref('wks_scrap_items').on('value', (snapshot) => {
-                const data = snapshot.val();
-                scrapItems = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-                if(currentUser) renderStockAndScrap();
-            });
-        }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -642,7 +718,7 @@
         }
 
         function setupUIRoles() {
-            document.getElementById('navUserRole').innerText = `Role: ${currentUser} (Cloud Sync Active)`;
+            document.getElementById('navUserRole').innerText = `Role: ${currentUser}`;
             if(currentUser === 'USER') {
                 document.getElementById('btnAddItem').classList.remove('hidden');
                 document.getElementById('btnChangePass').classList.remove('hidden');
@@ -686,56 +762,131 @@
             }
         }
 
-        // ================= EXPORT PDF MASTER & STOCK =================
+        // ================= EXPORT PDF MASTER TABLE (PER TABEL) =================
         function exportMasterTablePDF(tableId) {
             const table = masterTables.find(t => t.id === tableId);
-            if(!table || !table.rows) return alert('Tabel master kosong.');
+            if(!table || !table.rows || table.rows.length === 0) {
+                alert('Tabel master kosong, tidak ada data untuk diexport.');
+                return;
+            }
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(15, 23, 42);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
             doc.text(`WKS TOOLTRACK — ${table.tableName.toUpperCase()}`, 14, 18);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100, 116, 139);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
-            
-            const rowsArray = Object.keys(table.rows).map(k => table.rows[k]);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            const currentDate = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            doc.text(`Tanggal Cetak: ${currentDate} | Dicetak Oleh: ${currentUser}`, 14, 25);
+
             const headers = [["Item Number", "Deskripsi Tool", "Tool Life (Pcs)", "Keterangan"]];
-            const data = rowsArray.map(r => [r.itemNumber, r.desc, r.toolLife || '-', r.note || '-']);
-            doc.autoTable({ startY: 32, head: headers, body: data, theme: 'grid' });
+            const data = table.rows.map(r => [
+                r.itemNumber,
+                r.desc,
+                r.toolLife || '-',
+                r.note || '-'
+            ]);
+
+            doc.autoTable({
+                startY: 32,
+                head: headers,
+                body: data,
+                theme: 'grid',
+                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
+                alternateRowStyles: { fillColor: [248, 250, 252] }
+            });
+
             doc.save(`Master_${table.tableName.replace(/\s+/g, '_')}_WKS.pdf`);
         }
 
+        // ================= EXPORT PDF LAPORAN BUFFER STOK & SCRAP =================
         function exportStockAndScrapPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(15, 23, 42);
-            doc.text("WKS TOOLTRACK — LAPORAN BUFFER STOK & SCRAP", 14, 18);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100, 116, 139);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
 
-            doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.text("1. Data Buffer Stok Gudang", 14, 35);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
+            doc.text("WKS TOOLTRACK — LAPORAN BUFFER STOK & SCRAP", 14, 18);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            const currentDate = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            doc.text(`Tanggal Cetak: ${currentDate} | Dicetak Oleh: ${currentUser}`, 14, 25);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.setTextColor(15, 23, 42);
+            doc.text("1. Data Buffer Stok Gudang", 14, 35);
+
             const bufferHeaders = [["Item Number", "Deskripsi Tool", "Stok Saat Ini", "Min Buffer", "Status Stok"]];
-            const bufferData = bufferStockItems.map(b => [b.itemNumber, b.desc, `${b.currentStock} Pcs`, `${b.minStock} Pcs`, b.currentStock <= b.minStock ? "MENIPIS" : "AMAN"]);
-            doc.autoTable({ startY: 39, head: bufferHeaders, body: bufferData, theme: 'grid' });
+            const bufferData = bufferStockItems.map(b => [
+                b.itemNumber,
+                b.desc,
+                `${b.currentStock} Pcs`,
+                `${b.minStock} Pcs`,
+                b.currentStock <= b.minStock ? "MENIPIS (RESTOCK)" : "AMAN"
+            ]);
+
+            doc.autoTable({
+                startY: 39,
+                head: bufferHeaders,
+                body: bufferData,
+                theme: 'grid',
+                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
+                alternateRowStyles: { fillColor: [248, 250, 252] }
+            });
 
             const finalY = doc.lastAutoTable.finalY + 12;
-            doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(185, 28, 28);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.setTextColor(185, 28, 28);
             doc.text("2. Daftar Tool Scrap / Afkir", 14, finalY);
-            const scrapHeaders = [["Item Number", "Nama / Deskripsi", "Regrind", "Alasan", "Tanggal"]];
-            const scrapData = scrapItems.map(s => [s.itemNumber, s.desc, s.regrindCount, s.reason, s.date]);
-            doc.autoTable({ startY: finalY + 4, head: scrapHeaders, body: scrapData, theme: 'grid' });
+
+            const scrapHeaders = [["Item Number", "Nama / Deskripsi Tool", "Riwayat Regrind", "Alasan Scrap", "Tanggal"]];
+            const scrapData = scrapItems.map(s => [
+                s.itemNumber,
+                s.desc,
+                s.regrindCount,
+                s.reason,
+                s.date
+            ]);
+
+            doc.autoTable({
+                startY: finalY + 4,
+                head: scrapHeaders,
+                body: scrapData,
+                theme: 'grid',
+                headStyles: { fillColor: [185, 28, 28], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
+                alternateRowStyles: { fillColor: [254, 242, 242] }
+            });
+
             doc.save(`Laporan_Buffer_Stok_Scrap_WKS_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
-        // ================= BUFFER STOCK & SCRAP ACTIONS =================
+        // ================= RENDER BUFFER STOK & SCRAP =================
         function renderStockAndScrap() {
             const bufferTbody = document.getElementById('bufferStockTableBody');
             bufferTbody.innerHTML = '';
+
             if(bufferStockItems.length === 0) {
                 bufferTbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada item buffer stok.</td></tr>`;
             } else {
                 bufferStockItems.forEach(b => {
                     const isLow = b.currentStock <= b.minStock;
-                    const statusBadge = isLow ? `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">⚠️ Stok Menipis</span>` : `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Aman</span>`;
+                    const statusBadge = isLow 
+                        ? `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">⚠️ Stok Menipis</span>` 
+                        : `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Aman</span>`;
+
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                     tr.innerHTML = `
@@ -758,8 +909,9 @@
 
             const scrapTbody = document.getElementById('scrapTableBody');
             scrapTbody.innerHTML = '';
+
             if(scrapItems.length === 0) {
-                scrapTbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada tool scrap.</td></tr>`;
+                scrapTbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada tool yang masuk daftar scrap.</td></tr>`;
             } else {
                 scrapItems.forEach(s => {
                     const tr = document.createElement('tr');
@@ -770,7 +922,9 @@
                         <td class="p-4 text-center"><span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-lg font-bold">${s.regrindCount}</span></td>
                         <td class="p-4 text-slate-700 font-medium">${s.reason}</td>
                         <td class="p-4 text-center text-xs text-slate-500">${s.date} (${s.recordedBy})</td>
-                        <td class="p-4 text-center">${currentUser === 'USER' ? `<button onclick="deleteScrap('${s.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition">Hapus</button>` : '-'}</td>
+                        <td class="p-4 text-center">
+                            ${currentUser === 'USER' ? `<button onclick="deleteScrap('${s.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition">Hapus</button>` : '-'}
+                        </td>
                     `;
                     scrapTbody.appendChild(tr);
                 });
@@ -780,31 +934,38 @@
         function openModalAddBufferStock() {
             document.getElementById('bufferItemNumber').value = '';
             document.getElementById('bufferDesc').value = '';
+            document.getElementById('bufferCurrentStock').value = '5';
+            document.getElementById('bufferMinStock').value = '2';
             document.getElementById('modalAddBufferStock').classList.remove('hidden');
         }
 
         function handleSaveBufferStock(e) {
             e.preventDefault();
             const newItem = {
+                id: 'buf_' + Date.now(),
                 itemNumber: document.getElementById('bufferItemNumber').value.trim(),
                 desc: document.getElementById('bufferDesc').value.trim(),
                 currentStock: parseInt(document.getElementById('bufferCurrentStock').value) || 0,
                 minStock: parseInt(document.getElementById('bufferMinStock').value) || 0
             };
-            db.ref('wks_buffer_stock').push(newItem);
+            bufferStockItems.unshift(newItem);
+            window.dbSet(window.dbRef(window.db, 'buffer_stock'), bufferStockItems);
             closeModal('modalAddBufferStock');
         }
 
         function adjustBufferStock(id, amount) {
             const item = bufferStockItems.find(b => b.id === id);
             if(item) {
-                const newStock = Math.max(0, item.currentStock + amount);
-                db.ref(`wks_buffer_stock/${id}`).update({ currentStock: newStock });
+                item.currentStock = Math.max(0, item.currentStock + amount);
+                window.dbSet(window.dbRef(window.db, 'buffer_stock'), bufferStockItems);
             }
         }
 
         function deleteBufferStock(id) {
-            if(confirm('Hapus item buffer stok ini?')) db.ref(`wks_buffer_stock/${id}`).remove();
+            if(confirm('Hapus item buffer stok ini?')) {
+                bufferStockItems = bufferStockItems.filter(b => b.id !== id);
+                window.dbSet(window.dbRef(window.db, 'buffer_stock'), bufferStockItems);
+            }
         }
 
         function openModalAddScrap() {
@@ -817,6 +978,7 @@
         function handleSaveScrap(e) {
             e.preventDefault();
             const newItem = {
+                id: 'scrap_' + Date.now(),
                 itemNumber: document.getElementById('scrapItemNumber').value.trim(),
                 desc: document.getElementById('scrapDesc').value.trim(),
                 regrindCount: document.getElementById('scrapRegrindCount').value.trim(),
@@ -824,19 +986,24 @@
                 date: new Date().toISOString().split('T')[0],
                 recordedBy: currentUser
             };
-            db.ref('wks_scrap_items').push(newItem);
+            scrapItems.unshift(newItem);
+            window.dbSet(window.dbRef(window.db, 'scrap_items'), scrapItems);
             closeModal('modalAddScrap');
         }
 
         function deleteScrap(id) {
-            if(confirm('Hapus catatan scrap ini?')) db.ref(`wks_scrap_items/${id}`).remove();
+            if(confirm('Hapus catatan scrap ini?')) {
+                scrapItems = scrapItems.filter(s => s.id !== id);
+                window.dbSet(window.dbRef(window.db, 'scrap_items'), scrapItems);
+            }
         }
 
-        // ================= MASTER TABLES ACTIONS =================
+        // ================= RENDERING BANYAK TABEL MASTER =================
         function renderMasterTablesContainer() {
             const container = document.getElementById('masterTablesContainer');
             container.innerHTML = '';
-            if(masterTables.length === 0) {
+
+            if(!masterTables || masterTables.length === 0) {
                 container.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200">Belum ada tabel master.</div>`;
                 return;
             }
@@ -846,13 +1013,10 @@
                 tableDiv.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
                 
                 let rowsHTML = '';
-                const rowsObj = table.rows || {};
-                const rowKeys = Object.keys(rowsObj);
-                if(rowKeys.length === 0) {
+                if(!table.rows || table.rows.length === 0) {
                     rowsHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada data baris.</td></tr>`;
                 } else {
-                    rowKeys.forEach((rKey) => {
-                        const row = rowsObj[rKey];
+                    table.rows.forEach((row) => {
                         rowsHTML += `
                             <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                                 <td class="p-4 font-mono font-bold text-brandBlue">${row.itemNumber}</td>
@@ -861,7 +1025,7 @@
                                 <td class="p-4 text-slate-600">${row.note || '-'}</td>
                                 ${currentUser === 'USER' ? `
                                     <td class="p-4 text-center">
-                                        <button onclick="deleteMasterRow('${table.id}', '${rKey}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm">
+                                        <button onclick="deleteMasterRow('${table.id}', '${row.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm">
                                             <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </td>
@@ -877,7 +1041,13 @@
                         <div class="flex flex-wrap items-center gap-2">
                             ${currentUser === 'USER' ? `
                                 <button onclick="openModalAddMasterRow('${table.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm">+ Tambah Baris</button>
-                                <button onclick="exportMasterTablePDF('${table.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm">📥 Export PDF</button>
+                                <button onclick="downloadTableTemplate('${table.tableName}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm">Template (WKS)</button>
+                                <button onclick="exportMasterTablePDF('${table.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1">
+                                    <span>📥 Export PDF</span>
+                                </button>
+                                <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                                    Import <input type="file" accept=".xlsx, .xls, .csv" onchange="importSingleTable(event, '${table.id}')" class="hidden">
+                                </label>
                                 <button onclick="deleteMasterTable('${table.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition">Hapus</button>
                             ` : ''}
                         </div>
@@ -909,12 +1079,16 @@
         function handleCreateMasterTable(e) {
             e.preventDefault();
             const name = document.getElementById('inputMasterTableName').value.trim();
-            db.ref('wks_master_tables').push({ tableName: name, rows: {} });
+            masterTables.push({ id: 'table_' + Date.now(), tableName: name, rows: [] });
+            window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
             closeModal('modalAddMasterTable');
         }
 
         function deleteMasterTable(tableId) {
-            if(confirm('Hapus seluruh tabel master ini?')) db.ref(`wks_master_tables/${tableId}`).remove();
+            if(confirm('Hapus seluruh tabel master ini?')) {
+                masterTables = masterTables.filter(t => t.id !== tableId);
+                window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
+            }
         }
 
         function openModalAddMasterRow(tableId) {
@@ -929,21 +1103,69 @@
         function handleSaveMasterRow(e) {
             e.preventDefault();
             const tableId = document.getElementById('activeMasterTableId').value;
-            const newRow = {
-                itemNumber: document.getElementById('rowItemNumber').value.trim(),
-                desc: document.getElementById('rowDesc').value.trim(),
-                toolLife: document.getElementById('rowToolLife').value.trim(),
-                note: document.getElementById('rowNote').value.trim()
+            const table = masterTables.find(t => t.id === tableId);
+            if(table) {
+                if(!table.rows) table.rows = [];
+                table.rows.push({
+                    id: 'r_' + Date.now(),
+                    itemNumber: document.getElementById('rowItemNumber').value.trim(),
+                    desc: document.getElementById('rowDesc').value.trim(),
+                    toolLife: document.getElementById('rowToolLife').value.trim(),
+                    note: document.getElementById('rowNote').value.trim()
+                });
+                window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
+                closeModal('modalAddMasterRow');
+            }
+        }
+
+        function deleteMasterRow(tableId, rowId) {
+            const table = masterTables.find(t => t.id === tableId);
+            if(table && table.rows) {
+                table.rows = table.rows.filter(r => r.id !== rowId);
+                window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
+            }
+        }
+
+        function downloadTableTemplate(tableName) {
+            let wb = XLSX.utils.book_new();
+            let templateData = [
+                { "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10", "Tool Life": "500 Pcs", "Keterangan": "Contoh Katalog WKS" }
+            ];
+            let ws = XLSX.utils.json_to_sheet(templateData);
+            XLSX.utils.book_append_sheet(wb, ws, "Template_WKS");
+            XLSX.writeFile(wb, `Template_WKS_${tableName.replace(/\s+/g, '_')}.xlsx`);
+        }
+
+        function importSingleTable(e, tableId) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    const table = masterTables.find(t => t.id === tableId);
+                    if(table) {
+                        if(!table.rows) table.rows = [];
+                        json.forEach((row, idx) => {
+                            table.rows.push({
+                                id: 'imp_' + Date.now() + '_' + idx,
+                                itemNumber: row["Item Number"] || "-",
+                                desc: row["Deskripsi Tool"] || "-",
+                                toolLife: row["Tool Life"] || "-",
+                                note: row["Keterangan"] || ""
+                            });
+                        });
+                        window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
+                        alert('Berhasil import data!');
+                    }
+                } catch(err) { alert('Gagal membaca file Excel.'); }
+                e.target.value = '';
             };
-            db.ref(`wks_master_tables/${tableId}/rows`).push(newRow);
-            closeModal('modalAddMasterRow');
+            reader.readAsArrayBuffer(file);
         }
 
-        function deleteMasterRow(tableId, rowKey) {
-            if(confirm('Hapus baris ini?')) db.ref(`wks_master_tables/${tableId}/rows/${rowKey}`).remove();
-        }
-
-        // ================= PROGRESS TRACKING ACTIONS =================
         function openModalAddItem() {
             document.getElementById('newItemName').value = '';
             document.getElementById('newItemNumber').value = '';
@@ -959,6 +1181,7 @@
         function handleAddItem(e) {
             e.preventDefault();
             const newItem = {
+                id: Date.now().toString(),
                 item_number: document.getElementById('newItemNumber').value.trim(),
                 item_name: document.getElementById('newItemName').value.trim(),
                 diameter: document.getElementById('newItemDiameter').value.trim(),
@@ -969,7 +1192,8 @@
                 supplier_access: false,
                 last_updated_by: currentUser
             };
-            db.ref('wks_tool_items').push(newItem);
+            items.unshift(newItem);
+            window.dbSet(window.dbRef(window.db, 'tool_items'), items);
             closeModal('modalAddItem');
         }
 
@@ -988,7 +1212,10 @@
 
         function saveCustomText(e) {
             const key = e.target.getAttribute('data-key');
-            if(key) { customTexts[key] = e.target.innerText.trim(); localStorage.setItem('wks_custom_texts', JSON.stringify(customTexts)); }
+            if(key) { 
+                customTexts[key] = e.target.innerText.trim(); 
+                window.dbSet(window.dbRef(window.db, 'custom_texts'), customTexts);
+            }
         }
 
         function applyCustomTexts() {
@@ -1008,7 +1235,7 @@
             const newPass = document.getElementById('newPasswordInput').value.trim();
             if(newPass) {
                 authCredentials.USER = newPass;
-                localStorage.setItem('wks_auth', JSON.stringify(authCredentials));
+                window.dbSet(window.dbRef(window.db, 'auth'), authCredentials);
                 alert('Password berhasil diubah!');
                 closeModal('modalChangePass');
             }
@@ -1053,6 +1280,7 @@
             document.getElementById('statDone').innerText = countDone;
 
             const filtered = items.filter(item => (item.item_number.toLowerCase().includes(keyword) || item.item_name.toLowerCase().includes(keyword)) && (filterType === 'all' || item.type_grinding === filterType));
+            let activeCount = 0, completedCount = 0;
 
             filtered.forEach(item => {
                 const stages = stagesDefinition[item.type_grinding];
@@ -1061,9 +1289,10 @@
                 const progressPercentage = Math.round(((item.current_stage_index + 1) / stages.length) * 100);
 
                 if(!isFinished) {
+                    activeCount++;
                     const canUpdate = (currentUser === 'USER') || (currentUser === 'SUPPLIER' && item.supplier_access);
                     const updateButtonHTML = canUpdate ? `<button onclick="openModalUpdate('${item.id}')" class="bg-slate-900 hover:bg-brandBlue text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">Update Status</button>` : `<span class="text-xs text-slate-400 italic">Dikunci</span>`;
-                    const toggleAccessHTML = currentUser === 'USER' ? `<td class="p-4 text-center"><button onclick="toggleSupplierAccess('${item.id}', ${item.supplier_access})" class="px-3 py-1.5 rounded-xl text-xs font-bold ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${item.supplier_access ? 'OPEN' : 'TUTUP'}</button></td>` : '';
+                    const toggleAccessHTML = currentUser === 'USER' ? `<td class="p-4 text-center"><button onclick="toggleSupplierAccess('${item.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${item.supplier_access ? 'OPEN' : 'TUTUP'}</button></td>` : '';
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
@@ -1113,7 +1342,7 @@
                         </div>
                         <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                             ${currentUser === 'USER' ? `
-                                <button onclick="toggleSupplierAccess('${item.id}', ${item.supplier_access})" class="text-xs font-bold px-3 py-1.5 rounded-xl ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'}">
+                                <button onclick="toggleSupplierAccess('${item.id}')" class="text-xs font-bold px-3 py-1.5 rounded-xl ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'}">
                                     ${item.supplier_access ? 'Supplier: OPEN' : 'Supplier: TUTUP'}
                                 </button>
                             ` : '<div></div>'}
@@ -1123,6 +1352,7 @@
                     activeCards.appendChild(card);
 
                 } else {
+                    completedCount++;
                     const deleteButtonHTML = currentUser === 'USER' ? `<button onclick="deleteItem('${item.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition">Hapus</button>` : '-';
                     
                     const tr = document.createElement('tr');
@@ -1158,8 +1388,12 @@
             });
         }
 
-        function toggleSupplierAccess(id, currentStatus) {
-            db.ref(`wks_tool_items/${id}`).update({ supplier_access: !currentStatus });
+        function toggleSupplierAccess(id) {
+            const item = items.find(i => i.id === id);
+            if(item) { 
+                item.supplier_access = !item.supplier_access; 
+                window.dbSet(window.dbRef(window.db, 'tool_items'), items);
+            }
         }
 
         function openModalUpdate(id) {
@@ -1180,20 +1414,21 @@
 
         function handleUpdateProgress(e) {
             e.preventDefault();
-            const id = document.getElementById('updateItemId').value;
-            const newStage = parseInt(document.getElementById('updateStageSelect').value);
-            const newPriority = document.getElementById('updatePrioritySelect').value;
-            
-            db.ref(`wks_tool_items/${id}`).update({
-                current_stage_index: newStage,
-                priority: newPriority,
-                last_updated_by: currentUser
-            });
+            const item = items.find(i => i.id === document.getElementById('updateItemId').value);
+            if(item) {
+                item.current_stage_index = parseInt(document.getElementById('updateStageSelect').value);
+                item.priority = document.getElementById('updatePrioritySelect').value;
+                item.last_updated_by = currentUser;
+                window.dbSet(window.dbRef(window.db, 'tool_items'), items);
+            }
             closeModal('modalUpdateProgress');
         }
 
         function deleteItem(id) {
-            if(confirm('Hapus item ini?')) db.ref(`wks_tool_items/${id}`).remove();
+            if(confirm('Hapus item ini?')) {
+                items = items.filter(i => i.id !== id);
+                window.dbSet(window.dbRef(window.db, 'tool_items'), items);
+            }
         }
     </script>
 </body>
