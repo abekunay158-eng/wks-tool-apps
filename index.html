@@ -104,7 +104,6 @@
             <span class="inline-block px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 tracking-wider uppercase editable-text" data-key="login_badge">Sistem Manajemen Tool</span>
             <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">WKS <span class="text-accentRed">Tool Apps</span></h1>
             
-            <!-- Info Kredensial 1 Baris Panjang -->
             <div class="bg-slate-900/40 border border-slate-800 text-slate-400 text-xs px-4 py-2.5 rounded-xl w-full mb-8 backdrop-blur-sm whitespace-nowrap overflow-x-auto">
                 <span class="text-slate-300 font-bold">Kredensial:</span> User: <code class="text-indigo-300 font-bold">USER</code> / <code class="text-indigo-300 font-bold">USER</code> &nbsp;|&nbsp; Supplier: <code class="text-indigo-300 font-bold">SUPPLIER</code> / <code class="text-indigo-300 font-bold">SUPPLIER</code>
             </div>
@@ -118,18 +117,12 @@
             </button>
         </div>
 
-        <!-- Popup Modal Overlay -->
         <div id="loginModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-            
-            <!-- Main Container Card (Landscape Split-Screen) inside Popup -->
             <div class="modal-container glass-card w-full max-w-5xl rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-2 relative shadow-2xl text-left">
-                
-                <!-- Tombol Close (X) -->
                 <button onclick="togglePopup(false)" class="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
 
-                <!-- Left Side: Login Form -->
                 <div class="p-8 sm:p-12 md:p-16 flex flex-col justify-center relative overflow-hidden">
                     <div class="absolute -top-24 -left-24 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -139,7 +132,6 @@
                     </div>
                     
                     <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-                        <!-- Username Input -->
                         <div class="space-y-1.5">
                             <div class="relative group">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-indigo-400 transition-colors">
@@ -155,7 +147,6 @@
                             </div>
                         </div>
 
-                        <!-- Password Input -->
                         <div class="space-y-1.5">
                             <div class="relative group">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-indigo-400 transition-colors">
@@ -174,7 +165,6 @@
                             </div>
                         </div>
 
-                        <!-- Remember Me Row -->
                         <div class="flex items-center justify-between text-xs pt-1">
                             <label class="flex items-center space-x-2 cursor-pointer text-slate-400 hover:text-slate-300">
                                 <input type="checkbox" class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900 w-4 h-4">
@@ -182,7 +172,6 @@
                             </label>
                         </div>
 
-                        <!-- Login Button -->
                         <button 
                             type="submit" 
                             id="loginBtn"
@@ -194,10 +183,8 @@
                     </form>
                 </div>
 
-                <!-- Glass Split Divider Effect -->
                 <div class="hidden md:block absolute left-1/2 top-8 bottom-8 w-[2px] glass-divider transform -translate-x-1/2 pointer-events-none z-20"></div>
 
-                <!-- Right Side: Welcome Banner -->
                 <div class="p-8 sm:p-12 md:p-16 flex flex-col justify-center items-start bg-gradient-to-br from-slate-900/60 via-slate-900/40 to-slate-950/80 backdrop-blur-lg relative overflow-hidden">
                     <div class="absolute -bottom-20 -right-20 w-60 h-60 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -211,7 +198,6 @@
                         </p>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -219,7 +205,6 @@
     <!-- MAIN APPLICATION -->
     <div id="mainApp" class="hidden flex-1 flex flex-col bg-slate-100 text-slate-800">
         
-        <!-- TOP HEADER WITH SIDEBAR TOGGLE -->
         <header class="bg-darkSlate text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
@@ -238,7 +223,6 @@
             </div>
         </header>
 
-        <!-- SIDEBAR NAVIGATION (DRAWER) -->
         <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden transition-opacity"></div>
         <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-darkSlate text-white z-50 shadow-2xl flex flex-col justify-between p-6 transform -translate-x-full sidebar-transition border-r border-slate-800">
             <div class="space-y-6">
@@ -289,6 +273,32 @@
             
             <!-- VIEW 1: PROGRESS TRACKING -->
             <div id="viewProgress" class="space-y-6">
+
+                <!-- 🌟 KOLOM KHUSUS REPAIR DI BAGIAN ATAS -->
+                <div class="bg-white rounded-2xl shadow-sm border border-amber-300/80 overflow-hidden">
+                    <div class="bg-amber-600 text-white p-4 flex justify-between items-center text-sm font-bold">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>⚠️ Kolom Khusus Tool Repair (Perlu Tindakan Lanjutan)</span>
+                        </div>
+                        <span id="repairCountBadge" class="bg-white/20 px-2.5 py-0.5 rounded-full text-xs font-bold">0 Item</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-amber-50/50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th class="p-4 font-bold">Item Number</th>
+                                    <th class="p-4 font-bold">Detail Barang</th>
+                                    <th class="p-4 font-bold">Quantity</th>
+                                    <th class="p-4 font-bold">Keterangan (Manual)</th>
+                                    <th class="p-4 text-center font-bold">Hapus</th>
+                                </tr>
+                            </thead>
+                            <tbody id="repairSpecialTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- METRIC CARDS -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
@@ -373,10 +383,10 @@
                                         <th class="p-4 font-bold">Item Number</th>
                                         <th class="p-4 font-bold">Detail Barang</th>
                                         <th class="p-4 font-bold">Diameter</th>
-                                        <th class="p-4 font-bold">QTY</th>
+                                        <th class="p-4 font-bold">QTY Selesai</th>
                                         <th class="p-4 font-bold">Type Grinding</th>
                                         <th class="p-4 text-center font-bold">Status</th>
-                                        <th class="p-4 text-center font-bold">Hapus</th>
+                                        <th class="p-4 text-center font-bold">Aksi / Repair</th>
                                     </tr>
                                 </thead>
                                 <tbody id="completedTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
@@ -425,7 +435,6 @@
                     </div>
                 </div>
 
-                <!-- SUB-SECTION 1: BUFFER STOK GUDANG -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="bg-slate-900 text-white p-4 font-bold text-sm flex justify-between items-center">
                         <span>📊 Data Buffer Stok Gudang (Dinamis)</span>
@@ -447,7 +456,6 @@
                     </div>
                 </div>
 
-                <!-- SUB-SECTION 2: DAFTAR SCRAP / TOOL AFKIR -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="bg-red-900 text-white p-4 flex justify-between items-center text-sm font-bold">
                         <span>🗑️ Daftar Tool Scrap / Afkir (Max Regrind / Rusak Patah)</span>
@@ -660,6 +668,26 @@
         </div>
     </div>
 
+    <!-- MODAL: REPAIR COMPLETED ITEM -->
+    <div id="modalRepairItem" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left">
+            <h3 class="text-lg font-bold text-slate-900 mb-1">Input Tool Repair dari Hasil Selesai</h3>
+            <p id="repairItemInfo" class="text-xs text-slate-500 mb-4 font-mono font-bold bg-slate-100 p-2 rounded-lg"></p>
+            <form onsubmit="handleRepairCompletedItem(event)" class="space-y-4">
+                <input type="hidden" id="repairItemId">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Jumlah (QTY) yang Direpair</label>
+                    <input type="number" id="repairQtyInput" required min="1" class="w-full border border-slate-300 rounded-xl p-3 text-sm font-bold bg-slate-50/50 focus:outline-none">
+                    <p class="text-[11px] text-slate-500 mt-1">QTY ini akan dikurangi dari daftar selesai dan masuk ke kolom khusus repair.</p>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalRepairItem')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition cursor-pointer">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-bold hover:bg-amber-700 transition shadow-md shadow-amber-500/20 cursor-pointer">Masukkan ke Repair</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL: CHANGE PASSWORD -->
     <div id="modalChangePass" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left">
@@ -733,6 +761,7 @@
         let bufferStockItems = [];
         let scrapItems = [];
         let items = [];
+        let repairSpecialItems = []; // Data khusus untuk Kolom Repair di Atas
         let customTexts = {};
 
         let currentUser = sessionStorage.getItem('wks_current_user') || null;
@@ -765,6 +794,17 @@
                 indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block";
                 indicator.title = "Terhubung ke Firebase (Real-time)";
                 if(currentUser) renderTables();
+            });
+
+            // Sinkronisasi data repair khusus
+            window.dbOnValue(window.dbRef(window.db, 'repair_special_items'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    repairSpecialItems = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    repairSpecialItems = [];
+                }
+                if(currentUser) renderSpecialRepairTable();
             });
 
             window.dbOnValue(window.dbRef(window.db, 'master_tables'), (snapshot) => {
@@ -834,7 +874,6 @@
             }
         });
 
-        // Popup Modal Control Functions
         function togglePopup(open) {
             const modal = document.getElementById('loginModal');
             if (open) {
@@ -916,6 +955,7 @@
                         document.getElementById('loginScreen').classList.add('hidden');
                         document.getElementById('mainApp').classList.remove('hidden');
                         renderTables();
+                        renderSpecialRepairTable();
                         renderMasterTablesContainer();
                         renderStockAndScrap();
                     }, 1000);
@@ -961,6 +1001,7 @@
             if(view === 'progress') {
                 document.getElementById('viewProgress').classList.remove('hidden');
                 renderTables();
+                renderSpecialRepairTable();
             } else if(view === 'master') {
                 document.getElementById('viewMaster').classList.remove('hidden');
                 renderMasterTablesContainer();
@@ -1478,8 +1519,8 @@
 
             items.forEach(item => {
                 const stages = stagesDefinition[item.type_grinding];
-                if(item.current_stage_index >= stages.length - 1) countDone++;
-                else { totalActive++; if(item.type_grinding === 'New Grinding') countNew++; else countRegrind++; }
+                if(item.current_stage_index >= stages.length - 1) countDone += (item.qty || 1);
+                else { totalActive += (item.qty || 1); if(item.type_grinding === 'New Grinding') countNew += (item.qty || 1); else countRegrind += (item.qty || 1); }
             });
 
             document.getElementById('statTotal').innerText = totalActive;
@@ -1562,38 +1603,95 @@
                 } else {
                     completedCount++;
                     const deleteButtonHTML = currentUser === 'USER' ? `<button onclick="deleteItem('${item.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>` : '-';
+                    const repairButtonHTML = `<button onclick="openModalRepair('${item.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-wrench text-[10px]"></i><span>Repair</span></button>`;
                     
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                     tr.innerHTML = `
-                        <td class="p-4 font-mono font-bold text-slate-400 line-through">${item.item_number}</td>
-                        <td class="p-4 font-medium text-slate-700">${item.item_name}</td>
-                        <td class="p-4 text-slate-500">${item.diameter}</td>
-                        <td class="p-4"><span class="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
-                        <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-600">${item.type_grinding}</span></td>
+                        <td class="p-4 font-mono font-bold text-slate-600">${item.item_number}</td>
+                        <td class="p-4 font-medium text-slate-900">${item.item_name}</td>
+                        <td class="p-4 text-slate-600">${item.diameter}</td>
+                        <td class="p-4"><span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
+                        <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-700">${item.type_grinding}</span></td>
                         <td class="p-4 text-center"><span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700">Finished</span></td>
-                        <td class="p-4 text-center">${deleteButtonHTML}</td>
+                        <td class="p-4 text-center">
+                            <div class="inline-flex items-center space-x-2">
+                                ${repairButtonHTML}
+                                ${deleteButtonHTML}
+                            </div>
+                        </td>
                     `;
                     completedTableBody.appendChild(tr);
 
                     const card = document.createElement('div');
-                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3 opacity-80";
+                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3";
                     card.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
-                                <span class="font-mono font-bold text-slate-400 text-sm line-through">${item.item_number}</span>
-                                <h4 class="font-bold text-slate-700 text-base mt-0.5">${item.item_name}</h4>
+                                <span class="font-mono font-bold text-slate-600 text-sm">${item.item_number}</span>
+                                <h4 class="font-bold text-slate-900 text-base mt-0.5">${item.item_name}</h4>
                             </div>
                             <span class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700">Finished</span>
                         </div>
-                        <div class="flex justify-between items-center pt-2 border-t border-slate-100 text-xs text-slate-500">
-                            <span>Diameter: ${item.diameter} | QTY: ${item.qty || 1} Pcs</span>
+                        <div class="flex justify-between items-center text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+                            <span>Diameter: <strong>${item.diameter}</strong></span>
+                            <span>QTY Selesai: <strong class="text-emerald-700">${item.qty || 1} Pcs</strong></span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                            ${repairButtonHTML}
                             ${deleteButtonHTML}
                         </div>
                     `;
                     completedCards.appendChild(card);
                 }
             });
+        }
+
+        // ================= RENDERING KOLOM KHUSUS REPAIR DI ATAS =================
+        function renderSpecialRepairTable() {
+            const tbody = document.getElementById('repairSpecialTableBody');
+            const badge = document.getElementById('repairCountBadge');
+            tbody.innerHTML = '';
+            badge.innerText = `${repairSpecialItems.length} Item`;
+
+            if(repairSpecialItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada tool yang masuk ke kolom khusus repair.</td></tr>`;
+                return;
+            }
+
+            repairSpecialItems.forEach((rep) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-amber-50/30 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-bold text-amber-700">${rep.itemNumber}</td>
+                    <td class="p-4 font-medium text-slate-900">${rep.detailBarang}</td>
+                    <td class="p-4 font-bold text-slate-800">${rep.qty} Pcs</td>
+                    <td class="p-4">
+                        <input type="text" value="${rep.keterangan || ''}" onblur="updateRepairNote('${rep.id}', this.value)" placeholder="Ketik keterangan manual..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium">
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteSpecialRepair('${rep.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
+                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateRepairNote(id, note) {
+            const item = repairSpecialItems.find(r => r.id === id);
+            if(item) {
+                item.keterangan = note;
+                window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems);
+            }
+        }
+
+        function deleteSpecialRepair(id) {
+            if(confirm('Hapus item dari kolom khusus repair ini?')) {
+                repairSpecialItems = repairSpecialItems.filter(r => r.id !== id);
+                window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems);
+            }
         }
 
         function toggleSupplierAccess(id) {
@@ -1630,6 +1728,50 @@
                 window.dbSet(window.dbRef(window.db, 'tool_items'), items);
             }
             closeModal('modalUpdateProgress');
+        }
+
+        // ================= REPAIR TRIGGER FROM COMPLETED LIST =================
+        function openModalRepair(id) {
+            const item = items.find(i => i.id === id);
+            if(!item) return;
+            document.getElementById('repairItemId').value = item.id;
+            document.getElementById('repairItemInfo').innerText = `${item.item_number} — ${item.item_name} (${item.diameter}) | QTY Selesai: ${item.qty || 1} Pcs`;
+            document.getElementById('repairQtyInput').value = 1;
+            document.getElementById('repairQtyInput').max = item.qty || 1;
+            document.getElementById('modalRepairItem').classList.remove('hidden');
+        }
+
+        function handleRepairCompletedItem(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('repairItemId').value;
+            const repairQty = parseInt(document.getElementById('repairQtyInput').value) || 1;
+
+            const parentItem = items.find(i => i.id === itemId);
+            if(!parentItem) return;
+
+            if(repairQty > (parentItem.qty || 1)) {
+                alert('Jumlah QTY repair tidak boleh melebihi QTY selesai yang ada!');
+                return;
+            }
+
+            // 1. Kurangi QTY item original yang selesai (atau hapus jika qty habis)
+            parentItem.qty = (parentItem.qty || 1) - repairQty;
+
+            // 2. Masukkan ke data khusus repair di atas secara otomatis (Item number, detail barang, quantity terisi)
+            const newRepairEntry = {
+                id: 'rep_' + Date.now(),
+                itemNumber: parentItem.item_number,
+                detailBarang: `${parentItem.item_name} (${parentItem.diameter})`,
+                qty: repairQty,
+                keterangan: '' // Diisi manual oleh user di kolom tabel
+            };
+            repairSpecialItems.unshift(newRepairEntry);
+
+            window.dbSet(window.dbRef(window.db, 'tool_items'), items);
+            window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems);
+            
+            closeModal('modalRepairItem');
+            showToast('Repair Berhasil', `${repairQty} Pcs dipindahkan ke Kolom Khusus Repair di atas!`, 'success');
         }
 
         function deleteItem(id) {
