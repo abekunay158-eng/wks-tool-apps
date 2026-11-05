@@ -214,7 +214,6 @@
                     <h2 class="font-bold text-sm sm:text-base text-slate-300 hidden md:block border-l border-slate-700 pl-3 editable-text" data-key="navbar_title">Grinding & Regrind Tracker</h2>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <!-- ICON KOIN / COST REDUCTION DI HEADER TRACKING PROGRESS -->
                     <button onclick="switchMainView('costReduction')" class="flex items-center space-x-1.5 bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-md cursor-pointer" title="Cost Reduction RealTime">
                         <i class="fa-solid fa-coins"></i>
                         <span class="hidden sm:inline">Cost Reduction</span>
@@ -245,7 +244,6 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         <span>📈 Tracking Progress</span>
                     </button>
-                    <!-- MENU BARU COST REDUCTION DI SIDEBAR -->
                     <button id="btnNavCR" onclick="switchMainView('costReduction'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition cursor-pointer">
                         <i class="fa-solid fa-coins text-lg"></i>
                         <span>🪙 Cost Reduction RealTime</span>
@@ -283,7 +281,6 @@
             <!-- VIEW 1: PROGRESS TRACKING -->
             <div id="viewProgress" class="space-y-6">
 
-                <!-- 🌟 KOLOM KHUSUS REPAIR DI BAGIAN ATAS -->
                 <div class="bg-white rounded-2xl shadow-sm border border-amber-300/80 overflow-hidden">
                     <div class="bg-amber-600 text-white p-4 flex justify-between items-center text-sm font-bold">
                         <div class="flex items-center space-x-2">
@@ -308,7 +305,6 @@
                     </div>
                 </div>
 
-                <!-- METRIC CARDS -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider editable-text" data-key="stat_total_label">Total Aktif</p>
@@ -328,7 +324,6 @@
                     </div>
                 </div>
 
-                <!-- TABS NAVIGATION -->
                 <div class="flex border-b border-slate-200 space-x-8">
                     <button onclick="switchTab('active')" id="tabActiveBtn" class="pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer">
                         Daftar Item Aktif (Progress)
@@ -338,7 +333,6 @@
                     </button>
                 </div>
 
-                <!-- CONTROLS & SEARCH BAR -->
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="w-full md:w-96 relative">
                         <input type="text" id="searchBox" oninput="renderTables()" placeholder="Cari Item Number atau Nama Barang..." class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
@@ -356,7 +350,6 @@
                     </div>
                 </div>
 
-                <!-- SECTION: ACTIVE ITEMS -->
                 <div id="sectionActive" class="space-y-4">
                     <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                         <div class="overflow-x-auto">
@@ -382,7 +375,6 @@
                     <div id="activeMobileCards" class="grid grid-cols-1 gap-4 md:hidden"></div>
                 </div>
 
-                <!-- SECTION: COMPLETED ITEMS -->
                 <div id="sectionCompleted" class="space-y-4 hidden">
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row justify-between items-center gap-3">
                         <div class="flex items-center space-x-2 text-sm font-bold text-slate-700">
@@ -443,7 +435,6 @@
                     </div>
                 </div>
 
-                <!-- 1. TABEL DATABASE COST REDUCTION -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="bg-darkSlate text-white p-4 font-bold text-sm flex justify-between items-center">
                         <span>📊 Tabel Database & Cost Reduction</span>
@@ -466,7 +457,6 @@
                     </div>
                 </div>
 
-                <!-- 2. CR HARIAN (REALTIME & AUTO-SYNC TRACKING) -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-4 gap-4">
                         <div>
@@ -483,7 +473,7 @@
                         </div>
                     </div>
 
-                    <!-- Pilihan Opsi Backup Manual QTY -->
+                    <!-- Pilihan Opsi Backup Manual QTY dengan Tombol Reset/Hapus Pilihan -->
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                         <p class="text-xs font-bold text-slate-700 uppercase"><i class="fa-solid fa-calculator text-brandBlue mr-1"></i> Opsi Cadangan: Input Manual QTY</p>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -496,6 +486,9 @@
                                 <div class="flex space-x-2">
                                     <input type="number" id="dailyManualQtyInput" min="1" value="1" class="w-full border border-slate-300 rounded-xl p-3 text-sm font-bold bg-white">
                                     <button onclick="addManualDailyCR()" class="bg-brandBlue hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer whitespace-nowrap">+ Tambah</button>
+                                    <button onclick="resetDailyManualInput()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer" title="Hapus Pilihan">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div>
@@ -517,7 +510,6 @@
                     </div>
                 </div>
 
-                <!-- 3. CR BULANAN (REALTIME CHART & PDF) -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-4 gap-4">
                         <div>
@@ -539,7 +531,6 @@
                     </div>
                 </div>
 
-                <!-- 4. CR TAHUNAN (REKAP TABEL & PDF & RESET) -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-4 gap-4">
                         <div>
@@ -904,7 +895,7 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
                     <button type="button" onclick="closeModal('modalChangePass')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition cursor-pointer">Batal</button>
-                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md shadow-blue-500/20 cursor-pointer">Simpan Password</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md cursor-pointer">Simpan Password</button>
                 </div>
             </form>
         </div>
@@ -1060,7 +1051,6 @@
                 if(currentUser) renderStockAndScrap();
             });
 
-            // Cost Reduction Firebase Sync
             window.dbOnValue(window.dbRef(window.db, 'cost_reduction_db'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
@@ -1254,7 +1244,6 @@
             }
         }
 
-        // ================= COST REDUCTION MODULE LOGIC =================
         function renderCRDatabase() {
             const tbody = document.getElementById('crDatabaseTableBody');
             tbody.innerHTML = '';
@@ -1312,19 +1301,39 @@
             }
         }
 
+        // Modifikasi populateCRSelect agar memiliki placeholder default dan tidak otomatis memilih item pertama
         function populateCRSelect() {
             const select = document.getElementById('dailyItemSelect');
             select.innerHTML = '';
+            
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = "";
+            defaultOpt.text = "-- Pilih Item Number --";
+            defaultOpt.selected = true;
+            defaultOpt.disabled = true;
+            select.appendChild(defaultOpt);
+
             if(crDatabase.length === 0) {
-                select.innerHTML = `<option value="">Database kosong</option>`;
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.text = "Database kosong";
+                select.appendChild(opt);
                 return;
             }
+
             crDatabase.forEach(item => {
                 const opt = document.createElement('option');
                 opt.value = item.id;
                 opt.text = `${item.itemNumber} - ${item.desc}`;
                 select.appendChild(opt);
             });
+        }
+
+        // Fungsi Tombol Reset Input Manual
+        function resetDailyManualInput() {
+            document.getElementById('dailyItemSelect').selectedIndex = 0;
+            document.getElementById('dailyManualQtyInput').value = "1";
+            showToast('Reset', 'Pilihan input manual dikosongkan.', 'info');
         }
 
         function startDailyCR() {
@@ -1355,13 +1364,16 @@
             document.getElementById('dailyDisplayRupiah').innerText = `Rp ${Number(dailyRupiah).toLocaleString('id-ID')}`;
         }
 
-        // Opsi cadangan input manual QTY
         function addManualDailyCR() {
             if(!dailyActive) {
                 alert('Silakan klik tombol "Mulai Harian" terlebih dahulu sebelum mencatat CR.');
                 return;
             }
             const selectedId = document.getElementById('dailyItemSelect').value;
+            if(!selectedId) {
+                alert('Silakan pilih Item Number terlebih dahulu.');
+                return;
+            }
             const addQty = parseInt(document.getElementById('dailyManualQtyInput').value) || 0;
             const item = crDatabase.find(i => i.id === selectedId);
 
@@ -1379,34 +1391,9 @@
             showToast('Manual Add', `Berhasil menambahkan ${addQty} Pcs untuk ${item.itemNumber}`, 'success');
         }
 
-        function finishDailyCR() {
+        function checkAndProcessAutoSyncCR(item) {
             if(!dailyActive) return;
 
-            // Masuk otomatis ke bulan aktif
-            const currentMonthIdx = new Date().getMonth();
-            monthlyData[currentMonthIdx] = {
-                qty: (monthlyData[currentMonthIdx]?.qty || 0) + dailyQty,
-                rupiah: (monthlyData[currentMonthIdx]?.rupiah || 0) + dailyRupiah
-            };
-
-            window.dbSet(window.dbRef(window.db, 'cost_reduction_monthly'), monthlyData);
-            updateMonthlyChart();
-
-            showToast('Berhasil', 'Data CR Harian di-reset otomatis dan masuk ke CR Bulanan!', 'success');
-
-            // Reset harian
-            dailyActive = false;
-            dailyQty = 0;
-            dailyRupiah = 0;
-            window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
-            updateDailyUIState();
-        }
-
-        // AUTO-SYNC DARI TRACKING PROGRESS SAAT ITEM FINISHED
-        function checkAndProcessAutoSyncCR(item) {
-            if(!dailyActive) return; // Jika sesi harian belum dimulai, jangan auto-sync
-
-            // Cocokkan item_number item yang selesai dengan database CR
             const matchedCR = crDatabase.find(cr => cr.itemNumber.trim().toUpperCase() === item.item_number.trim().toUpperCase());
             if(matchedCR) {
                 const itemQty = item.qty || 1;
@@ -1423,7 +1410,6 @@
             }
         }
 
-        // CHART.JS INITIALIZATION
         function initMonthlyChart() {
             const ctx = document.getElementById('monthlyChart').getContext('2d');
             monthlyChartInstance = new Chart(ctx, {
@@ -1464,7 +1450,7 @@
                         yRp: {
                             type: 'linear',
                             position: 'right',
-                            max: 2000000000, // 2 Miliar Rupiah
+                            max: 2000000000,
                             title: { display: true, text: 'Nilai Rupiah (Rp)' },
                             grid: { drawOnChartArea: false },
                             ticks: {
@@ -1632,7 +1618,6 @@
             doc.save(`CR_Tahunan_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
-        // ================= EXPORT COMPLETED LIST EXCEL & PDF =================
         function exportCompletedExcel() {
             const completedItems = items.filter(item => {
                 const stages = stagesDefinition[item.type_grinding];
@@ -2441,7 +2426,6 @@
                     item.completed_at = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                     item.completed_by = currentUser;
 
-                    // 🌟 TRIGGER AUTOMATIC COST REDUCTION REALTIME SYNC
                     checkAndProcessAutoSyncCR(item);
 
                 } else if(!isNowFinished) {
