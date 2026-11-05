@@ -246,6 +246,11 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                         <span>📦 Buffer Stok & Scrap</span>
                     </button>
+                    <!-- FITUR BARU: KNOWLEDGE & CYCLE TIME -->
+                    <button id="btnNavKnowledgeCycle" onclick="switchMainView('knowledgeCycle'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
+                        <i class="fa-solid fa-book-bookmark w-5 text-center"></i>
+                        <span>📚 Knowledge & Cycle Time</span>
+                    </button>
                     <button id="btnBuilder" onclick="toggleBuilderMode(); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition hidden cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         <span>🛠️ Mode Builder (Off)</span>
@@ -488,6 +493,85 @@
                                 </tr>
                             </thead>
                             <tbody id="scrapTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 4: KNOWLEDGE & CYCLE TIME (FITUR BARU) -->
+            <div id="viewKnowledgeCycle" class="space-y-8 hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">📚 Knowledge & Cycle Time Management</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Kelola data knowledge tool, drawing gambar teknik, serta analisis cycle time 8 proses.</p>
+                    </div>
+                </div>
+
+                <!-- SUBSECTION: KNOWLEDGE -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div class="bg-darkSlate text-white p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex items-center space-x-2 font-bold text-sm">
+                            <i class="fa-solid fa-brain text-indigo-400"></i>
+                            <span>1. Data Knowledge Tool & Drawing</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="downloadKnowledgeTemplate()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-file-excel mr-1"></i> Template Excel
+                            </button>
+                            <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-file-arrow-up mr-1"></i> Import Excel <input type="file" accept=".xlsx, .xls, .csv" onchange="importKnowledgeExcel(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th class="p-4 font-bold">Item Number</th>
+                                    <th class="p-4 font-bold">Deskripsi Tool</th>
+                                    <th class="p-4 font-bold">Drawing Tool (Upload & View)</th>
+                                    <th class="p-4 text-center font-bold">Print PDF</th>
+                                    <th class="p-4 text-center font-bold">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="knowledgeTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUBSECTION: CYCLE TIME -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div class="bg-darkSlate text-white p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex items-center space-x-2 font-bold text-sm">
+                            <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                            <span>2. Cycle Time Proses Pengerjaan (Proses 1 s.d. 8)</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="downloadCycleTimeTemplate()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-file-excel mr-1"></i> Template Excel
+                            </button>
+                            <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-file-arrow-up mr-1"></i> Import Excel <input type="file" accept=".xlsx, .xls, .csv" onchange="importCycleTimeExcel(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase tracking-wider border-b border-slate-200 text-center font-bold">
+                                    <th class="p-3 text-left">Item Number / Tool</th>
+                                    <th class="p-3">Proses 1</th>
+                                    <th class="p-3">Proses 2</th>
+                                    <th class="p-3">Proses 3</th>
+                                    <th class="p-3">Proses 4</th>
+                                    <th class="p-3">Proses 5</th>
+                                    <th class="p-3">Proses 6</th>
+                                    <th class="p-3">Proses 7</th>
+                                    <th class="p-3">Proses 8</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cycleTimeTableBody" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
                 </div>
@@ -777,6 +861,8 @@
         let scrapItems = [];
         let items = [];
         let repairSpecialItems = []; 
+        let knowledgeItems = [];
+        let cycleTimeItems = [];
         let customTexts = {};
 
         let currentUser = sessionStorage.getItem('wks_current_user') || null;
@@ -869,6 +955,33 @@
                     scrapItems = defaultScrap;
                 }
                 if(currentUser) renderStockAndScrap();
+            });
+
+            // FIREBASE SYNC: KNOWLEDGE & CYCLE TIME
+            window.dbOnValue(window.dbRef(window.db, 'knowledge_items'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    knowledgeItems = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    knowledgeItems = [
+                        { id: "k1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide D10", drawing: "" }
+                    ];
+                    window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
+                }
+                if(currentUser) renderKnowledgeTable();
+            });
+
+            window.dbOnValue(window.dbRef(window.db, 'cycle_time_items'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    cycleTimeItems = Array.isArray(val) ? val : Object.values(val);
+                } else {
+                    cycleTimeItems = [
+                        { id: "ct1", itemNumber: "WKS-2026-001", p1: "Setup", t1: "45", p2: "Roughing", t2: "120", p3: "Finishing", t3: "90", p4: "-", t4: "0", p5: "-", t5: "0", p6: "-", t6: "0", p7: "-", t7: "0", p8: "-", t8: "0" }
+                    ];
+                    window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
+                }
+                if(currentUser) renderCycleTimeTable();
             });
 
             window.dbOnValue(window.dbRef(window.db, 'custom_texts'), (snapshot) => {
@@ -972,6 +1085,8 @@
                         renderSpecialRepairTable();
                         renderMasterTablesContainer();
                         renderStockAndScrap();
+                        renderKnowledgeTable();
+                        renderCycleTimeTable();
                     }, 1000);
                 }, 800);
             } else {
@@ -1011,6 +1126,7 @@
             document.getElementById('viewProgress').classList.add('hidden');
             document.getElementById('viewMaster').classList.add('hidden');
             document.getElementById('viewStock').classList.add('hidden');
+            document.getElementById('viewKnowledgeCycle').classList.add('hidden');
 
             if(view === 'progress') {
                 document.getElementById('viewProgress').classList.remove('hidden');
@@ -1022,8 +1138,280 @@
             } else if(view === 'stock') {
                 document.getElementById('viewStock').classList.remove('hidden');
                 renderStockAndScrap();
+            } else if(view === 'knowledgeCycle') {
+                document.getElementById('viewKnowledgeCycle').classList.remove('hidden');
+                renderKnowledgeTable();
+                renderCycleTimeTable();
             }
         }
+
+        // ================= LOGIC FITUR BARU: KNOWLEDGE & CYCLE TIME =================
+
+        // 1. KNOWLEDGE FUNCTIONS
+        function renderKnowledgeTable() {
+            const tbody = document.getElementById('knowledgeTableBody');
+            tbody.innerHTML = '';
+
+            if(!knowledgeItems || knowledgeItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada data knowledge tool. Silakan import file Excel atau buat data.</td></tr>`;
+                return;
+            }
+
+            knowledgeItems.forEach((item, index) => {
+                const hasDrawing = item.drawing && item.drawing.trim() !== "";
+                const drawingCellHTML = hasDrawing 
+                    ? `<div class="flex items-center space-x-2">
+                           <button onclick="viewDrawing('${item.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-eye text-[11px]"></i><span>View</span></button>
+                           <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer" title="Ganti Gambar">Ganti <input type="file" accept="image/*" onchange="uploadDrawing(event, '${item.id}')" class="hidden"></label>
+                       </div>`
+                    : `<label class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5">
+                           <i class="fa-solid fa-upload text-[11px]"></i><span>Import Gambar</span>
+                           <input type="file" accept="image/*" onchange="uploadDrawing(event, '${item.id}')" class="hidden">
+                       </label>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-bold text-brandBlue">${item.itemNumber || '-'}</td>
+                    <td class="p-4 font-medium text-slate-900">${item.desc || '-'}</td>
+                    <td class="p-4">${drawingCellHTML}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="printKnowledgePDF('${item.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1">
+                            <i class="fa-solid fa-file-pdf text-[11px]"></i><span>Print PDF</span>
+                        </button>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteKnowledgeItem('${item.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
+                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function downloadKnowledgeTemplate() {
+            let wb = XLSX.utils.book_new();
+            let templateData = [
+                { "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10" }
+            ];
+            let ws = XLSX.utils.json_to_sheet(templateData);
+            XLSX.utils.book_append_sheet(wb, ws, "Template_Knowledge");
+            XLSX.writeFile(wb, `Template_Knowledge_WKS.xlsx`);
+        }
+
+        function importKnowledgeExcel(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    json.forEach((row, idx) => {
+                        knowledgeItems.push({
+                            id: 'k_imp_' + Date.now() + '_' + idx,
+                            itemNumber: row["Item Number"] || "-",
+                            desc: row["Deskripsi Tool"] || "-",
+                            drawing: ""
+                        });
+                    });
+                    window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
+                    showToast('Berhasil', 'Data knowledge berhasil diimport!', 'success');
+                } catch(err) {
+                    showToast('Gagal', 'Format file Excel tidak valid.', 'error');
+                }
+                e.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function uploadDrawing(e, id) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const base64String = evt.target.result;
+                const item = knowledgeItems.find(k => k.id === id);
+                if(item) {
+                    item.drawing = base64String;
+                    window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
+                    showToast('Berhasil', 'Gambar drawing berhasil diimport!', 'success');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function viewDrawing(id) {
+            const item = knowledgeItems.find(k => k.id === id);
+            if(item && item.drawing) {
+                const newWindow = window.open();
+                newWindow.document.write(`
+                    <html>
+                        <head><title>Drawing - ${item.itemNumber}</title></head>
+                        <body style="margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; color:white; font-family:sans-serif;">
+                            <h2 style="margin-bottom:10px;">${item.itemNumber} — ${item.desc}</h2>
+                            <img src="${item.drawing}" style="max-width:90%; max-height:80vh; border:2px solid #334155; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
+                            <p style="margin-top:15px; font-size:14px; color:#94a3b8;">WKS Tool Apps - Drawing Preview</p>
+                        </body>
+                    </html>
+                `);
+            } else {
+                showToast('Informasi', 'Belum ada gambar drawing yang diimport.', 'info');
+            }
+        }
+
+        function printKnowledgePDF(id) {
+            const item = knowledgeItems.find(k => k.id === id);
+            if(!item) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
+            doc.text("WKS TOOL APPS — KNOWLEDGE & DRAWING REPORT", 14, 18);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            const currentDate = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            doc.text(`Tanggal Cetak: ${currentDate} | Dicetak Oleh: ${currentUser}`, 14, 25);
+
+            const headers = [["Item Number", "Deskripsi Tool", "Status Drawing"]];
+            const data = [[
+                item.itemNumber,
+                item.desc,
+                item.drawing ? "Tersedia (Terlampir)" : "Tidak Ada Gambar"
+            ]];
+
+            doc.autoTable({
+                startY: 32,
+                head: headers,
+                body: data,
+                theme: 'grid',
+                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] }
+            });
+
+            if(item.drawing) {
+                try {
+                    const finalY = doc.lastAutoTable.finalY + 10;
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(12);
+                    doc.text("Lampiran Gambar Drawing:", 14, finalY);
+                    doc.addImage(item.drawing, 'JPEG', 14, finalY + 5, 100, 100);
+                } catch(err) {
+                    console.error("Gagal memuat gambar ke PDF", err);
+                }
+            }
+
+            doc.save(`Knowledge_${item.itemNumber}_WKS.pdf`);
+        }
+
+        function deleteKnowledgeItem(id) {
+            if(confirm('Hapus item knowledge ini?')) {
+                knowledgeItems = knowledgeItems.filter(k => k.id !== id);
+                window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
+            }
+        }
+
+
+        // 2. CYCLE TIME FUNCTIONS
+        function renderCycleTimeTable() {
+            const tbody = document.getElementById('cycleTimeTableBody');
+            tbody.innerHTML = '';
+
+            if(!cycleTimeItems || cycleTimeItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400 text-xs">Belum ada data cycle time. Silakan import file Excel atau buat data.</td></tr>`;
+                return;
+            }
+
+            cycleTimeItems.forEach((ct) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100 text-center";
+                tr.innerHTML = `
+                    <td class="p-3 text-left font-mono font-bold text-brandBlue">${ct.itemNumber || '-'}</td>
+                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p1 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t1 || '0'} s</div></td>
+                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p2 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t2 || '0'} s</div></td>
+                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p3 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t3 || '0'} s</div></td>
+                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p4 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t4 || '0'} s</div></td>
+                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p5 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t5 || '0'} s</div></td>
+                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p6 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t6 || '0'} s</div></td>
+                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p7 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t7 || '0'} s</div></td>
+                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p8 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t8 || '0'} s</div></td>
+                    <td class="p-3">
+                        <button onclick="deleteCycleTimeItem('${ct.id}')" class="p-1.5 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer shadow-sm">
+                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function downloadCycleTimeTemplate() {
+            let wb = XLSX.utils.book_new();
+            let templateData = [
+                { 
+                    "Item Number": "WKS-2026-001", 
+                    "Proses 1": "Setup", "Cycle Time 1 (s)": 45, 
+                    "Proses 2": "Roughing", "Cycle Time 2 (s)": 120, 
+                    "Proses 3": "Finishing", "Cycle Time 3 (s)": 90, 
+                    "Proses 4": "-", "Cycle Time 4 (s)": 0, 
+                    "Proses 5": "-", "Cycle Time 5 (s)": 0, 
+                    "Proses 6": "-", "Cycle Time 6 (s)": 0, 
+                    "Proses 7": "-", "Cycle Time 7 (s)": 0, 
+                    "Proses 8": "-", "Cycle Time 8 (s)": 0 
+                }
+            ];
+            let ws = XLSX.utils.json_to_sheet(templateData);
+            XLSX.utils.book_append_sheet(wb, ws, "Template_Cycle_Time");
+            XLSX.writeFile(wb, `Template_Cycle_Time_WKS.xlsx`);
+        }
+
+        function importCycleTimeExcel(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    json.forEach((row, idx) => {
+                        cycleTimeItems.push({
+                            id: 'ct_imp_' + Date.now() + '_' + idx,
+                            itemNumber: row["Item Number"] || "-",
+                            p1: row["Proses 1"] || "-", t1: row["Cycle Time 1 (s)"] || "0",
+                            p2: row["Proses 2"] || "-", t2: row["Cycle Time 2 (s)"] || "0",
+                            p3: row["Proses 3"] || "-", t3: row["Cycle Time 3 (s)"] || "0",
+                            p4: row["Proses 4"] || "-", t4: row["Cycle Time 4 (s)"] || "0",
+                            p5: row["Proses 5"] || "-", t5: row["Cycle Time 5 (s)"] || "0",
+                            p6: row["Proses 6"] || "-", t6: row["Cycle Time 6 (s)"] || "0",
+                            p7: row["Proses 7"] || "-", t7: row["Cycle Time 7 (s)"] || "0",
+                            p8: row["Proses 8"] || "-", t8: row["Cycle Time 8 (s)"] || "0"
+                        });
+                    });
+                    window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
+                    showToast('Berhasil', 'Data cycle time berhasil diimport!', 'success');
+                } catch(err) {
+                    showToast('Gagal', 'Format file Excel tidak valid.', 'error');
+                }
+                e.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function deleteCycleTimeItem(id) {
+            if(confirm('Hapus item cycle time ini?')) {
+                cycleTimeItems = cycleTimeItems.filter(ct => ct.id !== id);
+                window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
+            }
+        }
+
 
         // ================= EXPORT COMPLETED LIST EXCEL & PDF =================
         function exportCompletedExcel() {
@@ -1834,7 +2222,6 @@
                 item.priority = document.getElementById('updatePrioritySelect').value;
                 item.last_updated_by = currentUser;
 
-                // Jika baru saja masuk status finished, catat timestamp dan user
                 if(!wasFinished && isNowFinished) {
                     const now = new Date();
                     item.completed_at = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -1849,7 +2236,6 @@
             closeModal('modalUpdateProgress');
         }
 
-        // ================= REPAIR TRIGGER FROM COMPLETED LIST =================
         function openModalRepair(id) {
             const item = items.find(i => i.id === id);
             if(!item) return;
