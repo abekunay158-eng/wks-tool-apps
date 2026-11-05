@@ -33,7 +33,6 @@
             font-family: 'Poppins', sans-serif;
             background: #0f172a;
         }
-        /* Background geometric dark styling */
         .bg-geometric {
             background-color: #0b0f19;
             background-image: 
@@ -41,7 +40,6 @@
                 radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 50%),
                 linear-gradient(to bottom right, #090d16, #1e1b4b);
         }
-        /* Glassmorphism styling */
         .glass-card {
             background: rgba(17, 24, 39, 0.75);
             backdrop-filter: blur(20px);
@@ -62,7 +60,6 @@
         .glass-divider {
             background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.15), transparent);
         }
-        /* Popup Modal Animation */
         .modal-overlay {
             opacity: 0;
             visibility: hidden;
@@ -375,6 +372,24 @@
 
                 <!-- SECTION: COMPLETED ITEMS -->
                 <div id="sectionCompleted" class="space-y-4 hidden">
+                    <!-- DOWNLOAD CONTROLS FOR COMPLETED LIST -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <div class="flex items-center space-x-2 text-sm font-bold text-slate-700">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span>Menu Download Item Selesai (Completed)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="exportCompletedExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1.5 cursor-pointer">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Download Excel</span>
+                            </button>
+                            <button onclick="exportCompletedPDF()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1.5 cursor-pointer">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <span>Download PDF (Siap Print)</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
@@ -385,7 +400,7 @@
                                         <th class="p-4 font-bold">Diameter</th>
                                         <th class="p-4 font-bold">QTY Selesai</th>
                                         <th class="p-4 font-bold">Type Grinding</th>
-                                        <th class="p-4 text-center font-bold">Status</th>
+                                        <th class="p-4 text-center font-bold">Status & Tanggal Selesai</th>
                                         <th class="p-4 text-center font-bold">Aksi / Repair</th>
                                     </tr>
                                 </thead>
@@ -761,7 +776,7 @@
         let bufferStockItems = [];
         let scrapItems = [];
         let items = [];
-        let repairSpecialItems = []; // Data khusus untuk Kolom Repair di Atas
+        let repairSpecialItems = []; 
         let customTexts = {};
 
         let currentUser = sessionStorage.getItem('wks_current_user') || null;
@@ -796,7 +811,6 @@
                 if(currentUser) renderTables();
             });
 
-            // Sinkronisasi data repair khusus
             window.dbOnValue(window.dbRef(window.db, 'repair_special_items'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
@@ -1009,6 +1023,82 @@
                 document.getElementById('viewStock').classList.remove('hidden');
                 renderStockAndScrap();
             }
+        }
+
+        // ================= EXPORT COMPLETED LIST EXCEL & PDF =================
+        function exportCompletedExcel() {
+            const completedItems = items.filter(item => {
+                const stages = stagesDefinition[item.type_grinding];
+                return item.current_stage_index >= stages.length - 1;
+            });
+
+            if(completedItems.length === 0) {
+                alert('Tidak ada item yang selesai (completed) untuk diexport.');
+                return;
+            }
+
+            let wb = XLSX.utils.book_new();
+            let dataToExport = completedItems.map(item => ({
+                "Item Number": item.item_number,
+                "Detail Barang": item.item_name,
+                "Diameter": item.diameter,
+                "QTY Selesai": item.qty || 1,
+                "Type Grinding": item.type_grinding,
+                "Tanggal Selesai": item.completed_at || '-',
+                "Oleh": item.completed_by || '-'
+            }));
+
+            let ws = XLSX.utils.json_to_sheet(dataToExport);
+            XLSX.utils.book_append_sheet(wb, ws, "Completed_Items");
+            XLSX.writeFile(wb, `WKS_Completed_Items_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function exportCompletedPDF() {
+            const completedItems = items.filter(item => {
+                const stages = stagesDefinition[item.type_grinding];
+                return item.current_stage_index >= stages.length - 1;
+            });
+
+            if(completedItems.length === 0) {
+                alert('Tidak ada item yang selesai (completed) untuk diexport PDF.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
+            doc.text("WKS TOOL APPS — LAPORAN ITEM SELESAI (COMPLETED)", 14, 18);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            const currentDate = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            doc.text(`Tanggal Cetak: ${currentDate} | Dicetak Oleh: ${currentUser}`, 14, 25);
+
+            const headers = [["Item Number", "Detail Barang", "Diameter", "QTY", "Type Grinding", "Tanggal & User Selesai"]];
+            const data = completedItems.map(item => [
+                item.item_number,
+                item.item_name,
+                item.diameter,
+                `${item.qty || 1} Pcs`,
+                item.type_grinding,
+                `${item.completed_at || '-'} (${item.completed_by || '-'})`
+            ]);
+
+            doc.autoTable({
+                startY: 32,
+                head: headers,
+                body: data,
+                theme: 'grid',
+                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
+                alternateRowStyles: { fillColor: [248, 250, 252] }
+            });
+
+            doc.save(`WKS_Completed_Report_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         // ================= EXPORT PDF MASTER TABLE (PER TABEL) =================
@@ -1439,7 +1529,9 @@
                 priority: document.getElementById('newItemPriority').value,
                 current_stage_index: 0,
                 supplier_access: false,
-                last_updated_by: currentUser
+                last_updated_by: currentUser,
+                completed_at: null,
+                completed_by: null
             };
             items.unshift(newItem);
             window.dbSet(window.dbRef(window.db, 'tool_items'), items);
@@ -1605,6 +1697,9 @@
                     const deleteButtonHTML = currentUser === 'USER' ? `<button onclick="deleteItem('${item.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>` : '-';
                     const repairButtonHTML = `<button onclick="openModalRepair('${item.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-wrench text-[10px]"></i><span>Repair</span></button>`;
                     
+                    const completedDateStr = item.completed_at || '-';
+                    const completedByStr = item.completed_by || 'SYSTEM';
+
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                     tr.innerHTML = `
@@ -1613,7 +1708,13 @@
                         <td class="p-4 text-slate-600">${item.diameter}</td>
                         <td class="p-4"><span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
                         <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-700">${item.type_grinding}</span></td>
-                        <td class="p-4 text-center"><span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700">Finished</span></td>
+                        <td class="p-4 text-center">
+                            <div class="flex flex-col items-center space-y-0.5">
+                                <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700">Finished</span>
+                                <span class="text-[11px] font-semibold text-slate-500">${completedDateStr}</span>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">Oleh: ${completedByStr}</span>
+                            </div>
+                        </td>
                         <td class="p-4 text-center">
                             <div class="inline-flex items-center space-x-2">
                                 ${repairButtonHTML}
@@ -1633,9 +1734,11 @@
                             </div>
                             <span class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700">Finished</span>
                         </div>
-                        <div class="flex justify-between items-center text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
-                            <span>Diameter: <strong>${item.diameter}</strong></span>
-                            <span>QTY Selesai: <strong class="text-emerald-700">${item.qty || 1} Pcs</strong></span>
+                        <div class="flex flex-col text-xs text-slate-600 bg-slate-50 p-3 rounded-xl space-y-1">
+                            <div class="flex justify-between"><span>Diameter:</span> <strong>${item.diameter}</strong></div>
+                            <div class="flex justify-between"><span>QTY Selesai:</span> <strong class="text-emerald-700">${item.qty || 1} Pcs</strong></div>
+                            <div class="flex justify-between"><span>Tanggal Selesai:</span> <strong class="text-slate-800">${completedDateStr}</strong></div>
+                            <div class="flex justify-between"><span>Oleh:</span> <strong class="text-slate-800 uppercase">${completedByStr}</strong></div>
                         </div>
                         <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                             ${repairButtonHTML}
@@ -1722,9 +1825,25 @@
             e.preventDefault();
             const item = items.find(i => i.id === document.getElementById('updateItemId').value);
             if(item) {
-                item.current_stage_index = parseInt(document.getElementById('updateStageSelect').value);
+                const newStageIndex = parseInt(document.getElementById('updateStageSelect').value);
+                const stages = stagesDefinition[item.type_grinding];
+                const wasFinished = item.current_stage_index >= stages.length - 1;
+                const isNowFinished = newStageIndex >= stages.length - 1;
+
+                item.current_stage_index = newStageIndex;
                 item.priority = document.getElementById('updatePrioritySelect').value;
                 item.last_updated_by = currentUser;
+
+                // Jika baru saja masuk status finished, catat timestamp dan user
+                if(!wasFinished && isNowFinished) {
+                    const now = new Date();
+                    item.completed_at = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    item.completed_by = currentUser;
+                } else if(!isNowFinished) {
+                    item.completed_at = null;
+                    item.completed_by = null;
+                }
+
                 window.dbSet(window.dbRef(window.db, 'tool_items'), items);
             }
             closeModal('modalUpdateProgress');
@@ -1754,16 +1873,14 @@
                 return;
             }
 
-            // 1. Kurangi QTY item original yang selesai (atau hapus jika qty habis)
             parentItem.qty = (parentItem.qty || 1) - repairQty;
 
-            // 2. Masukkan ke data khusus repair di atas secara otomatis (Item number, detail barang, quantity terisi)
             const newRepairEntry = {
                 id: 'rep_' + Date.now(),
                 itemNumber: parentItem.item_number,
                 detailBarang: `${parentItem.item_name} (${parentItem.diameter})`,
                 qty: repairQty,
-                keterangan: '' // Diisi manual oleh user di kolom tabel
+                keterangan: '' 
             };
             repairSpecialItems.unshift(newRepairEntry);
 
