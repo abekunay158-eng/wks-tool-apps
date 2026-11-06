@@ -31,58 +31,18 @@
         }
     </script>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #0f172a;
-        }
-        .bg-geometric {
-            background-color: #0b0f19;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(30, 41, 59, 0.7) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 50%),
-                linear-gradient(to bottom right, #090d16, #1e1b4b);
-        }
-        .glass-card {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-        }
-        .custom-input {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease;
-        }
-        .custom-input:focus {
-            background: rgba(30, 41, 59, 0.8);
-            border-color: rgba(99, 102, 241, 0.6);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-        }
-        .glass-divider {
-            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.15), transparent);
-        }
-        .modal-overlay {
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-container {
-            transform: scale(0.95) translateY(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .modal-overlay.active .modal-container {
-            transform: scale(1) translateY(0);
-        }
+        body { font-family: 'Poppins', sans-serif; background: #0f172a; }
+        .bg-geometric { background-color: #0b0f19; background-image: radial-gradient(at 0% 0%, rgba(30, 41, 59, 0.7) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 50%), linear-gradient(to bottom right, #090d16, #1e1b4b); }
+        .glass-card { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }
+        .custom-input { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.3s ease; }
+        .custom-input:focus { background: rgba(30, 41, 59, 0.8); border-color: rgba(99, 102, 241, 0.6); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+        .glass-divider { background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.15), transparent); }
+        .modal-overlay { opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-container { transform: scale(0.95) translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-overlay.active .modal-container { transform: scale(1) translateY(0); }
         .modal-enter { animation: fadeIn 0.2s ease-out forwards; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .sidebar-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
@@ -107,10 +67,7 @@
                 <span class="text-slate-300 font-bold">Kredensial:</span> User: <code class="text-indigo-300 font-bold">USER</code> / <code class="text-indigo-300 font-bold">USER</code> &nbsp;|&nbsp; Supplier: <code class="text-indigo-300 font-bold">SUPPLIER</code> / <code class="text-indigo-300 font-bold">SUPPLIER</code>
             </div>
 
-            <button 
-                onclick="togglePopup(true)" 
-                class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-2xl shadow-xl shadow-indigo-600/30 transition-all duration-300 active:scale-95 cursor-pointer flex items-center space-x-3 mx-auto"
-            >
+            <button onclick="togglePopup(true)" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-2xl shadow-xl shadow-indigo-600/30 transition-all duration-300 active:scale-95 cursor-pointer flex items-center space-x-3 mx-auto">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 <span>Buka Form Login</span>
             </button>
@@ -121,86 +78,44 @@
                 <button onclick="togglePopup(false)" class="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
-
                 <div class="p-8 sm:p-12 md:p-16 flex flex-col justify-center relative overflow-hidden">
                     <div class="absolute -top-24 -left-24 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
                     <div class="mb-8">
                         <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Login</h2>
                         <p class="text-xs sm:text-sm text-slate-400 mt-1">Silakan masukkan akses akun Anda</p>
                     </div>
-                    
                     <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                         <div class="space-y-1.5">
                             <div class="relative group">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-indigo-400 transition-colors">
-                                    <i class="fa-regular fa-user"></i>
-                                </span>
-                                <input 
-                                    type="text" 
-                                    id="loginUser" 
-                                    required 
-                                    placeholder="USER atau SUPPLIER" 
-                                    class="custom-input w-full text-slate-200 placeholder-slate-500 text-sm rounded-xl py-3.5 pl-11 pr-4 outline-none uppercase font-bold"
-                                >
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-indigo-400 transition-colors"><i class="fa-regular fa-user"></i></span>
+                                <input type="text" id="loginUser" required placeholder="USER atau SUPPLIER" class="custom-input w-full text-slate-200 placeholder-slate-500 text-sm rounded-xl py-3.5 pl-11 pr-4 outline-none uppercase font-bold">
                             </div>
                         </div>
-
                         <div class="space-y-1.5">
                             <div class="relative group">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-indigo-400 transition-colors">
-                                    <i class="fa-solid fa-lock"></i>
-                                </span>
-                                <input 
-                                    type="password" 
-                                    id="loginPass" 
-                                    required 
-                                    placeholder="••••••••••••" 
-                                    class="custom-input w-full text-slate-200 placeholder-slate-500 text-sm rounded-xl py-3.5 pl-11 pr-12 outline-none"
-                                >
-                                <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white transition-colors cursor-pointer">
-                                    <i id="eyeIcon" class="fa-regular fa-eye"></i>
-                                </button>
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-indigo-400 transition-colors"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" id="loginPass" required placeholder="••••••••••••" class="custom-input w-full text-slate-200 placeholder-slate-500 text-sm rounded-xl py-3.5 pl-11 pr-12 outline-none">
+                                <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white transition-colors cursor-pointer"><i id="eyeIcon" class="fa-regular fa-eye"></i></button>
                             </div>
                         </div>
-
-                        <div class="flex items-center justify-between text-xs pt-1">
-                            <label class="flex items-center space-x-2 cursor-pointer text-slate-400 hover:text-slate-300">
-                                <input type="checkbox" class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900 w-4 h-4">
-                                <span>Ingat saya</span>
-                            </label>
-                        </div>
-
-                        <button 
-                            type="submit" 
-                            id="loginBtn"
-                            class="w-full mt-2 bg-gradient-to-r from-slate-200 to-white hover:from-white hover:to-slate-100 text-slate-900 font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-xl hover:shadow-white/20 active:scale-[0.99] flex items-center justify-center space-x-2 group cursor-pointer"
-                        >
+                        <button type="submit" id="loginBtn" class="w-full mt-2 bg-gradient-to-r from-slate-200 to-white hover:from-white hover:to-slate-100 text-slate-900 font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-xl hover:shadow-white/20 active:scale-[0.99] flex items-center justify-center space-x-2 group cursor-pointer">
                             <span>Masuk ke Sistem</span>
                             <i class="fa-solid fa-arrow-right text-xs transform group-hover:translate-x-1 transition-transform"></i>
                         </button>
                     </form>
                 </div>
-
                 <div class="hidden md:block absolute left-1/2 top-8 bottom-8 w-[2px] glass-divider transform -translate-x-1/2 pointer-events-none z-20"></div>
-
                 <div class="p-8 sm:p-12 md:p-16 flex flex-col justify-center items-start bg-gradient-to-br from-slate-900/60 via-slate-900/40 to-slate-950/80 backdrop-blur-lg relative overflow-hidden">
                     <div class="absolute -bottom-20 -right-20 w-60 h-60 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
                     <div class="relative z-10">
                         <span class="inline-block px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 tracking-wider uppercase">Selamat Datang</span>
-                        <h3 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">
-                            SEMANGAT PAGI, <br>AKU PRIMA !
-                        </h3>
-                        <p class="text-slate-400 text-sm sm:text-base leading-relaxed max-w-sm">
-                            Menjadi bagian dari solusi.
-                        </p>
+                        <h3 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">SEMANGAT PAGI, <br>AKU PRIMA !</h3>
+                        <p class="text-slate-400 text-sm sm:text-base leading-relaxed max-w-sm">Menjadi bagian dari solusi.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- MAIN APPLICATION -->
     <div id="mainApp" class="hidden flex-1 flex flex-col bg-slate-100 text-slate-800">
         
@@ -256,7 +171,6 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                         <span>📦 Buffer Stok & Scrap</span>
                     </button>
-                    <!-- Tombol Menu Sidebar Knowledge & Cycle Time -->
                     <button id="btnNavKnowledgeCycle" onclick="switchMainView('knowledgeCycle'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
                         <i class="fa-solid fa-book-bookmark w-5 text-center"></i>
                         <span>📚 Knowledge & Cycle Time</span>
@@ -279,6 +193,7 @@
                 </button>
             </div>
         </aside>
+
         <!-- CONTENT CONTAINER -->
         <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
             
@@ -362,7 +277,6 @@
                                     <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                                         <th class="p-4 font-bold">Item Number</th>
                                         <th class="p-4 font-bold">Detail Barang</th>
-                                        <th class="p-4 font-bold">Diameter</th>
                                         <th class="p-4 font-bold">QTY</th>
                                         <th class="p-4 font-bold">Type Grinding</th>
                                         <th class="p-4 font-bold">Tahapan Saat Ini</th>
@@ -404,7 +318,6 @@
                                     <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                                         <th class="p-4 font-bold">Item Number</th>
                                         <th class="p-4 font-bold">Detail Barang</th>
-                                        <th class="p-4 font-bold">Diameter</th>
                                         <th class="p-4 font-bold">QTY Selesai</th>
                                         <th class="p-4 font-bold">Type Grinding</th>
                                         <th class="p-4 text-center font-bold">Status & Tanggal Selesai</th>
@@ -418,7 +331,6 @@
                     <div id="completedMobileCards" class="grid grid-cols-1 gap-4 md:hidden"></div>
                 </div>
             </div>
-
             <!-- VIEW: COST REDUCTION REALTIME -->
             <div id="viewCostReduction" class="space-y-6 hidden">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -646,7 +558,7 @@
                 </div>
             </div>
 
-            <!-- VIEW 4: KNOWLEDGE & CYCLE TIME (FITUR BARU) -->
+            <!-- VIEW 4: KNOWLEDGE & CYCLE TIME -->
             <div id="viewKnowledgeCycle" class="space-y-8 hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
@@ -655,7 +567,6 @@
                     </div>
                 </div>
 
-                <!-- SUBSECTION: KNOWLEDGE -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="bg-darkSlate text-white p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div class="flex items-center space-x-2 font-bold text-sm">
@@ -687,7 +598,6 @@
                     </div>
                 </div>
 
-                <!-- SUBSECTION: CYCLE TIME -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="bg-darkSlate text-white p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div class="flex items-center space-x-2 font-bold text-sm">
@@ -727,6 +637,7 @@
 
         </main>
     </div>
+
     <!-- MODAL: ADD COST REDUCTION ITEM -->
     <div id="modalAddCR" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left">
@@ -789,43 +700,46 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD NEW ITEM (PROGRESS) -->
+    <!-- MODAL: ADD NEW ITEM (PROGRESS) - DIMODIFIKASI DENGAN SEARCH BOX MASTER & AUTO-FILL -->
     <div id="modalAddItem" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 modal-enter border border-slate-100 text-left">
-            <h3 class="text-lg font-bold text-slate-900 mb-4">Input Item Baru</h3>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 modal-enter border border-slate-100 text-left relative">
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Input Item Baru</h3>
+            <p class="text-xs text-slate-500 mb-4">Cari item dari Data Master untuk auto-fill, lalu lengkapi detail input.</p>
+            
+            <!-- Search Box Master di dalam Modal -->
+            <div class="mb-4 relative">
+                <label class="block text-xs font-bold uppercase tracking-wider text-brandBlue mb-1"><i class="fa-solid fa-magnifying-glass mr-1"></i> Cari dari Data Master (Auto-Suggest)</label>
+                <input type="text" id="modalMasterSearch" oninput="filterMasterSuggestions(this.value)" placeholder="Ketik Item Number atau Nama Tool..." class="w-full pl-10 pr-4 py-2.5 border border-indigo-300 rounded-xl text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-indigo-50/30 font-medium">
+                <svg class="w-4 h-4 text-indigo-500 absolute left-3.5 top-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                
+                <!-- Dropdown Auto-Suggest List -->
+                <div id="masterSuggestionsList" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-48 overflow-y-auto z-50 hidden divide-y divide-slate-100"></div>
+            </div>
+
             <form id="formAddItem" onsubmit="handleAddItem(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama Tool (Deskripsi)</label>
-                    <input type="text" id="newItemName" required placeholder="Misal: Endmill 4-Flute Carbide" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Item Number</label>
+                    <input type="text" id="newItemNumber" required placeholder="Otomatis terisi dari master / ketik manual" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none font-mono bg-slate-50 font-bold">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Item Number</label>
-                    <input type="text" id="newItemNumber" required placeholder="Misal: WKS-2026-001" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none font-mono bg-slate-50/50 font-bold">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama tool (deskripsi)</label>
+                    <input type="text" id="newItemName" required placeholder="Otomatis terisi dari master / ketik manual" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Diameter</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 font-bold">Ø</span>
-                            <input type="text" id="newItemDiameter" required placeholder="10.0" class="w-full pl-9 pr-3 border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
-                        </div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Quantity (Qty)</label>
+                        <input type="number" id="newItemQty" required min="1" value="1" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50 focus:outline-none font-bold">
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">QUANTITY (QTY)</label>
-                        <input type="number" id="newItemQty" required min="1" value="1" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-bold">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Type Grinding</label>
-                        <select id="newItemType" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-medium cursor-pointer">
+                        <select id="newItemType" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50 focus:outline-none font-medium cursor-pointer">
                             <option value="New Grinding">New Grinding</option>
                             <option value="Re Grinding">Re Grinding</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Keterangan Prioritas</label>
-                        <select id="newItemPriority" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50/50 focus:outline-none font-medium cursor-pointer">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Prioritas</label>
+                        <select id="newItemPriority" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50 focus:outline-none font-medium cursor-pointer">
                             <option value="Reguler">Reguler</option>
                             <option value="Urgent">Urgent</option>
                         </select>
@@ -1075,7 +989,7 @@
                     items = Array.isArray(val) ? val : Object.values(val);
                 } else {
                     const defaultItems = [
-                        { id: "1", item_number: "WKS-2026-001", item_name: "Endmill 4-Flute Carbide", diameter: "Ø10.0", qty: 5, type_grinding: "New Grinding", current_stage_index: 1, priority: "Reguler", supplier_access: false, last_updated_by: "USER" }
+                        { id: "1", item_number: "WKS-2026-001", item_name: "Endmill 4-Flute Carbide", qty: 5, type_grinding: "New Grinding", current_stage_index: 1, priority: "Reguler", supplier_access: false, last_updated_by: "USER" }
                     ];
                     window.dbSet(window.dbRef(window.db, 'tool_items'), defaultItems);
                     items = defaultItems;
@@ -1171,7 +1085,6 @@
                 if(currentUser) { renderYearlyTable(); }
             });
 
-            // FIREBASE SYNC: KNOWLEDGE & CYCLE TIME
             window.dbOnValue(window.dbRef(window.db, 'knowledge_items'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
@@ -1363,22 +1276,96 @@
             }
         }
 
+        // ================= FITUR BARU: AUTO-SUGGEST & AUTO-FILL DARI DATA MASTER KE MODAL INPUT ITEM BARU =================
+        function openModalAddItem() {
+            document.getElementById('modalMasterSearch').value = '';
+            document.getElementById('newItemNumber').value = '';
+            document.getElementById('newItemName').value = '';
+            document.getElementById('newItemQty').value = '1';
+            document.getElementById('masterSuggestionsList').classList.add('hidden');
+            document.getElementById('masterSuggestionsList').innerHTML = '';
+            document.getElementById('modalAddItem').classList.remove('hidden');
+        }
+
+        function filterMasterSuggestions(keyword) {
+            const listContainer = document.getElementById('masterSuggestionsList');
+            listContainer.innerHTML = '';
+            
+            if(!keyword || keyword.trim() === '') {
+                listContainer.classList.add('hidden');
+                return;
+            }
+
+            const q = keyword.toLowerCase();
+            let matches = [];
+
+            masterTables.forEach(table => {
+                if(table.rows && Array.isArray(table.rows)) {
+                    table.rows.forEach(row => {
+                        if((row.itemNumber && row.itemNumber.toLowerCase().includes(q)) || (row.desc && row.desc.toLowerCase().includes(q))) {
+                            matches.push({
+                                itemNumber: row.itemNumber,
+                                desc: row.desc,
+                                tableName: table.tableName
+                            });
+                        }
+                    });
+                }
+            });
+
+            if(matches.length === 0) {
+                listContainer.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">Tidak ada item master yang cocok</div>`;
+                listContainer.classList.remove('hidden');
+                return;
+            }
+
+            matches.forEach(m => {
+                const div = document.createElement('div');
+                div.className = "p-3 hover:bg-indigo-50 cursor-pointer transition flex flex-col";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-mono font-bold text-brandBlue text-xs">${m.itemNumber}</span>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">${m.tableName}</span>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-800 mt-0.5">${m.desc}</span>
+                `;
+                div.onclick = () => selectMasterSuggestion(m.itemNumber, m.desc);
+                listContainer.appendChild(div);
+            });
+
+            listContainer.classList.remove('hidden');
+        }
+
+        function selectMasterSuggestion(itemNumber, desc) {
+            document.getElementById('newItemNumber').value = itemNumber;
+            document.getElementById('newItemName').value = desc;
+            document.getElementById('modalMasterSearch').value = `${itemNumber} - ${desc}`;
+            document.getElementById('masterSuggestionsList').classList.add('hidden');
+            showToast('Auto-Fill', 'Item berhasil dipilih dari Data Master.', 'info');
+        }
+
+        document.addEventListener('click', function(e) {
+            const searchInput = document.getElementById('modalMasterSearch');
+            const listContainer = document.getElementById('masterSuggestionsList');
+            if(searchInput && listContainer && !searchInput.contains(e.target) && !listContainer.contains(e.target)) {
+                listContainer.classList.add('hidden');
+            }
+        });
+
         // ================= KNOWLEDGE & CYCLE TIME FUNCTIONS =================
         function renderKnowledgeTable() {
             const tbody = document.getElementById('knowledgeTableBody');
             tbody.innerHTML = '';
-
             if(!knowledgeItems || knowledgeItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada data knowledge tool. Silakan import file Excel atau buat data.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada data knowledge tool.</td></tr>`;
                 return;
             }
-
             knowledgeItems.forEach((item) => {
                 const hasDrawing = item.drawing && item.drawing.trim() !== "";
                 const drawingCellHTML = hasDrawing 
                     ? `<div class="flex items-center space-x-2">
                            <button onclick="viewDrawing('${item.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-eye text-[11px]"></i><span>View</span></button>
-                           <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer" title="Ganti Gambar">Ganti <input type="file" accept="image/*" onchange="uploadDrawing(event, '${item.id}')" class="hidden"></label>
+                           <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Ganti <input type="file" accept="image/*" onchange="uploadDrawing(event, '${item.id}')" class="hidden"></label>
                        </div>`
                     : `<label class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5">
                            <i class="fa-solid fa-upload text-[11px]"></i><span>Import Gambar</span>
@@ -1408,9 +1395,7 @@
 
         function downloadKnowledgeTemplate() {
             let wb = XLSX.utils.book_new();
-            let templateData = [
-                { "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10" }
-            ];
+            let templateData = [{ "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10" }];
             let ws = XLSX.utils.json_to_sheet(templateData);
             XLSX.utils.book_append_sheet(wb, ws, "Template_Knowledge");
             XLSX.writeFile(wb, `Template_Knowledge_WKS.xlsx`);
@@ -1435,9 +1420,7 @@
                     });
                     window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
                     showToast('Berhasil', 'Data knowledge berhasil diimport!', 'success');
-                } catch(err) {
-                    showToast('Gagal', 'Format file Excel tidak valid.', 'error');
-                }
+                } catch(err) { showToast('Gagal', 'Format file Excel tidak valid.', 'error'); }
                 e.target.value = '';
             };
             reader.readAsArrayBuffer(file);
@@ -1464,66 +1447,43 @@
             if(item && item.drawing) {
                 const newWindow = window.open();
                 newWindow.document.write(`
-                    <html>
-                        <head><title>Drawing - ${item.itemNumber}</title></head>
-                        <body style="margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; color:white; font-family:sans-serif;">
-                            <h2 style="margin-bottom:10px;">${item.itemNumber} — ${item.desc}</h2>
-                            <img src="${item.drawing}" style="max-width:90%; max-height:80vh; border:2px solid #334155; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
-                            <p style="margin-top:15px; font-size:14px; color:#94a3b8;">WKS Tool Apps - Drawing Preview</p>
-                        </body>
-                    </html>
+                    <html><head><title>Drawing - ${item.itemNumber}</title></head>
+                    <body style="margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; color:white; font-family:sans-serif;">
+                        <h2 style="margin-bottom:10px;">${item.itemNumber} — ${item.desc}</h2>
+                        <img src="${item.drawing}" style="max-width:90%; max-height:80vh; border:2px solid #334155; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
+                    </body></html>
                 `);
-            } else {
-                showToast('Informasi', 'Belum ada gambar drawing yang diimport.', 'info');
-            }
+            } else { showToast('Informasi', 'Belum ada gambar drawing.', 'info'); }
         }
 
         function printKnowledgePDF(id) {
             const item = knowledgeItems.find(k => k.id === id);
             if(!item) return;
-
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-
             doc.setFont("helvetica", "bold");
             doc.setFontSize(16);
-            doc.setTextColor(15, 23, 42);
             doc.text("WKS TOOL APPS — KNOWLEDGE & DRAWING REPORT", 14, 18);
-
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
-            doc.setTextColor(100, 116, 139);
-            const currentDate = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-            doc.text(`Tanggal Cetak: ${currentDate} | Dicetak Oleh: ${currentUser}`, 14, 25);
-
-            const headers = [["Item Number", "Deskripsi Tool", "Status Drawing"]];
-            const data = [[
-                item.itemNumber,
-                item.desc,
-                item.drawing ? "Tersedia (Terlampir)" : "Tidak Ada Gambar"
-            ]];
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
 
             doc.autoTable({
                 startY: 32,
-                head: headers,
-                body: data,
+                head: [["Item Number", "Deskripsi Tool", "Status Drawing"]],
+                body: [[item.itemNumber, item.desc, item.drawing ? "Tersedia" : "Tidak Ada"]],
                 theme: 'grid',
-                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
-                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] }
+                headStyles: { fillColor: [15, 23, 42] }
             });
 
             if(item.drawing) {
                 try {
                     const finalY = doc.lastAutoTable.finalY + 10;
                     doc.setFont("helvetica", "bold");
-                    doc.setFontSize(12);
                     doc.text("Lampiran Gambar Drawing:", 14, finalY);
                     doc.addImage(item.drawing, 'JPEG', 14, finalY + 5, 100, 100);
-                } catch(err) {
-                    console.error("Gagal memuat gambar ke PDF", err);
-                }
+                } catch(err) { console.error(err); }
             }
-
             doc.save(`Knowledge_${item.itemNumber}_WKS.pdf`);
         }
 
@@ -1537,12 +1497,10 @@
         function renderCycleTimeTable() {
             const tbody = document.getElementById('cycleTimeTableBody');
             tbody.innerHTML = '';
-
             if(!cycleTimeItems || cycleTimeItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400 text-xs">Belum ada data cycle time. Silakan import file Excel atau buat data.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400 text-xs">Belum ada data cycle time.</td></tr>`;
                 return;
             }
-
             cycleTimeItems.forEach((ct) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100 text-center";
@@ -1568,19 +1526,7 @@
 
         function downloadCycleTimeTemplate() {
             let wb = XLSX.utils.book_new();
-            let templateData = [
-                { 
-                    "Item Number": "WKS-2026-001", 
-                    "Proses 1": "Setup", "Cycle Time 1 (s)": 45, 
-                    "Proses 2": "Roughing", "Cycle Time 2 (s)": 120, 
-                    "Proses 3": "Finishing", "Cycle Time 3 (s)": 90, 
-                    "Proses 4": "-", "Cycle Time 4 (s)": 0, 
-                    "Proses 5": "-", "Cycle Time 5 (s)": 0, 
-                    "Proses 6": "-", "Cycle Time 6 (s)": 0, 
-                    "Proses 7": "-", "Cycle Time 7 (s)": 0, 
-                    "Proses 8": "-", "Cycle Time 8 (s)": 0 
-                }
-            ];
+            let templateData = [{ "Item Number": "WKS-2026-001", "Proses 1": "Setup", "Cycle Time 1 (s)": 45, "Proses 2": "Roughing", "Cycle Time 2 (s)": 120, "Proses 3": "Finishing", "Cycle Time 3 (s)": 90, "Proses 4": "-", "Cycle Time 4 (s)": 0, "Proses 5": "-", "Cycle Time 5 (s)": 0, "Proses 6": "-", "Cycle Time 6 (s)": 0, "Proses 7": "-", "Cycle Time 7 (s)": 0, "Proses 8": "-", "Cycle Time 8 (s)": 0 }];
             let ws = XLSX.utils.json_to_sheet(templateData);
             XLSX.utils.book_append_sheet(wb, ws, "Template_Cycle_Time");
             XLSX.writeFile(wb, `Template_Cycle_Time_WKS.xlsx`);
@@ -1611,9 +1557,7 @@
                     });
                     window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
                     showToast('Berhasil', 'Data cycle time berhasil diimport!', 'success');
-                } catch(err) {
-                    showToast('Gagal', 'Format file Excel tidak valid.', 'error');
-                }
+                } catch(err) { showToast('Gagal', 'Format file Excel tidak valid.', 'error'); }
                 e.target.value = '';
             };
             reader.readAsArrayBuffer(file);
@@ -1674,7 +1618,7 @@
             crDatabase.push(newItem);
             window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), crDatabase);
             closeModal('modalAddCR');
-            showToast('Berhasil', 'Item Cost Reduction ditambahkan ke database.', 'success');
+            showToast('Berhasil', 'Item Cost Reduction ditambahkan.', 'success');
         }
 
         function deleteCRItem(id) {
@@ -1687,22 +1631,9 @@
         function populateCRSelect() {
             const select = document.getElementById('dailyItemSelect');
             select.innerHTML = '';
-            
             const defaultOpt = document.createElement('option');
-            defaultOpt.value = "";
-            defaultOpt.text = "-- Pilih Item Number --";
-            defaultOpt.selected = true;
-            defaultOpt.disabled = true;
+            defaultOpt.value = ""; defaultOpt.text = "-- Pilih Item Number --"; defaultOpt.selected = true; defaultOpt.disabled = true;
             select.appendChild(defaultOpt);
-
-            if(crDatabase.length === 0) {
-                const opt = document.createElement('option');
-                opt.value = "";
-                opt.text = "Database kosong";
-                select.appendChild(opt);
-                return;
-            }
-
             crDatabase.forEach(item => {
                 const opt = document.createElement('option');
                 opt.value = item.id;
@@ -1714,14 +1645,13 @@
         function resetDailyManualInput() {
             document.getElementById('dailyItemSelect').selectedIndex = 0;
             document.getElementById('dailyManualQtyInput').value = "1";
-            showToast('Reset', 'Pilihan input manual dikosongkan.', 'info');
         }
 
         function startDailyCR() {
             dailyActive = true;
             window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
             updateDailyUIState();
-            showToast('Mulai', 'Sesi Cost Reduction harian dimulai. Sistem otomatis mensinkronkan item Finished di Tracking Progress.', 'info');
+            showToast('Mulai', 'Sesi Cost Reduction harian dimulai (Auto-Sync aktif).', 'info');
         }
 
         function finishDailyCR() {
@@ -1732,63 +1662,43 @@
                 rupiah: (monthlyData[currentMonth]?.rupiah || 0) + dailyRupiah
             };
             window.dbSet(window.dbRef(window.db, 'cost_reduction_monthly'), monthlyData);
-            
-            dailyActive = false;
-            dailyQty = 0;
-            dailyRupiah = 0;
+            dailyActive = false; dailyQty = 0; dailyRupiah = 0;
             window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
-            
             updateDailyUIState();
             updateMonthlyChart();
-            showToast('Selesai', 'Sesi harian ditutup dan data berhasil masuk ke rekap bulanan.', 'success');
+            showToast('Selesai', 'Sesi harian ditutup dan masuk ke rekap bulanan.', 'success');
         }
 
         function updateDailyUIState() {
             const btnStart = document.getElementById('btnStartDaily');
             const btnFinish = document.getElementById('btnFinishDaily');
             const badge = document.getElementById('dailyStatusBadge');
-
             if(dailyActive) {
-                btnStart.disabled = true;
-                btnFinish.disabled = false;
+                btnStart.disabled = true; btnFinish.disabled = false;
                 badge.className = "p-3 bg-emerald-100 rounded-xl text-sm font-bold text-emerald-800 text-center animate-pulse";
-                badge.innerText = "🟢 Real-Time Berjalan (Auto-Sync)";
+                badge.innerText = "🟢 Real-Time Berjalan";
             } else {
-                btnStart.disabled = false;
-                btnFinish.disabled = true;
+                btnStart.disabled = false; btnFinish.disabled = true;
                 badge.className = "p-3 bg-slate-200 rounded-xl text-sm font-bold text-slate-600 text-center";
-                badge.innerText = "Belum Dimulai / Reset";
+                badge.innerText = "Belum Dimulai";
             }
-
             document.getElementById('dailyDisplayQty').innerText = `${dailyQty} Pcs`;
             document.getElementById('dailyDisplayRupiah').innerText = `Rp ${Number(dailyRupiah).toLocaleString('id-ID')}`;
         }
 
         function addManualDailyCR() {
-            if(!dailyActive) {
-                alert('Silakan klik tombol "Mulai Harian" terlebih dahulu sebelum mencatat CR.');
-                return;
-            }
+            if(!dailyActive) { alert('Klik Mulai Harian terlebih dahulu.'); return; }
             const selectedId = document.getElementById('dailyItemSelect').value;
-            if(!selectedId) {
-                alert('Silakan pilih Item Number terlebih dahulu.');
-                return;
-            }
+            if(!selectedId) { alert('Pilih Item Number.'); return; }
             const addQty = parseInt(document.getElementById('dailyManualQtyInput').value) || 0;
             const item = crDatabase.find(i => i.id === selectedId);
-
-            if(!item) {
-                alert('Pilih item database Cost Reduction terlebih dahulu.');
-                return;
-            }
-
+            if(!item) return;
             const crPerUnit = (item.outHouse || 0) - (item.inHouse || 0);
             dailyQty += addQty;
             dailyRupiah += (crPerUnit * addQty);
-
             window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
             updateDailyUIState();
-            showToast('Manual Add', `Berhasil menambahkan ${addQty} Pcs untuk ${item.itemNumber}`, 'success');
+            showToast('Berhasil', `Menambahkan ${addQty} Pcs untuk ${item.itemNumber}`, 'success');
         }
 
         function checkAndProcessAutoSyncCR(item) {
@@ -1797,14 +1707,11 @@
             if(matchedCR) {
                 const itemQty = item.qty || 1;
                 const crPerUnit = (matchedCR.outHouse || 0) - (matchedCR.inHouse || 0);
-                const addedRp = crPerUnit * itemQty;
-
                 dailyQty += itemQty;
-                dailyRupiah += addedRp;
-
+                dailyRupiah += (crPerUnit * itemQty);
                 window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
                 updateDailyUIState();
-                showToast('🪙 CR RealTime Sync', `Item ${matchedCR.itemNumber} selesai! +${itemQty} Pcs (Rp ${Number(addedRp).toLocaleString('id-ID')})`, 'success');
+                showToast('🪙 CR RealTime Sync', `Item ${matchedCR.itemNumber} selesai! +${itemQty} Pcs`, 'success');
             }
         }
 
@@ -1815,48 +1722,15 @@
                 data: {
                     labels: monthNames,
                     datasets: [
-                        {
-                            label: 'Quantity (Pcs)',
-                            data: monthlyData.map(d => d.qty),
-                            borderColor: '#2563eb',
-                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                            yAxisID: 'yQty',
-                            tension: 0.3,
-                            fill: true
-                        },
-                        {
-                            label: 'Nilai Rupiah (Rp)',
-                            data: monthlyData.map(d => d.rupiah),
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            yAxisID: 'yRp',
-                            tension: 0.3,
-                            fill: true
-                        }
+                        { label: 'Quantity (Pcs)', data: monthlyData.map(d => d.qty), borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', yAxisID: 'yQty', tension: 0.3, fill: true },
+                        { label: 'Nilai Rupiah (Rp)', data: monthlyData.map(d => d.rupiah), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', yAxisID: 'yRp', tension: 0.3, fill: true }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     scales: {
-                        yQty: {
-                            type: 'linear',
-                            position: 'left',
-                            max: 800,
-                            title: { display: true, text: 'Quantity (Pcs)' }
-                        },
-                        yRp: {
-                            type: 'linear',
-                            position: 'right',
-                            max: 2000000000,
-                            title: { display: true, text: 'Nilai Rupiah (Rp)' },
-                            grid: { drawOnChartArea: false },
-                            ticks: {
-                                callback: function(value) {
-                                    return 'Rp ' + (value / 1000000) + ' Jt';
-                                }
-                            }
-                        }
+                        yQty: { type: 'linear', position: 'left', max: 800, title: { display: true, text: 'Quantity (Pcs)' } },
+                        yRp: { type: 'linear', position: 'right', max: 2000000000, title: { display: true, text: 'Nilai Rupiah (Rp)' }, grid: { drawOnChartArea: false }, ticks: { callback: v => 'Rp ' + (v / 1000000) + ' Jt' } }
                     }
                 }
             });
@@ -1870,7 +1744,7 @@
         }
 
         function finishMonthlyCR() {
-            if(confirm('Pindahkan data CR Bulanan ke CR Tahunan dan reset bulanan?')) {
+            if(confirm('Pindahkan data CR Bulanan ke Tahunan dan reset bulanan?')) {
                 for(let i=0; i<12; i++) {
                     yearlyData[i] = {
                         qty: (yearlyData[i]?.qty || 0) + (monthlyData[i]?.qty || 0),
@@ -1878,42 +1752,28 @@
                     };
                 }
                 window.dbSet(window.dbRef(window.db, 'cost_reduction_yearly'), yearlyData);
-
                 monthlyData = Array(12).fill({ qty: 0, rupiah: 0 });
                 window.dbSet(window.dbRef(window.db, 'cost_reduction_monthly'), monthlyData);
                 updateMonthlyChart();
                 renderYearlyTable();
-
-                showToast('Sukses', 'Data bulanan sukses dimasukkan ke rekap tahunan!', 'success');
+                showToast('Sukses', 'Data bulanan masuk ke rekap tahunan!', 'success');
             }
         }
 
         function renderYearlyTable() {
             const tbody = document.getElementById('yearlyTableBody');
             tbody.innerHTML = '';
-            let totalQty = 0;
-            let totalRp = 0;
-
+            let totalQty = 0, totalRp = 0;
             yearlyData.forEach((d, idx) => {
-                totalQty += (d.qty || 0);
-                totalRp += (d.rupiah || 0);
+                totalQty += (d.qty || 0); totalRp += (d.rupiah || 0);
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="p-3.5 font-bold text-slate-800">${monthNames[idx]}</td>
-                    <td class="p-3.5 text-center font-bold text-blue-600">${d.qty || 0} Pcs</td>
-                    <td class="p-3.5 text-right font-black text-emerald-600">Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}</td>
-                `;
+                tr.innerHTML = `<td class="p-3.5 font-bold text-slate-800">${monthNames[idx]}</td><td class="p-3.5 text-center font-bold text-blue-600">${d.qty || 0} Pcs</td><td class="p-3.5 text-right font-black text-emerald-600">Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}</td>`;
                 tbody.appendChild(tr);
             });
-
             const trTotal = document.createElement('tr');
             trTotal.className = "bg-slate-100 font-black text-slate-900";
-            trTotal.innerHTML = `
-                <td class="p-3.5">TOTAL 1 TAHUN</td>
-                <td class="p-3.5 text-center text-blue-700">${totalQty} Pcs</td>
-                <td class="p-3.5 text-right text-emerald-700">Rp ${Number(totalRp).toLocaleString('id-ID')}</td>
-            `;
+            trTotal.innerHTML = `<td class="p-3.5">TOTAL 1 TAHUN</td><td class="p-3.5 text-center text-blue-700">${totalQty} Pcs</td><td class="p-3.5 text-right text-emerald-700">Rp ${Number(totalRp).toLocaleString('id-ID')}</td>`;
             tbody.appendChild(trTotal);
         }
 
@@ -1922,15 +1782,13 @@
                 yearlyData = Array(12).fill({ qty: 0, rupiah: 0 });
                 window.dbSet(window.dbRef(window.db, 'cost_reduction_yearly'), yearlyData);
                 renderYearlyTable();
-                showToast('Reset', 'Data CR Tahunan berhasil di-reset.', 'info');
+                showToast('Reset', 'Data CR Tahunan di-reset.', 'info');
             }
         }
 
         function downloadCRTemplate() {
             let wb = XLSX.utils.book_new();
-            let templateData = [
-                { "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill Carbide D10", "Rp. Out house": 150000, "Rp. In house": 90000 }
-            ];
+            let templateData = [{ "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill Carbide D10", "Rp. Out house": 150000, "Rp. In house": 90000 }];
             let ws = XLSX.utils.json_to_sheet(templateData);
             XLSX.utils.book_append_sheet(wb, ws, "Template_Cost_Reduction");
             XLSX.writeFile(wb, "Template_Cost_Reduction_WKS.xlsx");
@@ -1955,7 +1813,7 @@
                         });
                     });
                     window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), crDatabase);
-                    showToast('Berhasil', 'Data Database Cost Reduction berhasil di-import!', 'success');
+                    showToast('Berhasil', 'Database Cost Reduction di-import!', 'success');
                 } catch(err) { alert('Gagal membaca file Excel.'); }
                 e.target.value = '';
             };
@@ -1965,26 +1823,15 @@
         function downloadMonthlyPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("WKS TOOL APPS — LAPORAN COST REDUCTION BULANAN", 14, 18);
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
             doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
-
-            const headers = [["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"]];
-            const data = monthlyData.map((d, i) => [
-                monthNames[i],
-                `${d.qty || 0} Pcs`,
-                `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`
-            ]);
-
             doc.autoTable({
                 startY: 32,
-                head: headers,
-                body: data,
-                theme: 'grid',
-                headStyles: { fillColor: [37, 99, 235] }
+                head: [["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"]],
+                body: monthlyData.map((d, i) => [monthNames[i], `${d.qty || 0} Pcs`, `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`]),
+                theme: 'grid', headStyles: { fillColor: [37, 99, 235] }
             });
             doc.save(`CR_Bulanan_${new Date().toISOString().split('T')[0]}.pdf`);
         }
@@ -1992,228 +1839,107 @@
         function downloadYearlyPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("WKS TOOL APPS — LAPORAN COST REDUCTION TAHUNAN", 14, 18);
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
             doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
-
-            const headers = [["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"]];
-            const data = yearlyData.map((d, i) => [
-                monthNames[i],
-                `${d.qty || 0} Pcs`,
-                `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`
-            ]);
-
             doc.autoTable({
                 startY: 32,
-                head: headers,
-                body: data,
-                theme: 'grid',
-                headStyles: { fillColor: [15, 23, 42] }
+                head: [["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"]],
+                body: yearlyData.map((d, i) => [monthNames[i], `${d.qty || 0} Pcs`, `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`]),
+                theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
             });
             doc.save(`CR_Tahunan_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
-        // ================= EXPORT & UTILITY FUNCTIONS =================
         function exportCompletedExcel() {
-            const completedItems = items.filter(item => {
-                const stages = stagesDefinition[item.type_grinding];
-                return item.current_stage_index >= stages.length - 1;
-            });
-
-            if(completedItems.length === 0) {
-                alert('Tidak ada item yang selesai (completed) untuk diexport.');
-                return;
-            }
-
+            const completedItems = items.filter(item => item.current_stage_index >= stagesDefinition[item.type_grinding].length - 1);
+            if(completedItems.length === 0) { alert('Tidak ada item selesai.'); return; }
             let wb = XLSX.utils.book_new();
             let dataToExport = completedItems.map(item => ({
-                "Item Number": item.item_number,
-                "Detail Barang": item.item_name,
-                "Diameter": item.diameter,
-                "QTY Selesai": item.qty || 1,
-                "Type Grinding": item.type_grinding,
-                "Tanggal Selesai": item.completed_at || '-',
-                "Oleh": item.completed_by || '-'
+                "Item Number": item.item_number, "Detail Barang": item.item_name,
+                "QTY Selesai": item.qty || 1, "Type Grinding": item.type_grinding,
+                "Tanggal Selesai": item.completed_at || '-', "Oleh": item.completed_by || '-'
             }));
-
             let ws = XLSX.utils.json_to_sheet(dataToExport);
             XLSX.utils.book_append_sheet(wb, ws, "Completed_Items");
             XLSX.writeFile(wb, `WKS_Completed_Items_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
         function exportCompletedPDF() {
-            const completedItems = items.filter(item => {
-                const stages = stagesDefinition[item.type_grinding];
-                return item.current_stage_index >= stages.length - 1;
-            });
-
-            if(completedItems.length === 0) {
-                alert('Tidak ada item yang selesai (completed) untuk diexport PDF.');
-                return;
-            }
-
+            const completedItems = items.filter(item => item.current_stage_index >= stagesDefinition[item.type_grinding].length - 1);
+            if(completedItems.length === 0) { alert('Tidak ada item selesai.'); return; }
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.setTextColor(15, 23, 42);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("WKS TOOL APPS — LAPORAN ITEM SELESAI (COMPLETED)", 14, 18);
-
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.setTextColor(100, 116, 139);
-            const currentDate = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-            doc.text(`Tanggal Cetak: ${currentDate} | Dicetak Oleh: ${currentUser}`, 14, 25);
-
-            const headers = [["Item Number", "Detail Barang", "Diameter", "QTY", "Type Grinding", "Tanggal & User Selesai"]];
-            const data = completedItems.map(item => [
-                item.item_number,
-                item.item_name,
-                item.diameter,
-                `${item.qty || 1} Pcs`,
-                item.type_grinding,
-                `${item.completed_at || '-'} (${item.completed_by || '-'})`
-            ]);
-
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
             doc.autoTable({
                 startY: 32,
-                head: headers,
-                body: data,
-                theme: 'grid',
-                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
-                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
-                alternateRowStyles: { fillColor: [248, 250, 252] }
+                head: [["Item Number", "Detail Barang", "QTY", "Type Grinding", "Tanggal & User Selesai"]],
+                body: completedItems.map(item => [item.item_number, item.item_name, `${item.qty || 1} Pcs`, item.type_grinding, `${item.completed_at || '-'} (${item.completed_by || '-'})`]),
+                theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
             });
-
             doc.save(`WKS_Completed_Report_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function exportMasterTablePDF(tableId) {
             const table = masterTables.find(t => t.id === tableId);
-            if(!table || !table.rows || table.rows.length === 0) {
-                alert('Tabel master kosong, tidak ada data untuk diexport.');
-                return;
-            }
-
+            if(!table || !table.rows || table.rows.length === 0) { alert('Tabel master kosong.'); return; }
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.setTextColor(15, 23, 42);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text(`WKS TOOL APPS — ${table.tableName.toUpperCase()}`, 14, 18);
-
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.setTextColor(100, 116, 139);
-            const currentDate = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-            doc.text(`Tanggal Cetak: ${currentDate} | Dicetak Oleh: ${currentUser}`, 14, 25);
-
-            const headers = [["Item Number", "Deskripsi Tool", "Tool Life (Pcs)", "Keterangan"]];
-            const data = table.rows.map(r => [
-                r.itemNumber,
-                r.desc,
-                r.toolLife || '-',
-                r.note || '-'
-            ]);
-
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
             doc.autoTable({
                 startY: 32,
-                head: headers,
-                body: data,
-                theme: 'grid',
-                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
-                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
-                alternateRowStyles: { fillColor: [248, 250, 252] }
+                head: [["Item Number", "Deskripsi Tool", "Tool Life (Pcs)", "Keterangan"]],
+                body: table.rows.map(r => [r.itemNumber, r.desc, r.toolLife || '-', r.note || '-']),
+                theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
             });
-
             doc.save(`Master_${table.tableName.replace(/\s+/g, '_')}_WKS.pdf`);
         }
 
         function exportStockAndScrapPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.setTextColor(15, 23, 42);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("WKS TOOL APPS — LAPORAN BUFFER STOK & SCRAP", 14, 18);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
 
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.setTextColor(100, 116, 139);
-            const currentDate = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-            doc.text(`Tanggal Cetak: ${currentDate} | Dicetak Oleh: ${currentUser}`, 14, 25);
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.setTextColor(15, 23, 42);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(12);
             doc.text("1. Data Buffer Stok Gudang", 14, 35);
-
-            const bufferHeaders = [["Item Number", "Deskripsi Tool", "Stok Saat Ini", "Min Buffer", "Status Stok"]];
-            const bufferData = bufferStockItems.map(b => [
-                b.itemNumber,
-                b.desc,
-                `${b.currentStock} Pcs`,
-                `${b.minStock} Pcs`,
-                b.currentStock <= b.minStock ? "MENIPIS (RESTOCK)" : "AMAN"
-            ]);
-
             doc.autoTable({
                 startY: 39,
-                head: bufferHeaders,
-                body: bufferData,
-                theme: 'grid',
-                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
-                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
-                alternateRowStyles: { fillColor: [248, 250, 252] }
+                head: [["Item Number", "Deskripsi Tool", "Stok Saat Ini", "Min Buffer", "Status Stok"]],
+                body: bufferStockItems.map(b => [b.itemNumber, b.desc, `${b.currentStock} Pcs`, `${b.minStock} Pcs`, b.currentStock <= b.minStock ? "MENIPIS" : "AMAN"]),
+                theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
             });
 
             const finalY = doc.lastAutoTable.finalY + 12;
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.setTextColor(185, 28, 28);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(185, 28, 28);
             doc.text("2. Daftar Tool Scrap / Afkir", 14, finalY);
-
-            const scrapHeaders = [["Item Number", "Nama / Deskripsi Tool", "Riwayat Regrind", "Alasan Scrap", "Tanggal"]];
-            const scrapData = scrapItems.map(s => [
-                s.itemNumber,
-                s.desc,
-                s.regrindCount,
-                s.reason,
-                s.date
-            ]);
-
             doc.autoTable({
                 startY: finalY + 4,
-                head: scrapHeaders,
-                body: scrapData,
-                theme: 'grid',
-                headStyles: { fillColor: [185, 28, 28], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
-                bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
-                alternateRowStyles: { fillColor: [254, 242, 242] }
+                head: [["Item Number", "Nama / Deskripsi Tool", "Riwayat Regrind", "Alasan Scrap", "Tanggal"]],
+                body: scrapItems.map(s => [s.itemNumber, s.desc, s.regrindCount, s.reason, s.date]),
+                theme: 'grid', headStyles: { fillColor: [185, 28, 28] }
             });
-
             doc.save(`Laporan_Buffer_Stok_Scrap_WKS_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function renderStockAndScrap() {
             const bufferTbody = document.getElementById('bufferStockTableBody');
             bufferTbody.innerHTML = '';
-
             if(bufferStockItems.length === 0) {
                 bufferTbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada item buffer stok.</td></tr>`;
             } else {
                 bufferStockItems.forEach(b => {
                     const isLow = b.currentStock <= b.minStock;
-                    const statusBadge = isLow 
-                        ? `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">⚠️ Stok Menipis</span>` 
-                        : `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Aman</span>`;
-
+                    const statusBadge = isLow ? `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">⚠️ Stok Menipis</span>` : `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Aman</span>`;
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                     tr.innerHTML = `
@@ -2236,9 +1962,8 @@
 
             const scrapTbody = document.getElementById('scrapTableBody');
             scrapTbody.innerHTML = '';
-
             if(scrapItems.length === 0) {
-                scrapTbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada tool yang masuk daftar scrap.</td></tr>`;
+                scrapTbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada tool scrap.</td></tr>`;
             } else {
                 scrapItems.forEach(s => {
                     const tr = document.createElement('tr');
@@ -2249,9 +1974,7 @@
                         <td class="p-4 text-center"><span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-lg font-bold">${s.regrindCount}</span></td>
                         <td class="p-4 text-slate-700 font-medium">${s.reason}</td>
                         <td class="p-4 text-center text-xs text-slate-500">${s.date} (${s.recordedBy})</td>
-                        <td class="p-4 text-center">
-                            ${currentUser === 'USER' ? `<button onclick="deleteScrap('${s.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : '-'}
-                        </td>
+                        <td class="p-4 text-center">${currentUser === 'USER' ? `<button onclick="deleteScrap('${s.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : '-'}</td>
                     `;
                     scrapTbody.appendChild(tr);
                 });
@@ -2328,16 +2051,13 @@
         function renderMasterTablesContainer() {
             const container = document.getElementById('masterTablesContainer');
             container.innerHTML = '';
-
             if(!masterTables || masterTables.length === 0) {
                 container.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200">Belum ada tabel master.</div>`;
                 return;
             }
-
             masterTables.forEach((table) => {
                 const tableDiv = document.createElement('div');
                 tableDiv.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
-                
                 let rowsHTML = '';
                 if(!table.rows || table.rows.length === 0) {
                     rowsHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada data baris.</td></tr>`;
@@ -2349,31 +2069,20 @@
                                 <td class="p-4 font-medium text-slate-900">${row.desc}</td>
                                 <td class="p-4"><span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-lg font-bold">${row.toolLife || '-'}</span></td>
                                 <td class="p-4 text-slate-600">${row.note || '-'}</td>
-                                ${currentUser === 'USER' ? `
-                                    <td class="p-4 text-center">
-                                        <button onclick="deleteMasterRow('${table.id}', '${row.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm cursor-pointer">
-                                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </td>
-                                ` : ''}
+                                ${currentUser === 'USER' ? `<td class="p-4 text-center"><button onclick="deleteMasterRow('${table.id}', '${row.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm cursor-pointer"><svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></td>` : ''}
                             </tr>
                         `;
                     });
                 }
-
                 tableDiv.innerHTML = `
                     <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                         <h4 class="font-bold text-sm tracking-wide">📂 ${table.tableName}</h4>
                         <div class="flex flex-wrap items-center gap-2">
                             ${currentUser === 'USER' ? `
                                 <button onclick="openModalAddMasterRow('${table.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Baris</button>
-                                <button onclick="downloadTableTemplate('${table.tableName}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Template (WKS)</button>
-                                <button onclick="exportMasterTablePDF('${table.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1 cursor-pointer">
-                                    <span>📥 Export PDF</span>
-                                </button>
-                                <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-                                    Import <input type="file" accept=".xlsx, .xls, .csv" onchange="importSingleTable(event, '${table.id}')" class="hidden">
-                                </label>
+                                <button onclick="downloadTableTemplate('${table.tableName}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Template</button>
+                                <button onclick="exportMasterTablePDF('${table.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">📥 Export PDF</button>
+                                <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Import <input type="file" accept=".xlsx, .xls, .csv" onchange="importSingleTable(event, '${table.id}')" class="hidden"></label>
                                 <button onclick="deleteMasterTable('${table.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>
                             ` : ''}
                         </div>
@@ -2454,9 +2163,7 @@
 
         function downloadTableTemplate(tableName) {
             let wb = XLSX.utils.book_new();
-            let templateData = [
-                { "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10", "Tool Life": "500 Pcs", "Keterangan": "Contoh Katalog WKS" }
-            ];
+            let templateData = [{ "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10", "Tool Life": "500 Pcs", "Keterangan": "Stok Utama" }];
             let ws = XLSX.utils.json_to_sheet(templateData);
             XLSX.utils.book_append_sheet(wb, ws, "Template_WKS");
             XLSX.writeFile(wb, `Template_WKS_${tableName.replace(/\s+/g, '_')}.xlsx`);
@@ -2492,14 +2199,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        function openModalAddItem() {
-            document.getElementById('newItemName').value = '';
-            document.getElementById('newItemNumber').value = '';
-            document.getElementById('newItemDiameter').value = '';
-            document.getElementById('newItemQty').value = '1';
-            document.getElementById('modalAddItem').classList.remove('hidden');
-        }
-
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
@@ -2510,7 +2209,6 @@
                 id: Date.now().toString(),
                 item_number: document.getElementById('newItemNumber').value.trim(),
                 item_name: document.getElementById('newItemName').value.trim(),
-                diameter: document.getElementById('newItemDiameter').value.trim(),
                 qty: parseInt(document.getElementById('newItemQty').value) || 1,
                 type_grinding: document.getElementById('newItemType').value,
                 priority: document.getElementById('newItemPriority').value,
@@ -2523,6 +2221,7 @@
             items.unshift(newItem);
             window.dbSet(window.dbRef(window.db, 'tool_items'), items);
             closeModal('modalAddItem');
+            showToast('Berhasil', 'Item baru berhasil ditambahkan ke Tracking Progress.', 'success');
         }
 
         function toggleBuilderMode() {
@@ -2608,7 +2307,6 @@
             document.getElementById('statDone').innerText = countDone;
 
             const filtered = items.filter(item => (item.item_number.toLowerCase().includes(keyword) || item.item_name.toLowerCase().includes(keyword)) && (filterType === 'all' || item.type_grinding === filterType));
-            let activeCount = 0, completedCount = 0;
 
             filtered.forEach(item => {
                 const stages = stagesDefinition[item.type_grinding];
@@ -2617,7 +2315,6 @@
                 const progressPercentage = Math.round(((item.current_stage_index + 1) / stages.length) * 100);
 
                 if(!isFinished) {
-                    activeCount++;
                     const canUpdate = (currentUser === 'USER') || (currentUser === 'SUPPLIER' && item.supplier_access);
                     const updateButtonHTML = canUpdate ? `<button onclick="openModalUpdate('${item.id}')" class="bg-slate-900 hover:bg-brandBlue text-white px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer">Update Status</button>` : `<span class="text-xs text-slate-400 italic">Dikunci</span>`;
                     const toggleAccessHTML = currentUser === 'USER' ? `<td class="p-4 text-center"><button onclick="toggleSupplierAccess('${item.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'} cursor-pointer">${item.supplier_access ? 'OPEN' : 'TUTUP'}</button></td>` : '';
@@ -2627,7 +2324,6 @@
                     tr.innerHTML = `
                         <td class="p-4 font-mono font-bold text-brandBlue">${item.item_number}</td>
                         <td class="p-4 font-medium text-slate-900">${item.item_name}</td>
-                        <td class="p-4 text-slate-600">${item.diameter}</td>
                         <td class="p-4"><span class="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
                         <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">${item.type_grinding}</span></td>
                         <td class="p-4">
@@ -2654,36 +2350,23 @@
                             <span class="text-xs px-2.5 py-1 rounded-full font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">${item.type_grinding}</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
-                            <div>Diameter: <strong class="text-slate-900">${item.diameter}</strong></div>
                             <div>QTY: <strong class="text-blue-700">${item.qty || 1} Pcs</strong></div>
                             <div>Prioritas: <strong class="${item.priority === 'Urgent' ? 'text-red-600' : 'text-slate-900'}">${item.priority}</strong></div>
-                            <div>Update: <strong class="text-slate-900">${item.last_updated_by || 'SYSTEM'}</strong></div>
                         </div>
                         <div class="space-y-1">
-                            <div class="flex justify-between text-xs font-bold text-slate-700">
-                                <span>Progress: ${currentStageName}</span>
-                                <span>${progressPercentage}%</span>
-                            </div>
-                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                                <div class="bg-brandBlue h-full" style="width: ${progressPercentage}%"></div>
-                            </div>
+                            <div class="flex justify-between text-xs font-bold text-slate-700"><span>Progress: ${currentStageName}</span><span>${progressPercentage}%</span></div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-brandBlue h-full" style="width: ${progressPercentage}%"></div></div>
                         </div>
                         <div class="flex justify-between items-center pt-2 border-t border-slate-100">
-                            ${currentUser === 'USER' ? `
-                                <button onclick="toggleSupplierAccess('${item.id}')" class="text-xs font-bold px-3 py-1.5 rounded-xl ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'} cursor-pointer">
-                                    ${item.supplier_access ? 'Supplier: OPEN' : 'Supplier: TUTUP'}
-                                </button>
-                            ` : '<div></div>'}
+                            ${currentUser === 'USER' ? `<button onclick="toggleSupplierAccess('${item.id}')" class="text-xs font-bold px-3 py-1.5 rounded-xl ${item.supplier_access ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'} cursor-pointer">${item.supplier_access ? 'Supplier: OPEN' : 'Supplier: TUTUP'}</button>` : '<div></div>'}
                             ${updateButtonHTML}
                         </div>
                     `;
                     activeCards.appendChild(card);
 
                 } else {
-                    completedCount++;
                     const deleteButtonHTML = currentUser === 'USER' ? `<button onclick="deleteItem('${item.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>` : '-';
                     const repairButtonHTML = `<button onclick="openModalRepair('${item.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-wrench text-[10px]"></i><span>Repair</span></button>`;
-                    
                     const completedDateStr = item.completed_at || '-';
                     const completedByStr = item.completed_by || 'SYSTEM';
 
@@ -2692,22 +2375,15 @@
                     tr.innerHTML = `
                         <td class="p-4 font-mono font-bold text-slate-600">${item.item_number}</td>
                         <td class="p-4 font-medium text-slate-900">${item.item_name}</td>
-                        <td class="p-4 text-slate-600">${item.diameter}</td>
                         <td class="p-4"><span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
                         <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-700">${item.type_grinding}</span></td>
                         <td class="p-4 text-center">
                             <div class="flex flex-col items-center space-y-0.5">
                                 <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700">Finished</span>
                                 <span class="text-[11px] font-semibold text-slate-500">${completedDateStr}</span>
-                                <span class="text-[10px] text-slate-400 font-bold uppercase">Oleh: ${completedByStr}</span>
                             </div>
                         </td>
-                        <td class="p-4 text-center">
-                            <div class="inline-flex items-center space-x-2">
-                                ${repairButtonHTML}
-                                ${deleteButtonHTML}
-                            </div>
-                        </td>
+                        <td class="p-4 text-center"><div class="inline-flex items-center space-x-2">${repairButtonHTML}${deleteButtonHTML}</div></td>
                     `;
                     completedTableBody.appendChild(tr);
 
@@ -2715,22 +2391,14 @@
                     card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3";
                     card.innerHTML = `
                         <div class="flex justify-between items-start">
-                            <div>
-                                <span class="font-mono font-bold text-slate-600 text-sm">${item.item_number}</span>
-                                <h4 class="font-bold text-slate-900 text-base mt-0.5">${item.item_name}</h4>
-                            </div>
+                            <div><span class="font-mono font-bold text-slate-600 text-sm">${item.item_number}</span><h4 class="font-bold text-slate-900 text-base mt-0.5">${item.item_name}</h4></div>
                             <span class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700">Finished</span>
                         </div>
                         <div class="flex flex-col text-xs text-slate-600 bg-slate-50 p-3 rounded-xl space-y-1">
-                            <div class="flex justify-between"><span>Diameter:</span> <strong>${item.diameter}</strong></div>
                             <div class="flex justify-between"><span>QTY Selesai:</span> <strong class="text-emerald-700">${item.qty || 1} Pcs</strong></div>
-                            <div class="flex justify-between"><span>Tanggal Selesai:</span> <strong class="text-slate-800">${completedDateStr}</strong></div>
-                            <div class="flex justify-between"><span>Oleh:</span> <strong class="text-slate-800 uppercase">${completedByStr}</strong></div>
+                            <div class="flex justify-between"><span>Tanggal:</span> <strong class="text-slate-800">${completedDateStr}</strong></div>
                         </div>
-                        <div class="flex justify-between items-center pt-2 border-t border-slate-100">
-                            ${repairButtonHTML}
-                            ${deleteButtonHTML}
-                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100">${repairButtonHTML}${deleteButtonHTML}</div>
                     `;
                     completedCards.appendChild(card);
                 }
@@ -2742,12 +2410,10 @@
             const badge = document.getElementById('repairCountBadge');
             tbody.innerHTML = '';
             badge.innerText = `${repairSpecialItems.length} Item`;
-
             if(repairSpecialItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada tool yang masuk ke kolom khusus repair.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada tool repair.</td></tr>`;
                 return;
             }
-
             repairSpecialItems.forEach((rep) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-amber-50/30 transition border-b border-slate-100";
@@ -2755,14 +2421,8 @@
                     <td class="p-4 font-mono font-bold text-amber-700">${rep.itemNumber}</td>
                     <td class="p-4 font-medium text-slate-900">${rep.detailBarang}</td>
                     <td class="p-4 font-bold text-slate-800">${rep.qty} Pcs</td>
-                    <td class="p-4">
-                        <input type="text" value="${rep.keterangan || ''}" onblur="updateRepairNote('${rep.id}', this.value)" placeholder="Ketik keterangan manual..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium">
-                    </td>
-                    <td class="p-4 text-center">
-                        <button onclick="deleteSpecialRepair('${rep.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
+                    <td class="p-4"><input type="text" value="${rep.keterangan || ''}" onblur="updateRepairNote('${rep.id}', this.value)" placeholder="Keterangan..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"></td>
+                    <td class="p-4 text-center"><button onclick="deleteSpecialRepair('${rep.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm"><i class="fa-solid fa-trash"></i></button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -2770,10 +2430,7 @@
 
         function updateRepairNote(id, note) {
             const item = repairSpecialItems.find(r => r.id === id);
-            if(item) {
-                item.keterangan = note;
-                window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems);
-            }
+            if(item) { item.keterangan = note; window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems); }
         }
 
         function deleteSpecialRepair(id) {
@@ -2785,17 +2442,14 @@
 
         function toggleSupplierAccess(id) {
             const item = items.find(i => i.id === id);
-            if(item) { 
-                item.supplier_access = !item.supplier_access; 
-                window.dbSet(window.dbRef(window.db, 'tool_items'), items);
-            }
+            if(item) { item.supplier_access = !item.supplier_access; window.dbSet(window.dbRef(window.db, 'tool_items'), items); }
         }
 
         function openModalUpdate(id) {
             const item = items.find(i => i.id === id);
             if(!item) return;
             document.getElementById('updateItemId').value = item.id;
-            document.getElementById('updateItemInfo').innerText = `${item.item_number} — ${item.item_name} (${item.diameter}) | QTY: ${item.qty || 1} Pcs`;
+            document.getElementById('updateItemInfo').innerText = `${item.item_number} — ${item.item_name} | QTY: ${item.qty || 1} Pcs`;
             document.getElementById('updatePrioritySelect').value = item.priority;
             const select = document.getElementById('updateStageSelect');
             select.innerHTML = '';
@@ -2824,14 +2478,10 @@
                     const now = new Date();
                     item.completed_at = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                     item.completed_by = currentUser;
-
                     checkAndProcessAutoSyncCR(item);
-
                 } else if(!isNowFinished) {
-                    item.completed_at = null;
-                    item.completed_by = null;
+                    item.completed_at = null; item.completed_by = null;
                 }
-
                 window.dbSet(window.dbRef(window.db, 'tool_items'), items);
             }
             closeModal('modalUpdateProgress');
@@ -2841,7 +2491,7 @@
             const item = items.find(i => i.id === id);
             if(!item) return;
             document.getElementById('repairItemId').value = item.id;
-            document.getElementById('repairItemInfo').innerText = `${item.item_number} — ${item.item_name} (${item.diameter}) | QTY Selesai: ${item.qty || 1} Pcs`;
+            document.getElementById('repairItemInfo').innerText = `${item.item_number} — ${item.item_name} | QTY Selesai: ${item.qty || 1} Pcs`;
             document.getElementById('repairQtyInput').value = 1;
             document.getElementById('repairQtyInput').max = item.qty || 1;
             document.getElementById('modalRepairItem').classList.remove('hidden');
@@ -2851,31 +2501,23 @@
             e.preventDefault();
             const itemId = document.getElementById('repairItemId').value;
             const repairQty = parseInt(document.getElementById('repairQtyInput').value) || 1;
-
             const parentItem = items.find(i => i.id === itemId);
             if(!parentItem) return;
-
-            if(repairQty > (parentItem.qty || 1)) {
-                alert('Jumlah QTY repair tidak boleh melebihi QTY selesai yang ada!');
-                return;
-            }
+            if(repairQty > (parentItem.qty || 1)) { alert('Jumlah QTY repair tidak boleh melebihi QTY selesai!'); return; }
 
             parentItem.qty = (parentItem.qty || 1) - repairQty;
-
             const newRepairEntry = {
                 id: 'rep_' + Date.now(),
                 itemNumber: parentItem.item_number,
-                detailBarang: `${parentItem.item_name} (${parentItem.diameter})`,
+                detailBarang: `${parentItem.item_name}`,
                 qty: repairQty,
-                keterangan: '' 
+                keterangan: ''
             };
             repairSpecialItems.unshift(newRepairEntry);
-
             window.dbSet(window.dbRef(window.db, 'tool_items'), items);
             window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems);
-            
             closeModal('modalRepairItem');
-            showToast('Repair Berhasil', `${repairQty} Pcs dipindahkan ke Kolom Khusus Repair di atas!`, 'success');
+            showToast('Berhasil', `${repairQty} Pcs dipindahkan ke Kolom Khusus Repair!`, 'success');
         }
 
         function deleteItem(id) {
