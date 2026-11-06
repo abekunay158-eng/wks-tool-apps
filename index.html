@@ -1342,6 +1342,32 @@
             updateDailyUIState();
             showToast('Mulai', 'Sesi Cost Reduction harian dimulai. Sistem otomatis mensinkronkan item Finished di Tracking Progress.', 'info');
         }
+        function finishDailyCR() {
+    if (!dailyActive) return;
+    
+    // Ambil bulan saat ini (0 = Januari, 11 = Desember)
+    const currentMonth = new Date().getMonth();
+    
+    // Akumulasikan ke data bulanan
+    monthlyData[currentMonth] = {
+        qty: (monthlyData[currentMonth]?.qty || 0) + dailyQty,
+        rupiah: (monthlyData[currentMonth]?.rupiah || 0) + dailyRupiah
+    };
+    
+    // Simpan ke Firebase
+    window.dbSet(window.dbRef(window.db, 'cost_reduction_monthly'), monthlyData);
+    
+    // Reset sesi harian
+    dailyActive = false;
+    dailyQty = 0;
+    dailyRupiah = 0;
+    window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
+    
+    updateDailyUIState();
+    updateMonthlyChart();
+    showToast('Selesai', 'Sesi harian ditutup dan data berhasil masuk ke rekap bulanan.', 'success');
+}
+
 
         function updateDailyUIState() {
             const btnStart = document.getElementById('btnStartDaily');
