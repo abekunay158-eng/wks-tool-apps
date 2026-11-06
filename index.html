@@ -2520,12 +2520,101 @@
             showToast('Berhasil', `${repairQty} Pcs dipindahkan ke Kolom Khusus Repair!`, 'success');
         }
 
-        function deleteItem(id) {
-            if(confirm('Hapus item ini?')) {
-                items = items.filter(i => i.id !== id);
-                window.dbSet(window.dbRef(window.db, 'tool_items'), items);
-            }
+        // ================= PERBAIKAN FUNGSI HAPUS (DELETE) YANG DISATUKAN =================
+
+// 1. Hapus Item di Tracking Progress (Active/Completed)
+function deleteItem(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus item ini dari Tracking Progress?')) {
+        items = items.filter(i => i.id !== id);
+        window.dbSet(window.dbRef(window.db, 'tool_items'), items);
+        renderTables();
+        showToast('Berhasil', 'Item berhasil dihapus.', 'info');
+    }
+}
+
+// 2. Hapus Baris di Tabel Master
+function deleteMasterRow(tableId, rowId) {
+    const table = masterTables.find(t => t.id === tableId);
+    if(table && table.rows) {
+        if(confirm('Apakah Anda yakin ingin menghapus baris ini dari Data Master?')) {
+            table.rows = table.rows.filter(r => r.id !== rowId);
+            window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
+            renderMasterTablesContainer();
+            showToast('Berhasil', 'Baris master berhasil dihapus.', 'info');
         }
+    }
+}
+
+// 3. Hapus Tabel Master secara Keseluruhan
+function deleteMasterTable(tableId) {
+    if(confirm('Apakah Anda yakin ingin menghapus seluruh tabel master ini?')) {
+        masterTables = masterTables.filter(t => t.id !== tableId);
+        window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
+        renderMasterTablesContainer();
+        showToast('Berhasil', 'Tabel master berhasil dihapus.', 'info');
+    }
+}
+
+// 4. Hapus Item Buffer Stok
+function deleteBufferStock(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus item buffer stok ini?')) {
+        bufferStockItems = bufferStockItems.filter(b => b.id !== id);
+        window.dbSet(window.dbRef(window.db, 'buffer_stock'), bufferStockItems);
+        renderStockAndScrap();
+        showToast('Berhasil', 'Buffer stok berhasil dihapus.', 'info');
+    }
+}
+
+// 5. Hapus Catatan Scrap / Afkir
+function deleteScrap(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus catatan scrap ini?')) {
+        scrapItems = scrapItems.filter(s => s.id !== id);
+        window.dbSet(window.dbRef(window.db, 'scrap_items'), scrapItems);
+        renderStockAndScrap();
+        showToast('Berhasil', 'Catatan scrap berhasil dihapus.', 'info');
+    }
+}
+
+// 6. Hapus Item dari Database Cost Reduction (CR)
+function deleteCRItem(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus item dari database Cost Reduction ini?')) {
+        crDatabase = crDatabase.filter(item => item.id !== id);
+        window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), crDatabase);
+        renderCRDatabase();
+        populateCRSelect();
+        showToast('Berhasil', 'Item Cost Reduction berhasil dihapus.', 'info');
+    }
+}
+
+// 7. Hapus Item Knowledge / Drawing
+function deleteKnowledgeItem(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus item knowledge ini?')) {
+        knowledgeItems = knowledgeItems.filter(k => k.id !== id);
+        window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
+        renderKnowledgeTable();
+        showToast('Berhasil', 'Item knowledge berhasil dihapus.', 'info');
+    }
+}
+
+// 8. Hapus Item Cycle Time
+function deleteCycleTimeItem(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus item cycle time ini?')) {
+        cycleTimeItems = cycleTimeItems.filter(ct => ct.id !== id);
+        window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
+        renderCycleTimeTable();
+        showToast('Berhasil', 'Item cycle time berhasil dihapus.', 'info');
+    }
+}
+
+// 9. Hapus Kolom Khusus Repair
+function deleteSpecialRepair(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus item dari kolom khusus repair ini?')) {
+        repairSpecialItems = repairSpecialItems.filter(r => r.id !== id);
+        window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems);
+        renderSpecialRepairTable();
+        showToast('Berhasil', 'Item repair berhasil dihapus.', 'info');
+    }
+}
     </script>
 </body>
 </html>
