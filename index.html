@@ -24,12 +24,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        darkSlate: '#0b1329',
-                        steelBlue: '#1e3a8a',
-                        brandBlue: '#2563eb',
-                        accentRed: '#ef4444',
-                    }
+                    colors: { darkSlate: '#0b1329', steelBlue: '#1e3a8a', brandBlue: '#2563eb', accentRed: '#ef4444' }
                 }
             }
         }
@@ -59,6 +54,7 @@
             <span id="toast-msg" class="text-sm font-medium">Pesan berhasil</span>
         </div>
     </div>
+
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="fixed inset-0 bg-geometric z-50 flex flex-col items-center justify-center p-4">
         <div class="text-center z-10 w-full max-w-xl px-4">
@@ -500,15 +496,19 @@
                 <div id="trialListContainer" class="space-y-6"></div>
             </div>
 
-            <!-- VIEW: MASTER TABLES -->
+            <!-- VIEW: MASTER TABLES (DENGAN GLOBAL SEARCH BOX) -->
             <div id="viewMaster" class="space-y-6 hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
                         <h3 class="text-lg font-bold text-slate-900"> Manajemen Data Master</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Kelola katalog master, Tool Life, Barcode Generator Label, dan export laporan PDF.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Cek ketersediaan item atau cari data dengan mudah di seluruh tabel master.</p>
                     </div>
-                    <div>
-                        <button onclick="openModalAddMasterTable()" class="bg-brandBlue hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-blue-500/20 cursor-pointer">
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div class="relative w-full md:w-72">
+                            <input type="text" id="searchMasterGlobalBox" oninput="renderMasterTablesContainer()" placeholder="Cari Item / Deskripsi di Master..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50">
+                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <button onclick="openModalAddMasterTable()" class="bg-brandBlue hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-blue-500/20 cursor-pointer whitespace-nowrap">
                             + Buat Tabel Master Baru
                         </button>
                     </div>
@@ -586,116 +586,61 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
                         <h3 class="text-lg font-bold text-slate-900"> Knowledge & Cycle Time Management</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Kelola data knowledge tool, drawing gambar teknik, serta analisis cycle time.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Kelola data kategori drawing tool dan cycle time bergaya pop-up akordion agar lebih rapi.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="openModalAddKnowledgeCategory()" class="bg-brandBlue hover:bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                            + Buat Kategori Drawing Baru
+                        </button>
+                        <button onclick="openModalAddCycleTimeCategory()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                            + Buat Kategori Cycle Time Baru
+                        </button>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden space-y-4">
-                    <div class="bg-darkSlate text-white p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div class="flex items-center space-x-2 font-bold text-sm">
-                            <i class="fa-solid fa-brain text-indigo-400"></i>
-                            <span>1. Drawing Tool</span>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="openModalAddKnowledge()" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-                                + Tambah Data Drawing
-                            </button>
-                            <button onclick="downloadKnowledgeTemplate()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-file-excel mr-1"></i> Template Excel
-                            </button>
-                            <label class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-file-arrow-up mr-1"></i> Import Excel <input type="file" accept=".xlsx, .xls, .csv" onchange="importKnowledgeExcel(event)" class="hidden">
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="px-4 pt-2">
-                        <div class="relative w-full md:w-80">
-                            <input type="text" id="searchKnowledgeBox" oninput="renderKnowledgeTable()" placeholder="Cari Item / Drawing..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50">
-                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                    </div>
-
-                    <div class="table-popup-container pb-4 px-4">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead class="sticky top-0 bg-white z-10 shadow-sm">
-                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                    <th class="p-4 font-bold">Item Number</th>
-                                    <th class="p-4 font-bold">Deskripsi Tool</th>
-                                    <th class="p-4 font-bold">Drawing Tool (Upload & View)</th>
-                                    <th class="p-4 text-center font-bold">Print PDF</th>
-                                    <th class="p-4 text-center font-bold">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="knowledgeTableBody" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
+                <div class="space-y-4">
+                    <h4 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-brain text-indigo-600"></i>
+                        <span>1. Kategori Drawing Tool</span>
+                    </h4>
+                    <div id="knowledgeCategoriesContainer" class="space-y-4"></div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden space-y-4">
-                    <div class="bg-darkSlate text-white p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div class="flex items-center space-x-2 font-bold text-sm">
-                            <i class="fa-solid fa-stopwatch text-amber-400"></i>
-                            <span>2. Cycle Time Process (8 Proses)</span>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="openModalAddCycleTime()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-                                + Tambah Cycle Time
-                            </button>
-                            <button onclick="downloadCycleTimeTemplate()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-file-excel mr-1"></i> Template Excel
-                            </button>
-                            <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-file-arrow-up mr-1"></i> Import Excel <input type="file" accept=".xlsx, .xls, .csv" onchange="importCycleTimeExcel(event)" class="hidden">
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="px-4 pt-2">
-                        <div class="relative w-full md:w-80">
-                            <input type="text" id="searchCycleTimeBox" oninput="renderCycleTimeTable()" placeholder="Cari Item / Proses..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50">
-                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                    </div>
-
-                    <div class="table-popup-container pb-4 px-4">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm text-slate-700 uppercase tracking-wider border-b border-slate-200 text-center font-bold">
-                                <tr>
-                                    <th class="p-3 text-left">Item Number</th>
-                                    <th class="p-3 text-left">Deskripsi Tool</th>
-                                    <th class="p-3">Proses 1</th>
-                                    <th class="p-3">Proses 2</th>
-                                    <th class="p-3">Proses 3</th>
-                                    <th class="p-3">Proses 4</th>
-                                    <th class="p-3">Proses 5</th>
-                                    <th class="p-3">Proses 6</th>
-                                    <th class="p-3">Proses 7</th>
-                                    <th class="p-3">Proses 8</th>
-                                    <th class="p-3">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cycleTimeTableBody" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
+                <div class="space-y-4 pt-4">
+                    <h4 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-stopwatch text-amber-600"></i>
+                        <span>2. Kategori Cycle Time Process (8 Proses)</span>
+                    </h4>
+                    <div id="cycleTimeCategoriesContainer" class="space-y-4"></div>
                 </div>
             </div>
-            <!-- VIEW: MENU LOG RIWAYAT -->
+
+            <!-- VIEW: MENU LOG RIWAYAT (DENGAN FITUR BACKUP & RESTORE JSON) -->
             <div id="viewAuditTrail" class="space-y-6 hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-2"></i> Menu Log Riwayat (Audit Trail)</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Pencatatan rekam jejak otomatis (Timestamp, Aktor, Jenis Aktivitas, Detail Perubahan Sebelum vs Sesudah).</p>
+                        <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-2"></i> Menu Log Riwayat & Backup Data</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Pencatatan rekam jejak audit trail serta fitur Backup & Restore Database JSON aplikasi.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <!-- Menu Ubah Password di Atas Halaman Log Riwayat -->
+                        <!-- Tombol Backup JSON -->
+                        <button onclick="exportJSONBackup()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5" title="Download seluruh database aplikasi ke file JSON">
+                            <i class="fa-solid fa-download text-[11px]"></i>
+                            <span>Backup (Download JSON)</span>
+                        </button>
+                        <!-- Tombol Restore JSON -->
+                        <label class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5" title="Upload file JSON backup untuk memulihkan database">
+                            <i class="fa-solid fa-upload text-[11px]"></i>
+                            <span>Restore (Upload JSON)</span>
+                            <input type="file" accept=".json" onchange="importJSONRestore(event)" class="hidden">
+                        </label>
                         <button id="btnChangePassWeb" onclick="openModalChangePassWeb()" class="bg-amber-500 hover:bg-amber-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5">
                             <i class="fa-solid fa-key text-[11px]"></i>
-                            <span>Ubah Password Login Web</span>
+                            <span>Ubah Password Web</span>
                         </button>
                         <button id="btnChangePassLog" onclick="openModalChangePassLog()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5">
                             <i class="fa-solid fa-shield-halved text-[11px]"></i>
-                            <span>Ubah Password Log Riwayat</span>
+                            <span>Ubah Password Log</span>
                         </button>
                         <button onclick="clearAuditTrail()" class="bg-red-600 hover:bg-red-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5">
                             <i class="fa-solid fa-trash text-[11px]"></i>
@@ -724,6 +669,7 @@
 
         </main>
     </div>
+
     <!-- MODAL: ADD COST REDUCTION ITEM -->
     <div id="modalAddCR" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left relative">
@@ -860,10 +806,27 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD KNOWLEDGE DRAWING -->
-    <div id="modalAddKnowledge" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <!-- MODAL: ADD KNOWLEDGE CATEGORY -->
+    <div id="modalAddKnowledgeCategory" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Buat Kategori Drawing Tool Baru</h3>
+            <form onsubmit="handleCreateKnowledgeCategory(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama Kategori Drawing</label>
+                    <input type="text" id="inputKnowledgeCategoryName" required placeholder="Misal: Kategori Endmill Carbide" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brandBlue focus:outline-none bg-slate-50/50">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalAddKnowledgeCategory')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition cursor-pointer">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md cursor-pointer">Buat Kategori</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD ROW TO KNOWLEDGE CATEGORY -->
+    <div id="modalAddKnowledgeRow" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left relative">
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Tambah Data Drawing Tool Baru</h3>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Tambah Data Drawing ke Kategori</h3>
             <p class="text-xs text-slate-500 mb-4">Cari dari Data Master atau ketik manual.</p>
             
             <div class="mb-4 relative">
@@ -873,7 +836,8 @@
                 <div id="knowledgeSuggestionsList" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-48 overflow-y-auto z-50 hidden divide-y divide-slate-100"></div>
             </div>
 
-            <form onsubmit="handleSaveKnowledge(event)" class="space-y-4">
+            <form onsubmit="handleSaveKnowledgeRow(event)" class="space-y-4">
+                <input type="hidden" id="activeKnowledgeCatId">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Item Number</label>
                     <input type="text" id="knowledgeItemNumber" required placeholder="Misal: WKS-2026-001" class="w-full border border-slate-300 rounded-xl p-3 text-sm font-mono bg-slate-50 font-bold">
@@ -887,17 +851,34 @@
                     <input type="file" id="knowledgeImageFile" accept="image/*" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-slate-50 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brandBlue file:text-white hover:file:bg-blue-700 cursor-pointer">
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('modalAddKnowledge')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition cursor-pointer">Batal</button>
+                    <button type="button" onclick="closeModal('modalAddKnowledgeRow')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition cursor-pointer">Batal</button>
                     <button type="submit" class="px-5 py-2.5 bg-brandBlue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md cursor-pointer">Simpan Drawing</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: ADD CYCLE TIME -->
-    <div id="modalAddCycleTime" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <!-- MODAL: ADD CYCLE TIME CATEGORY -->
+    <div id="modalAddCycleTimeCategory" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Buat Kategori Cycle Time Baru</h3>
+            <form onsubmit="handleCreateCycleTimeCategory(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama Kategori Cycle Time</label>
+                    <input type="text" id="inputCycleTimeCategoryName" required placeholder="Misal: Line Produksi 1" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none bg-slate-50/50">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modalAddCycleTimeCategory')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition cursor-pointer">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-bold hover:bg-amber-700 transition shadow-md cursor-pointer">Buat Kategori</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD ROW TO CYCLE TIME CATEGORY -->
+    <div id="modalAddCycleTimeRow" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 modal-enter border border-slate-100 text-left max-h-[90vh] overflow-y-auto relative">
-            <h3 class="text-lg font-bold text-slate-900 mb-2">Tambah Data Cycle Time Baru (8 Proses)</h3>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Tambah Data Cycle Time ke Kategori (8 Proses)</h3>
             <p class="text-xs text-slate-500 mb-4">Cari dari Data Master atau ketik manual.</p>
             
             <div class="mb-4 relative">
@@ -907,7 +888,8 @@
                 <div id="ctSuggestionsList" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-48 overflow-y-auto z-50 hidden divide-y divide-slate-100"></div>
             </div>
 
-            <form onsubmit="handleSaveCycleTime(event)" class="space-y-4">
+            <form onsubmit="handleSaveCycleTimeRow(event)" class="space-y-4">
+                <input type="hidden" id="activeCycleTimeCatId">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Item Number</label>
@@ -961,7 +943,7 @@
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('modalAddCycleTime')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition cursor-pointer">Batal</button>
+                    <button type="button" onclick="closeModal('modalAddCycleTimeRow')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition cursor-pointer">Batal</button>
                     <button type="submit" class="px-5 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-bold hover:bg-amber-700 transition shadow-md cursor-pointer">Simpan Cycle Time</button>
                 </div>
             </form>
@@ -1290,7 +1272,6 @@
             </form>
         </div>
     </div>
-
     <!-- FIREBASE SDKs & JAVASCRIPT LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -1359,8 +1340,8 @@
         let yearlyData = Array(12).fill({ qty: 0, rupiah: 0 });
         let monthlyChartInstance = null;
 
-        let knowledgeItems = [];
-        let cycleTimeItems = [];
+        let knowledgeCategories = [];
+        let cycleTimeCategories = [];
         let html5QrCode = null;
 
         const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -1370,11 +1351,111 @@
         let currentMainView = 'progress'; 
         let builderModeActive = false;
 
+        // --- FITUR BACKUP & RESTORE JSON ---
+        function exportJSONBackup() {
+            const backupData = {
+                version: "1.0",
+                backupDate: new Date().toISOString(),
+                auth: authCredentials,
+                tool_items: items,
+                repair_special_items: repairSpecialItems,
+                master_tables: masterTables,
+                buffer_stock: bufferStockItems,
+                scrap_items: scrapItems,
+                cost_reduction_db: crDatabase,
+                cost_reduction_monthly: monthlyData,
+                cost_reduction_yearly: yearlyData,
+                knowledge_categories: knowledgeCategories,
+                cycle_time_categories: cycleTimeCategories,
+                audit_trail_logs: auditTrailLogs,
+                trial_proses_list: trialProsesList,
+                custom_texts: customTexts
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `WKS_Tool_Apps_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+
+            logAuditActivity('BACKUP_JSON', 'SYSTEM', 'Melakukan Backup Database ke file JSON');
+            showToast('Backup Berhasil', 'File JSON database berhasil di-download.', 'success');
+        }
+
+        function importJSONRestore(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!confirm('PERINGATAN: Melakukan Restore akan menimpa seluruh data saat ini dengan data dari file JSON backup. Lanjutkan?')) {
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    
+                    // Validasi struktur dasar
+                    if (!imported.tool_items && !imported.master_tables) {
+                        alert('Format file JSON tidak valid untuk WKS Tool Apps.');
+                        return;
+                    }
+
+                    // Push ke state lokal & Firebase
+                    if (imported.auth) window.dbSet(window.dbRef(window.db, 'auth'), imported.auth);
+                    if (imported.tool_items) window.dbSet(window.dbRef(window.db, 'tool_items'), imported.tool_items);
+                    if (imported.repair_special_items) window.dbSet(window.dbRef(window.db, 'repair_special_items'), imported.repair_special_items);
+                    if (imported.master_tables) window.dbSet(window.dbRef(window.db, 'master_tables'), imported.master_tables);
+                    if (imported.buffer_stock) window.dbSet(window.dbRef(window.db, 'buffer_stock'), imported.buffer_stock);
+                    if (imported.scrap_items) window.dbSet(window.dbRef(window.db, 'scrap_items'), imported.scrap_items);
+                    if (imported.cost_reduction_db) window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), imported.cost_reduction_db);
+                    if (imported.cost_reduction_monthly) window.dbSet(window.dbRef(window.db, 'cost_reduction_monthly'), imported.cost_reduction_monthly);
+                    if (imported.cost_reduction_yearly) window.dbSet(window.dbRef(window.db, 'cost_reduction_yearly'), imported.cost_reduction_yearly);
+                    if (imported.knowledge_categories) window.dbSet(window.dbRef(window.db, 'knowledge_categories'), imported.knowledge_categories);
+                    if (imported.cycle_time_categories) window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), imported.cycle_time_categories);
+                    if (imported.audit_trail_logs) window.dbSet(window.dbRef(window.db, 'audit_trail_logs'), imported.audit_trail_logs);
+                    if (imported.trial_proses_list) window.dbSet(window.dbRef(window.db, 'trial_proses_list'), imported.trial_proses_list);
+                    if (imported.custom_texts) window.dbSet(window.dbRef(window.db, 'custom_texts'), imported.custom_texts);
+
+                    logAuditActivity('RESTORE_JSON', 'SYSTEM', 'Memulihkan Database dari file JSON Backup');
+                    showToast('Restore Berhasil', 'Data aplikasi berhasil dipulihkan dari file JSON!', 'success');
+                    setTimeout(() => { window.location.reload(); }, 1500);
+                } catch (err) {
+                    console.error(err);
+                    alert('Gagal memproses file JSON. Pastikan file backup tidak rusak.');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function exportWksPdf({ title, subtitle, head, body, filename, isLandscape = false, fillColor = [15, 23, 42] }) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF(isLandscape ? 'l' : 'p', 'mm', 'a4');
+            doc.setFont("helvetica", "bold"); doc.setFontSize(15);
+            doc.text(`WKS TOOL APPS — ${title.toUpperCase()}`, 14, 16);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(9);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser || 'SYSTEM'}`, 14, 22);
+            if(subtitle) doc.text(subtitle, 14, 27);
+
+            doc.autoTable({
+                startY: subtitle ? 32 : 26,
+                head: [head],
+                body: body,
+                theme: 'grid', 
+                headStyles: { fillColor: fillColor }
+            });
+            doc.save(filename);
+        }
+
         window.initFirebaseSync = function() {
             const indicator = document.getElementById('syncIndicator');
 
             window.dbOnValue(window.dbRef(window.db, 'auth'), (snapshot) => {
-                if(snapshot.exists()) { authCredentials = snapshot.val(); }
+                if(snapshot.exists()) { authCredentials = snapshot.val(); } 
                 else { window.dbSet(window.dbRef(window.db, 'auth'), authCredentials); }
             });
 
@@ -1480,30 +1561,48 @@
                 if(currentUser) { renderYearlyTable(); }
             });
 
-            window.dbOnValue(window.dbRef(window.db, 'knowledge_items'), (snapshot) => {
+            window.dbOnValue(window.dbRef(window.db, 'knowledge_categories'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    knowledgeItems = Array.isArray(val) ? val : Object.values(val);
+                    knowledgeCategories = Array.isArray(val) ? val : Object.values(val);
+                    knowledgeCategories.forEach(c => { if(!c.rows) c.rows = []; else if(!Array.isArray(c.rows)) c.rows = Object.values(c.rows); });
                 } else {
-                    knowledgeItems = [
-                        { id: "k1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide D10", drawing: "" }
+                    const defaultKnowledgeCat = [
+                        {
+                            id: "kcat_1",
+                            categoryName: "Drawing Standard Endmill",
+                            expanded: true,
+                            rows: [
+                                { id: "k1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide D10", drawing: "" }
+                            ]
+                        }
                     ];
-                    window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
+                    window.dbSet(window.dbRef(window.db, 'knowledge_categories'), defaultKnowledgeCat);
+                    knowledgeCategories = defaultKnowledgeCat;
                 }
-                if(currentUser) renderKnowledgeTable();
+                if(currentUser) renderKnowledgeCategoriesContainer();
             });
 
-            window.dbOnValue(window.dbRef(window.db, 'cycle_time_items'), (snapshot) => {
+            window.dbOnValue(window.dbRef(window.db, 'cycle_time_categories'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    cycleTimeItems = Array.isArray(val) ? val : Object.values(val);
+                    cycleTimeCategories = Array.isArray(val) ? val : Object.values(val);
+                    cycleTimeCategories.forEach(c => { if(!c.rows) c.rows = []; else if(!Array.isArray(c.rows)) c.rows = Object.values(c.rows); });
                 } else {
-                    cycleTimeItems = [
-                        { id: "ct1", itemNumber: "WKS-2026-001", deskripsiTool: "Endmill 4-Flute Carbide D10", p1: "Setup", t1: "45", p2: "Roughing", t2: "120", p3: "Finishing", t3: "90", p4: "-", t4: "0", p5: "-", t5: "0", p6: "-", t6: "0", p7: "-", t7: "0", p8: "-", t8: "0" }
+                    const defaultCycleCat = [
+                        {
+                            id: "ctcat_1",
+                            categoryName: "Line CNC Grinding Utama",
+                            expanded: true,
+                            rows: [
+                                { id: "ct1", itemNumber: "WKS-2026-001", deskripsiTool: "Endmill 4-Flute Carbide D10", p1: "Setup", t1: "45", p2: "Roughing", t2: "120", p3: "Finishing", t3: "90", p4: "-", t4: "0", p5: "-", t5: "0", p6: "-", t6: "0", p7: "-", t7: "0", p8: "-", t8: "0" }
+                            ]
+                        }
                     ];
-                    window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
+                    window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), defaultCycleCat);
+                    cycleTimeCategories = defaultCycleCat;
                 }
-                if(currentUser) renderCycleTimeTable();
+                if(currentUser) renderCycleTimeCategoriesContainer();
             });
 
             window.dbOnValue(window.dbRef(window.db, 'audit_trail_logs'), (snapshot) => {
@@ -1594,7 +1693,6 @@
             overlay.classList.toggle('hidden');
         }
 
-        // ================= AUDIT TRAIL & PASSWORD SEPARATE =================
         function logAuditActivity(activityType, itemNumber, details) {
             const now = new Date();
             const timestamp = now.toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -1636,7 +1734,7 @@
                 else if(log.activityType === 'STAGE_UPDATE') badgeColor = 'bg-indigo-100 text-indigo-700';
                 else if(log.activityType === 'REPAIR_MIGRATE') badgeColor = 'bg-amber-100 text-amber-700';
                 else if(log.activityType === 'EDIT' || log.activityType === 'TRIAL_LOG') badgeColor = 'bg-emerald-100 text-emerald-700';
-                else if(log.activityType === 'DELETE') badgeColor = 'bg-red-100 text-red-700';
+                else if(log.activityType === 'DELETE' || log.activityType === 'BACKUP_JSON' || log.activityType === 'RESTORE_JSON') badgeColor = 'bg-red-100 text-red-700';
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
@@ -1660,7 +1758,7 @@
             }
         }
 
-        // ================= MENU TRIAL PROSES =================
+        // --- TRIAL PROSES ---
         function openModalAddTrial() {
             document.getElementById('trialIdDoc').value = 'TRL-' + new Date().getFullYear() + '-' + Math.floor(100 + Math.random() * 900);
             document.getElementById('trialPic').value = currentUser || '';
@@ -1710,9 +1808,7 @@
                 const reader = new FileReader();
                 reader.onload = function(evt) { processSave(evt.target.result); };
                 reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                processSave('');
-            }
+            } else { processSave(''); }
         }
 
         function renderTrialProsesContainer() {
@@ -1847,17 +1943,10 @@
         function exportTrialPDF(id) {
             const trl = trialProsesList.find(t => t.id === id);
             if(!trl) return;
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-            doc.text("WKS TOOL APPS — LAPORAN TRIAL PROSES", 14, 18);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`ID Trial: ${trl.idDoc} | Project: ${trl.project}`, 14, 25);
-            doc.text(`Item Number: ${trl.itemNumber} (${trl.descTool}) | PIC: ${trl.pic} | Status: ${trl.statusFinal}`, 14, 31);
-
-            doc.autoTable({
-                startY: 38,
-                head: [["Parameter Mesin", "Kondisi"]],
+            exportWksPdf({
+                title: "Laporan Trial Proses",
+                subtitle: `ID Trial: ${trl.idDoc} | Project: ${trl.project} | Item: ${trl.itemNumber} (${trl.descTool}) | Status: ${trl.statusFinal}`,
+                head: ["Parameter Mesin", "Kondisi"],
                 body: [
                     ["Mesin CNC", trl.machine],
                     ["Material", trl.material],
@@ -1866,24 +1955,11 @@
                     ["Feed Rate (F)", trl.feed],
                     ["Depth of Cut (DOC)", trl.doc]
                 ],
-                theme: 'grid', headStyles: { fillColor: [37, 99, 235] }
+                filename: `Trial_${trl.idDoc}_WKS.pdf`
             });
-
-            const nextY = doc.lastAutoTable.finalY + 10;
-            doc.setFont("helvetica", "bold");
-            doc.text("History Trail & Log Pengujian:", 14, nextY);
-
-            doc.autoTable({
-                startY: nextY + 4,
-                head: [["Tanggal", "Jam Mesin", "QTY (Pcs)", "Kondisi Tool", "Catatan Masalah"]],
-                body: (trl.historyLogs || []).map(lg => [lg.date, lg.hours, `${lg.qty} Pcs`, lg.condition, lg.issue]),
-                theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
-            });
-
-            doc.save(`Trial_${trl.idDoc}_WKS.pdf`);
         }
 
-        // ================= BARCODE LABEL & MASTER TABLES =================
+        // --- BARCODE & MASTER TABLES ---
         function generateBarcodeLabel(itemNumber, desc) {
             document.getElementById('labelItemNumber').innerText = itemNumber;
             document.getElementById('labelDesc').innerText = desc;
@@ -1909,19 +1985,29 @@
         function renderMasterTablesContainer() {
             const container = document.getElementById('masterTablesContainer');
             if(!container) return;
+            const globalSearchVal = (document.getElementById('searchMasterGlobalBox')?.value || '').toLowerCase();
             container.innerHTML = '';
+            
             if(!masterTables || masterTables.length === 0) {
                 container.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200">Belum ada tabel master.</div>`;
                 return;
             }
+
             masterTables.forEach((table) => {
-                const tableDiv = document.createElement('div');
-                tableDiv.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
+                let filteredRows = table.rows || [];
+                if (globalSearchVal) {
+                    filteredRows = filteredRows.filter(row => 
+                        (row.itemNumber && row.itemNumber.toLowerCase().includes(globalSearchVal)) || 
+                        (row.desc && row.desc.toLowerCase().includes(globalSearchVal)) ||
+                        (row.note && row.note.toLowerCase().includes(globalSearchVal))
+                    );
+                }
+
                 let rowsHTML = '';
-                if(!table.rows || table.rows.length === 0) {
-                    rowsHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada data baris.</td></tr>`;
+                if(filteredRows.length === 0) {
+                    rowsHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Tidak ada item yang cocok dengan pencarian di tabel ini.</td></tr>`;
                 } else {
-                    table.rows.forEach((row) => {
+                    filteredRows.forEach((row) => {
                         rowsHTML += `
                             <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-sm">
                                 <td class="p-4 font-mono font-bold text-brandBlue flex items-center space-x-2">
@@ -1936,12 +2022,15 @@
                         `;
                     });
                 }
-                const isExpanded = table.expanded || false;
+
+                const isExpanded = table.expanded !== undefined ? table.expanded : true;
+                const tableDiv = document.createElement('div');
+                tableDiv.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
                 tableDiv.innerHTML = `
                     <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="toggleMasterAccordion('${table.id}')">
                         <div class="flex items-center space-x-3">
                             <i id="icon_acc_${table.id}" class="fa-solid ${isExpanded ? 'fa-chevron-down text-brandBlue' : 'fa-chevron-right text-slate-400'} text-sm transition-transform"></i>
-                            <h4 class="font-bold text-sm tracking-wide">📂 ${table.tableName} <span class="text-xs text-slate-400 font-normal ml-2">(${table.rows ? table.rows.length : 0} Item)</span></h4>
+                            <h4 class="font-bold text-sm tracking-wide">📂 ${table.tableName} <span class="text-xs text-slate-400 font-normal ml-2">(${filteredRows.length} Item)</span></h4>
                         </div>
                         <div class="flex flex-wrap items-center gap-2" onclick="event.stopPropagation()">
                             ${currentUser === 'USER' ? `
@@ -1974,148 +2063,208 @@
 
         function toggleMasterAccordion(tableId) {
             const table = masterTables.find(t => t.id === tableId);
-            if(table) { table.expanded = !table.expanded; renderMasterTablesContainer(); }
+            if(table) { table.expanded = table.expanded !== undefined ? !table.expanded : false; renderMasterTablesContainer(); }
         }
 
-        // ================= KNOWLEDGE & CYCLE TIME =================
-        function openModalAddKnowledge() {
+        // --- KNOWLEDGE & CYCLE TIME CATEGORIES ---
+        function openModalAddKnowledgeCategory() {
+            document.getElementById('inputKnowledgeCategoryName').value = '';
+            document.getElementById('modalAddKnowledgeCategory').classList.remove('hidden');
+        }
+
+        function handleCreateKnowledgeCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('inputKnowledgeCategoryName').value.trim();
+            knowledgeCategories.push({ id: 'kcat_' + Date.now(), categoryName: name, expanded: true, rows: [] });
+            window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
+            closeModal('modalAddKnowledgeCategory');
+            showToast('Berhasil', 'Kategori drawing baru berhasil dibuat.', 'success');
+        }
+
+        function deleteKnowledgeCategory(catId) {
+            if(confirm('Hapus kategori drawing ini beserta isinya?')) {
+                knowledgeCategories = knowledgeCategories.filter(c => c.id !== catId);
+                window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
+            }
+        }
+
+        function openModalAddKnowledgeRow(catId) {
+            document.getElementById('activeKnowledgeCatId').value = catId;
             document.getElementById('knowledgeItemNumber').value = '';
             document.getElementById('knowledgeDesc').value = '';
             document.getElementById('knowledgeImageFile').value = '';
             document.getElementById('modalKnowledgeMasterSearch').value = '';
-            document.getElementById('modalAddKnowledge').classList.remove('hidden');
+            document.getElementById('modalAddKnowledgeRow').classList.remove('hidden');
         }
 
-        function handleSaveKnowledge(e) {
+        function handleSaveKnowledgeRow(e) {
             e.preventDefault();
+            const catId = document.getElementById('activeKnowledgeCatId').value;
             const itemNumber = document.getElementById('knowledgeItemNumber').value.trim();
             const desc = document.getElementById('knowledgeDesc').value.trim();
             const fileInput = document.getElementById('knowledgeImageFile');
-            const saveItem = (drawingBase64) => {
-                const newItem = { id: 'k_' + Date.now(), itemNumber, desc, drawing: drawingBase64 || "" };
-                knowledgeItems.unshift(newItem);
-                window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
-                logAuditActivity('CREATE', itemNumber, `Menambah Data Drawing untuk ${itemNumber}`);
-                closeModal('modalAddKnowledge');
-                showToast('Berhasil', 'Data drawing berhasil disimpan.', 'success');
+
+            const saveToCat = (drawingBase64) => {
+                const cat = knowledgeCategories.find(c => c.id === catId);
+                if(cat) {
+                    if(!cat.rows) cat.rows = [];
+                    cat.rows.push({ id: 'k_' + Date.now(), itemNumber, desc, drawing: drawingBase64 || "" });
+                    window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
+                    logAuditActivity('CREATE', itemNumber, `Menambah Data Drawing ke Kategori ${cat.categoryName}`);
+                    closeModal('modalAddKnowledgeRow');
+                    showToast('Berhasil', 'Data drawing berhasil disimpan.', 'success');
+                }
             };
+
             if(fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(evt) { saveItem(evt.target.result); };
+                reader.onload = function(evt) { saveToCat(evt.target.result); };
                 reader.readAsDataURL(fileInput.files[0]);
-            } else { saveItem(''); }
+            } else { saveToCat(''); }
         }
 
-        function renderKnowledgeTable() {
-            const tbody = document.getElementById('knowledgeTableBody');
-            if(!tbody) return;
-            const searchVal = (document.getElementById('searchKnowledgeBox')?.value || '').toLowerCase();
-            tbody.innerHTML = '';
-            const filtered = knowledgeItems.filter(item => (item.itemNumber || '').toLowerCase().includes(searchVal) || (item.desc || '').toLowerCase().includes(searchVal));
-            if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Tidak ada data drawing yang cocok.</td></tr>`;
+        function deleteKnowledgeRow(catId, rowId) {
+            const cat = knowledgeCategories.find(c => c.id === catId);
+            if(cat && cat.rows) {
+                cat.rows = cat.rows.filter(r => r.id !== rowId);
+                window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
+            }
+        }
+
+        function toggleKnowledgeAccordion(catId) {
+            const cat = knowledgeCategories.find(c => c.id === catId);
+            if(cat) { cat.expanded = cat.expanded !== undefined ? !cat.expanded : false; renderKnowledgeCategoriesContainer(); }
+        }
+
+        function renderKnowledgeCategoriesContainer() {
+            const container = document.getElementById('knowledgeCategoriesContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            if(!knowledgeCategories || knowledgeCategories.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200 text-xs">Belum ada kategori drawing tool.</div>`;
                 return;
             }
-            filtered.forEach((item) => {
-                const hasDrawing = item.drawing && item.drawing.trim() !== "";
-                const drawingCellHTML = hasDrawing 
-                    ? `<div class="flex items-center space-x-2">
-                           <button onclick="viewDrawing('${item.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-eye text-[11px]"></i><span>View</span></button>
-                           <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Ganti <input type="file" accept="image/*" onchange="uploadDrawing(event, '${item.id}')" class="hidden"></label>
-                       </div>`
-                    : `<label class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5">
-                           <i class="fa-solid fa-upload text-[11px]"></i><span>Import Gambar</span>
-                           <input type="file" accept="image/*" onchange="uploadDrawing(event, '${item.id}')" class="hidden">
-                       </label>`;
 
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-brandBlue">${item.itemNumber || '-'}</td>
-                    <td class="p-4 font-medium text-slate-900">${item.desc || '-'}</td>
-                    <td class="p-4">${drawingCellHTML}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="printKnowledgePDF('${item.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1">
-                            <i class="fa-solid fa-file-pdf text-[11px]"></i><span>Print PDF</span>
-                        </button>
-                    </td>
-                    <td class="p-4 text-center">
-                        <button onclick="deleteKnowledgeItem('${item.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
+            knowledgeCategories.forEach(cat => {
+                let rowsHTML = '';
+                if(!cat.rows || cat.rows.length === 0) {
+                    rowsHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada data drawing dalam kategori ini.</td></tr>`;
+                } else {
+                    cat.rows.forEach(item => {
+                        const hasDrawing = item.drawing && item.drawing.trim() !== "";
+                        const drawingCellHTML = hasDrawing 
+                            ? `<div class="flex items-center space-x-2">
+                                   <button onclick="viewDrawing('${cat.id}', '${item.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-eye text-[11px]"></i><span>View</span></button>
+                                   <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Ganti <input type="file" accept="image/*" onchange="uploadDrawingCat(event, '${cat.id}', '${item.id}')" class="hidden"></label>
+                               </div>`
+                            : `<label class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5">
+                                   <i class="fa-solid fa-upload text-[11px]"></i><span>Import Gambar</span>
+                                   <input type="file" accept="image/*" onchange="uploadDrawingCat(event, '${cat.id}', '${item.id}')" class="hidden">
+                               </label>`;
+
+                        rowsHTML += `
+                            <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-sm">
+                                <td class="p-4 font-mono font-bold text-brandBlue">${item.itemNumber || '-'}</td>
+                                <td class="p-4 font-medium text-slate-900">${item.desc || '-'}</td>
+                                <td class="p-4">${drawingCellHTML}</td>
+                                <td class="p-4 text-center">
+                                    <button onclick="printKnowledgePDF('${cat.id}', '${item.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1">
+                                        <i class="fa-solid fa-file-pdf text-[11px]"></i><span>Print PDF</span>
+                                    </button>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <button onclick="deleteKnowledgeRow('${cat.id}', '${item.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                const isExpanded = cat.expanded !== undefined ? cat.expanded : true;
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
+                div.innerHTML = `
+                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="toggleKnowledgeAccordion('${cat.id}')">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid ${isExpanded ? 'fa-chevron-down text-brandBlue' : 'fa-chevron-right text-slate-400'} text-sm transition-transform"></i>
+                            <h4 class="font-bold text-sm tracking-wide">📂 ${cat.categoryName} <span class="text-xs text-slate-400 font-normal ml-2">(${cat.rows ? cat.rows.length : 0} Item)</span></h4>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2" onclick="event.stopPropagation()">
+                            ${currentUser === 'USER' ? `
+                                <button onclick="openModalAddKnowledgeRow('${cat.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Drawing</button>
+                                <button onclick="deleteKnowledgeCategory('${cat.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="${isExpanded ? '' : 'hidden'} table-popup-container border-t border-slate-800">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm">
+                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                    <th class="p-4 font-bold">Item Number</th>
+                                    <th class="p-4 font-bold">Deskripsi Tool</th>
+                                    <th class="p-4 font-bold">Drawing Tool (Upload & View)</th>
+                                    <th class="p-4 text-center font-bold">Print PDF</th>
+                                    <th class="p-4 text-center font-bold">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHTML}</tbody>
+                        </table>
+                    </div>
                 `;
-                tbody.appendChild(tr);
+                container.appendChild(div);
             });
         }
 
-        function downloadKnowledgeTemplate() {
-            let wb = XLSX.utils.book_new();
-            let templateData = [{ "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10" }];
-            let ws = XLSX.utils.json_to_sheet(templateData);
-            XLSX.utils.book_append_sheet(wb, ws, "Template_Knowledge");
-            XLSX.writeFile(wb, `Template_Knowledge_WKS.xlsx`);
-        }
-
-        function importKnowledgeExcel(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                    json.forEach((row, idx) => {
-                        knowledgeItems.push({ id: 'k_imp_' + Date.now() + '_' + idx, itemNumber: row["Item Number"] || "-", desc: row["Deskripsi Tool"] || "-", drawing: "" });
-                    });
-                    window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
-                    showToast('Berhasil', 'Data knowledge berhasil diimport!', 'success');
-                } catch(err) { showToast('Gagal', 'Format file Excel tidak valid.', 'error'); }
-                e.target.value = '';
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function uploadDrawing(e, id) {
+        function uploadDrawingCat(e, catId, rowId) {
             const file = e.target.files[0];
             if(!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const base64String = evt.target.result;
-                const item = knowledgeItems.find(k => k.id === id);
-                if(item) {
-                    item.drawing = base64String;
-                    window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
-                    showToast('Berhasil', 'Gambar drawing berhasil diimport!', 'success');
+                const cat = knowledgeCategories.find(c => c.id === catId);
+                if(cat && cat.rows) {
+                    const row = cat.rows.find(r => r.id === rowId);
+                    if(row) {
+                        row.drawing = base64String;
+                        window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
+                        showToast('Berhasil', 'Gambar drawing diperbarui!', 'success');
+                    }
                 }
             };
             reader.readAsDataURL(file);
         }
 
-        function viewDrawing(id) {
-            const item = knowledgeItems.find(k => k.id === id);
-            if(item && item.drawing) {
-                const newWindow = window.open();
-                newWindow.document.write(`
-                    <html><head><title>Drawing - ${item.itemNumber}</title></head>
-                    <body style="margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; color:white; font-family:sans-serif;">
-                        <h2 style="margin-bottom:10px;">${item.itemNumber} — ${item.desc}</h2>
-                        <img src="${item.drawing}" style="max-width:90%; max-height:80vh; border:2px solid #334155; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
-                    </body></html>
-                `);
-            } else { showToast('Informasi', 'Belum ada gambar drawing.', 'info'); }
+        function viewDrawing(catId, rowId) {
+            const cat = knowledgeCategories.find(c => c.id === catId);
+            if(cat && cat.rows) {
+                const item = cat.rows.find(r => r.id === rowId);
+                if(item && item.drawing) {
+                    const newWindow = window.open();
+                    newWindow.document.write(`
+                        <html><head><title>Drawing - ${item.itemNumber}</title></head>
+                        <body style="margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; color:white; font-family:sans-serif;">
+                            <h2 style="margin-bottom:10px;">${item.itemNumber} — ${item.desc}</h2>
+                            <img src="${item.drawing}" style="max-width:90%; max-height:80vh; border:2px solid #334155; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
+                        </body></html>
+                    `);
+                }
+            }
         }
 
-        function printKnowledgePDF(id) {
-            const item = knowledgeItems.find(k => k.id === id);
+        function printKnowledgePDF(catId, rowId) {
+            const cat = knowledgeCategories.find(c => c.id === catId);
+            if(!cat || !cat.rows) return;
+            const item = cat.rows.find(r => r.id === rowId);
             if(!item) return;
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("WKS TOOL APPS — KNOWLEDGE & DRAWING REPORT", 14, 18);
             doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
+            doc.text(`Kategori: ${cat.categoryName} | Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
             doc.autoTable({
                 startY: 32,
                 head: [["Item Number", "Deskripsi Tool", "Status Drawing"]],
@@ -2133,14 +2282,30 @@
             doc.save(`Knowledge_${item.itemNumber}_WKS.pdf`);
         }
 
-        function deleteKnowledgeItem(id) {
-            if(confirm('Hapus item knowledge ini?')) {
-                knowledgeItems = knowledgeItems.filter(k => k.id !== id);
-                window.dbSet(window.dbRef(window.db, 'knowledge_items'), knowledgeItems);
+        // --- CYCLE TIME CATEGORIES ---
+        function openModalAddCycleTimeCategory() {
+            document.getElementById('inputCycleTimeCategoryName').value = '';
+            document.getElementById('modalAddCycleTimeCategory').classList.remove('hidden');
+        }
+
+        function handleCreateCycleTimeCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('inputCycleTimeCategoryName').value.trim();
+            cycleTimeCategories.push({ id: 'ctcat_' + Date.now(), categoryName: name, expanded: true, rows: [] });
+            window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), cycleTimeCategories);
+            closeModal('modalAddCycleTimeCategory');
+            showToast('Berhasil', 'Kategori cycle time baru berhasil dibuat.', 'success');
+        }
+
+        function deleteCycleTimeCategory(catId) {
+            if(confirm('Hapus kategori cycle time ini beserta isinya?')) {
+                cycleTimeCategories = cycleTimeCategories.filter(c => c.id !== catId);
+                window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), cycleTimeCategories);
             }
         }
 
-        function openModalAddCycleTime() {
+        function openModalAddCycleTimeRow(catId) {
+            document.getElementById('activeCycleTimeCatId').value = catId;
             document.getElementById('ctItemNumber').value = '';
             document.getElementById('ctDesc').value = '';
             for(let i=1; i<=8; i++) {
@@ -2148,122 +2313,127 @@
                 document.getElementById(`ctT${i}`).value = '0';
             }
             document.getElementById('modalCtMasterSearch').value = '';
-            document.getElementById('modalAddCycleTime').classList.remove('hidden');
+            document.getElementById('modalAddCycleTimeRow').classList.remove('hidden');
         }
 
-        function handleSaveCycleTime(e) {
+        function handleSaveCycleTimeRow(e) {
             e.preventDefault();
-            const newCt = {
-                id: 'ct_' + Date.now(),
-                itemNumber: document.getElementById('ctItemNumber').value.trim(),
-                deskripsiTool: document.getElementById('ctDesc').value.trim(),
-                p1: document.getElementById('ctP1').value.trim() || '-', t1: document.getElementById('ctT1').value || '0',
-                p2: document.getElementById('ctP2').value.trim() || '-', t2: document.getElementById('ctT2').value || '0',
-                p3: document.getElementById('ctP3').value.trim() || '-', t3: document.getElementById('ctT3').value || '0',
-                p4: document.getElementById('ctP4').value.trim() || '-', t4: document.getElementById('ctT4').value || '0',
-                p5: document.getElementById('ctP5').value.trim() || '-', t5: document.getElementById('ctT5').value || '0',
-                p6: document.getElementById('ctP6').value.trim() || '-', t6: document.getElementById('ctT6').value || '0',
-                p7: document.getElementById('ctP7').value.trim() || '-', t7: document.getElementById('ctT7').value || '0',
-                p8: document.getElementById('ctP8').value.trim() || '-', t8: document.getElementById('ctT8').value || '0'
-            };
-            cycleTimeItems.unshift(newCt);
-            window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
-            closeModal('modalAddCycleTime');
-            showToast('Berhasil', 'Data cycle time 8 proses berhasil disimpan.', 'success');
+            const catId = document.getElementById('activeCycleTimeCatId').value;
+            const cat = cycleTimeCategories.find(c => c.id === catId);
+            if(cat) {
+                if(!cat.rows) cat.rows = [];
+                const newCt = {
+                    id: 'ct_' + Date.now(),
+                    itemNumber: document.getElementById('ctItemNumber').value.trim(),
+                    deskripsiTool: document.getElementById('ctDesc').value.trim(),
+                    p1: document.getElementById('ctP1').value.trim() || '-', t1: document.getElementById('ctT1').value || '0',
+                    p2: document.getElementById('ctP2').value.trim() || '-', t2: document.getElementById('ctT2').value || '0',
+                    p3: document.getElementById('ctP3').value.trim() || '-', t3: document.getElementById('ctT3').value || '0',
+                    p4: document.getElementById('ctP4').value.trim() || '-', t4: document.getElementById('ctT4').value || '0',
+                    p5: document.getElementById('ctP5').value.trim() || '-', t5: document.getElementById('ctT5').value || '0',
+                    p6: document.getElementById('ctP6').value.trim() || '-', t6: document.getElementById('ctT6').value || '0',
+                    p7: document.getElementById('ctP7').value.trim() || '-', t7: document.getElementById('ctT7').value || '0',
+                    p8: document.getElementById('ctP8').value.trim() || '-', t8: document.getElementById('ctT8').value || '0'
+                };
+                cat.rows.push(newCt);
+                window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), cycleTimeCategories);
+                closeModal('modalAddCycleTimeRow');
+                showToast('Berhasil', 'Data cycle time berhasil disimpan ke kategori.', 'success');
+            }
         }
 
-        function renderCycleTimeTable() {
-            const tbody = document.getElementById('cycleTimeTableBody');
-            if(!tbody) return;
-            const searchVal = (document.getElementById('searchCycleTimeBox')?.value || '').toLowerCase();
-            tbody.innerHTML = '';
-            const filtered = cycleTimeItems.filter(ct => (ct.itemNumber || '').toLowerCase().includes(searchVal) || (ct.deskripsiTool || '').toLowerCase().includes(searchVal));
-            if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-400 text-xs">Tidak ada data cycle time yang cocok.</td></tr>`;
+        function deleteCycleTimeRow(catId, rowId) {
+            const cat = cycleTimeCategories.find(c => c.id === catId);
+            if(cat && cat.rows) {
+                cat.rows = cat.rows.filter(r => r.id !== rowId);
+                window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), cycleTimeCategories);
+            }
+        }
+
+        function toggleCycleTimeAccordion(catId) {
+            const cat = cycleTimeCategories.find(c => c.id === catId);
+            if(cat) { cat.expanded = cat.expanded !== undefined ? !cat.expanded : false; renderCycleTimeCategoriesContainer(); }
+        }
+
+        function renderCycleTimeCategoriesContainer() {
+            const container = document.getElementById('cycleTimeCategoriesContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            if(!cycleTimeCategories || cycleTimeCategories.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200 text-xs">Belum ada kategori cycle time.</div>`;
                 return;
             }
-            filtered.forEach((ct) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100 text-center";
-                tr.innerHTML = `
-                    <td class="p-3 text-left font-mono font-bold text-brandBlue">${ct.itemNumber || '-'}</td>
-                    <td class="p-3 text-left font-medium text-slate-900">${ct.deskripsiTool || '-'}</td>
-                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p1 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t1 || '0'} s</div></td>
-                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p2 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t2 || '0'} s</div></td>
-                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p3 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t3 || '0'} s</div></td>
-                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p4 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t4 || '0'} s</div></td>
-                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p5 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t5 || '0'} s</div></td>
-                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p6 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t6 || '0'} s</div></td>
-                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p7 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t7 || '0'} s</div></td>
-                    <td class="p-3"><div class="font-medium text-slate-800">${ct.p8 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t8 || '0'} s</div></td>
-                    <td class="p-3">
-                        <button onclick="deleteCycleTimeItem('${ct.id}')" class="p-1.5 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer shadow-sm">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
+
+            cycleTimeCategories.forEach(cat => {
+                let rowsHTML = '';
+                if(!cat.rows || cat.rows.length === 0) {
+                    rowsHTML = `<tr><td colspan="11" class="p-4 text-center text-slate-400 text-xs">Belum ada data cycle time dalam kategori ini.</td></tr>`;
+                } else {
+                    cat.rows.forEach(ct => {
+                        rowsHTML += `
+                            <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-center text-xs">
+                                <td class="p-3 text-left font-mono font-bold text-brandBlue">${ct.itemNumber || '-'}</td>
+                                <td class="p-3 text-left font-medium text-slate-900">${ct.deskripsiTool || '-'}</td>
+                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p1 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t1 || '0'} s</div></td>
+                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p2 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t2 || '0'} s</div></td>
+                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p3 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t3 || '0'} s</div></td>
+                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p4 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t4 || '0'} s</div></td>
+                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p5 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t5 || '0'} s</div></td>
+                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p6 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t6 || '0'} s</div></td>
+                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p7 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t7 || '0'} s</div></td>
+                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p8 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t8 || '0'} s</div></td>
+                                <td class="p-3">
+                                    <button onclick="deleteCycleTimeRow('${cat.id}', '${ct.id}')" class="p-1.5 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer shadow-sm">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                const isExpanded = cat.expanded !== undefined ? cat.expanded : true;
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
+                div.innerHTML = `
+                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="toggleCycleTimeAccordion('${cat.id}')">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid ${isExpanded ? 'fa-chevron-down text-amber-500' : 'fa-chevron-right text-slate-400'} text-sm transition-transform"></i>
+                            <h4 class="font-bold text-sm tracking-wide">📂 ${cat.categoryName} <span class="text-xs text-slate-400 font-normal ml-2">(${cat.rows ? cat.rows.length : 0} Item)</span></h4>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2" onclick="event.stopPropagation()">
+                            ${currentUser === 'USER' ? `
+                                <button onclick="openModalAddCycleTimeRow('${cat.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Cycle Time</button>
+                                <button onclick="deleteCycleTimeCategory('${cat.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="${isExpanded ? '' : 'hidden'} table-popup-container border-t border-slate-800">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm text-slate-700 uppercase tracking-wider border-b border-slate-200 text-center font-bold text-xs">
+                                <tr>
+                                    <th class="p-3 text-left">Item Number</th>
+                                    <th class="p-3 text-left">Deskripsi Tool</th>
+                                    <th class="p-3">Proses 1</th>
+                                    <th class="p-3">Proses 2</th>
+                                    <th class="p-3">Proses 3</th>
+                                    <th class="p-3">Proses 4</th>
+                                    <th class="p-3">Proses 5</th>
+                                    <th class="p-3">Proses 6</th>
+                                    <th class="p-3">Proses 7</th>
+                                    <th class="p-3">Proses 8</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHTML}</tbody>
+                        </table>
+                    </div>
                 `;
-                tbody.appendChild(tr);
+                container.appendChild(div);
             });
         }
 
-        function downloadCycleTimeTemplate() {
-            let wb = XLSX.utils.book_new();
-            let templateData = [{ 
-                "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill Carbide D10",
-                "Proses 1": "Setup", "Cycle Time 1 (s)": 45, 
-                "Proses 2": "Roughing", "Cycle Time 2 (s)": 120, 
-                "Proses 3": "Finishing", "Cycle Time 3 (s)": 90, 
-                "Proses 4": "-", "Cycle Time 4 (s)": 0, 
-                "Proses 5": "-", "Cycle Time 5 (s)": 0, 
-                "Proses 6": "-", "Cycle Time 6 (s)": 0, 
-                "Proses 7": "-", "Cycle Time 7 (s)": 0, 
-                "Proses 8": "-", "Cycle Time 8 (s)": 0 
-            }];
-            let ws = XLSX.utils.json_to_sheet(templateData);
-            XLSX.utils.book_append_sheet(wb, ws, "Template_Cycle_Time");
-            XLSX.writeFile(wb, `Template_Cycle_Time_WKS.xlsx`);
-        }
-
-        function importCycleTimeExcel(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                    json.forEach((row, idx) => {
-                        cycleTimeItems.push({
-                            id: 'ct_imp_' + Date.now() + '_' + idx,
-                            itemNumber: row["Item Number"] || "-",
-                            deskripsiTool: row["Deskripsi Tool"] || "-",
-                            p1: row["Proses 1"] || "-", t1: row["Cycle Time 1 (s)"] || "0",
-                            p2: row["Proses 2"] || "-", t2: row["Cycle Time 2 (s)"] || "0",
-                            p3: row["Proses 3"] || "-", t3: row["Cycle Time 3 (s)"] || "0",
-                            p4: row["Proses 4"] || "-", t4: row["Cycle Time 4 (s)"] || "0",
-                            p5: row["Proses 5"] || "-", t5: row["Cycle Time 5 (s)"] || "0",
-                            p6: row["Proses 6"] || "-", t6: row["Cycle Time 6 (s)"] || "0",
-                            p7: row["Proses 7"] || "-", t7: row["Cycle Time 7 (s)"] || "0",
-                            p8: row["Proses 8"] || "-", t8: row["Cycle Time 8 (s)"] || "0"
-                        });
-                    });
-                    window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
-                    showToast('Berhasil', 'Data cycle time berhasil diimport!', 'success');
-                } catch(err) { showToast('Gagal', 'Format file Excel tidak valid.', 'error'); }
-                e.target.value = '';
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function deleteCycleTimeItem(id) {
-            if(confirm('Hapus item cycle time ini?')) {
-                cycleTimeItems = cycleTimeItems.filter(ct => ct.id !== id);
-                window.dbSet(window.dbRef(window.db, 'cycle_time_items'), cycleTimeItems);
-            }
-        }
-
-        // ================= COST REDUCTION =================
+        // --- COST REDUCTION & OTHERS ---
         function renderCRDatabase() {
             const tbody = document.getElementById('crDatabaseTableBody');
             if(!tbody) return;
@@ -2521,35 +2691,21 @@
         }
 
         function downloadMonthlyPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-            doc.text("WKS TOOL APPS — LAPORAN COST REDUCTION BULANAN", 14, 18);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
-            doc.autoTable({
-                startY: 32,
-                head: [["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"]],
+            exportWksPdf({
+                title: "Laporan Cost Reduction Bulanan",
+                head: ["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"],
                 body: monthlyData.map((d, i) => [monthNames[i], `${d.qty || 0} Pcs`, `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`]),
-                theme: 'grid', headStyles: { fillColor: [37, 99, 235] }
+                filename: `CR_Bulanan_${new Date().toISOString().split('T')[0]}.pdf`
             });
-            doc.save(`CR_Bulanan_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function downloadYearlyPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-            doc.text("WKS TOOL APPS — LAPORAN COST REDUCTION TAHUNAN", 14, 18);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
-            doc.autoTable({
-                startY: 32,
-                head: [["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"]],
+            exportWksPdf({
+                title: "Laporan Cost Reduction Tahunan",
+                head: ["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"],
                 body: yearlyData.map((d, i) => [monthNames[i], `${d.qty || 0} Pcs`, `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`]),
-                theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
+                filename: `CR_Tahunan_${new Date().toISOString().split('T')[0]}.pdf`
             });
-            doc.save(`CR_Tahunan_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function exportCompletedExcel() {
@@ -2569,37 +2725,23 @@
         function exportCompletedPDF() {
             const completedItems = items.filter(item => item.current_stage_index >= stagesDefinition[item.type_grinding].length - 1);
             if(completedItems.length === 0) { alert('Tidak ada item selesai.'); return; }
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-            doc.text("WKS TOOL APPS — LAPORAN ITEM SELESAI (COMPLETED)", 14, 18);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
-            doc.autoTable({
-                startY: 32,
-                head: [["Item Number", "Detail Barang", "QTY", "Type Grinding", "Tanggal & User Selesai"]],
+            exportWksPdf({
+                title: "Laporan Item Selesai (Completed)",
+                head: ["Item Number", "Detail Barang", "QTY", "Type Grinding", "Tanggal & User Selesai"],
                 body: completedItems.map(item => [item.item_number, item.item_name, `${item.qty || 1} Pcs`, item.type_grinding, `${item.completed_at || '-'} (${item.completed_by || '-'})`]),
-                theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
+                filename: `WKS_Completed_Report_${new Date().toISOString().split('T')[0]}.pdf`
             });
-            doc.save(`WKS_Completed_Report_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function exportMasterTablePDF(tableId) {
             const table = masterTables.find(t => t.id === tableId);
             if(!table || !table.rows || table.rows.length === 0) { alert('Tabel master kosong.'); return; }
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-            doc.text(`WKS TOOL APPS — ${table.tableName.toUpperCase()}`, 14, 18);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
-            doc.autoTable({
-                startY: 32,
-                head: [["Item Number", "Deskripsi Tool", "Tool Life (Pcs)", "Keterangan"]],
+            exportWksPdf({
+                title: table.tableName,
+                head: ["Item Number", "Deskripsi Tool", "Tool Life (Pcs)", "Keterangan"],
                 body: table.rows.map(r => [r.itemNumber, r.desc, r.toolLife || '-', r.note || '-']),
-                theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
+                filename: `Master_${table.tableName.replace(/\s+/g, '_')}_WKS.pdf`
             });
-            doc.save(`Master_${table.tableName.replace(/\s+/g, '_')}_WKS.pdf`);
         }
 
         function exportStockAndScrapPDF() {
@@ -2607,13 +2749,13 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("WKS TOOL APPS — LAPORAN BUFFER STOK & SCRAP", 14, 18);
-            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(9);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 24);
 
             doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-            doc.text("1. Data Buffer Stok Gudang", 14, 35);
+            doc.text("1. Data Buffer Stok Gudang", 14, 32);
             doc.autoTable({
-                startY: 39,
+                startY: 36,
                 head: [["Item Number", "Deskripsi Tool", "Stok Saat Ini", "Min Buffer", "Status Stok"]],
                 body: bufferStockItems.map(b => [b.itemNumber, b.desc, `${b.currentStock} Pcs`, `${b.minStock} Pcs`, b.currentStock <= b.minStock ? "MENIPIS" : "AMAN"]),
                 theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
@@ -2903,7 +3045,6 @@
             });
         }
 
-        // ================= SEPARATE PASSWORD HANDLERS =================
         function openModalChangePassWeb() {
             document.getElementById('newPasswordWebInput').value = '';
             document.getElementById('modalChangePassWeb').classList.remove('hidden');
@@ -2981,8 +3122,8 @@
                 renderYearlyTable();
             } else if(view === 'knowledgeCycle') {
                 document.getElementById('viewKnowledgeCycle').classList.remove('hidden');
-                renderKnowledgeTable();
-                renderCycleTimeTable();
+                renderKnowledgeCategoriesContainer();
+                renderCycleTimeCategoriesContainer();
             } else if(view === 'auditTrail') {
                 document.getElementById('viewAuditTrail').classList.remove('hidden');
                 renderAuditTrailTable();
@@ -3231,12 +3372,8 @@
         }
 
         function filterMasterSuggestionsGeneric(keyword, targetType) {
-            let listId = '';
-            if(targetType === 'buffer') listId = 'bufferSuggestionsList';
-            else if(targetType === 'knowledge') listId = 'knowledgeSuggestionsList';
-            else if(targetType === 'ct') listId = 'ctSuggestionsList';
-            else if(targetType === 'cr') listId = 'crSuggestionsList';
-
+            const listMap = { buffer: 'bufferSuggestionsList', knowledge: 'knowledgeSuggestionsList', ct: 'ctSuggestionsList', cr: 'crSuggestionsList' };
+            const listId = listMap[targetType];
             const listContainer = document.getElementById(listId);
             if(!listContainer) return;
             listContainer.innerHTML = '';
@@ -3274,27 +3411,12 @@
         }
 
         function selectMasterSuggestionGeneric(itemNumber, desc, targetType) {
-            if(targetType === 'buffer') {
-                document.getElementById('bufferItemNumber').value = itemNumber;
-                document.getElementById('bufferDesc').value = desc;
-                document.getElementById('modalBufferMasterSearch').value = `${itemNumber} - ${desc}`;
-                document.getElementById('bufferSuggestionsList').classList.add('hidden');
-            } else if(targetType === 'knowledge') {
-                document.getElementById('knowledgeItemNumber').value = itemNumber;
-                document.getElementById('knowledgeDesc').value = desc;
-                document.getElementById('modalKnowledgeMasterSearch').value = `${itemNumber} - ${desc}`;
-                document.getElementById('knowledgeSuggestionsList').classList.add('hidden');
-            } else if(targetType === 'ct') {
-                document.getElementById('ctItemNumber').value = itemNumber;
-                document.getElementById('ctDesc').value = desc;
-                document.getElementById('modalCtMasterSearch').value = `${itemNumber} - ${desc}`;
-                document.getElementById('ctSuggestionsList').classList.add('hidden');
-            } else if(targetType === 'cr') {
-                document.getElementById('crItemNumber').value = itemNumber;
-                document.getElementById('crDesc').value = desc;
-                document.getElementById('modalCrMasterSearch').value = `${itemNumber} - ${desc}`;
-                document.getElementById('crSuggestionsList').classList.add('hidden');
-            }
+            const prefixMap = { buffer: 'buffer', knowledge: 'knowledge', ct: 'ct', cr: 'cr' };
+            const p = prefixMap[targetType];
+            document.getElementById(`${p}ItemNumber`).value = itemNumber;
+            document.getElementById(`${p}Desc`).value = desc;
+            document.getElementById(`modal${targetType.charAt(0).toUpperCase() + targetType.slice(1)}MasterSearch`).value = `${itemNumber} - ${desc}`;
+            document.getElementById(`${targetType}SuggestionsList`).classList.add('hidden');
             showToast('Auto-Fill', 'Item berhasil dipilih dari Data Master.', 'info');
         }
 
@@ -3419,8 +3541,8 @@
                         populateCRSelect();
                         initMonthlyChart();
                         renderYearlyTable();
-                        renderKnowledgeTable();
-                        renderCycleTimeTable();
+                        renderKnowledgeCategoriesContainer();
+                        renderCycleTimeCategoriesContainer();
                         renderAuditTrailTable();
                         renderTrialProsesContainer();
                     }, 1000);
