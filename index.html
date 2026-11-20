@@ -61,17 +61,16 @@
             <div class="relative z-10 flex flex-col items-center">
                 <img src="https://raw.githubusercontent.com/abekunay158-eng/wks-tool-apps/main/logowks.png" alt="Logo WKS" class="h-10 mb-3 object-contain rounded-xl bg-white/10 backdrop-blur-3xl p-1.5 shadow-lg border border-red-500/50 transition-all duration-300 hover:scale-105">
             </div>
-            <span class="inline-block px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 tracking-wider uppercase editable-text" data-key="login_badge">Sistem Manajemen Tool</span>
+            <span class="inline-block px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 tracking-wider uppercase editable-text" data-key="login_badge">Tool Maker Akebono </span>
             <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">WKS <span class="text-accentRed">Tool Apps</span></h1>
-            <div class="bg-slate-900/40 border border-slate-800 text-slate-400 text-xs px-4 py-2.5 rounded-xl w-full mb-8 backdrop-blur-sm whitespace-nowrap overflow-x-auto">
-                <span class="text-slate-300 font-bold">Kredensial:</span> User: <code class="text-indigo-300 font-bold">USER</code> / <code class="text-indigo-300 font-bold">USER</code>
-            </div>
+            
             <button onclick="togglePopup(true)" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-2xl shadow-xl shadow-indigo-600/30 transition-all duration-300 active:scale-95 cursor-pointer flex items-center space-x-3 mx-auto">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 <span>Buka Form Login</span>
             </button>
         </div>
 
+        <!-- POPUP LOGIN MODAL -->
         <div id="loginModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
             <div class="modal-container glass-card w-full max-w-5xl rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-2 relative shadow-2xl text-left">
                 <button onclick="togglePopup(false)" class="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
@@ -79,27 +78,30 @@
                 </button>
                 <div class="p-8 sm:p-12 md:p-16 flex flex-col justify-center relative overflow-hidden">
                     <div class="absolute -top-24 -left-24 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="mb-8">
+                    <div class="mb-6">
                         <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Login</h2>
-                        <p class="text-xs sm:text-sm text-slate-400 mt-1">Silakan masukkan akses akun Anda</p>
                     </div>
                     <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                         <div class="space-y-1.5">
                             <div class="relative group">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-indigo-400 transition-colors"><i class="fa-regular fa-user"></i></span>
-                                <input type="text" id="loginUser" required placeholder="USER" class="custom-input w-full text-slate-200 placeholder-slate-500 text-sm rounded-xl py-3.5 pl-11 pr-4 outline-none uppercase font-bold">
+                                <input type="text" id="loginUser" required placeholder="Username / Nama Lengkap" class="custom-input w-full text-slate-200 placeholder-slate-500 text-sm rounded-xl py-3.5 pl-11 pr-4 outline-none font-semibold">
                             </div>
                         </div>
                         <div class="space-y-1.5">
                             <div class="relative group">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400 group-focus-within:text-indigo-400 transition-colors"><i class="fa-solid fa-lock"></i></span>
-                                <input type="password" id="loginPass" required placeholder="••••••••••••" class="custom-input w-full text-slate-200 placeholder-slate-500 text-sm rounded-xl py-3.5 pl-11 pr-12 outline-none">
+                                <input type="password" id="loginPass" required placeholder="Password / NPK/NIK" class="custom-input w-full text-slate-200 placeholder-slate-500 text-sm rounded-xl py-3.5 pl-11 pr-12 outline-none">
                                 <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white transition-colors cursor-pointer"><i id="eyeIcon" class="fa-regular fa-eye"></i></button>
                             </div>
                         </div>
                         <button type="submit" id="loginBtn" class="w-full mt-2 bg-gradient-to-r from-slate-200 to-white hover:from-white hover:to-slate-100 text-slate-900 font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-xl hover:shadow-white/20 active:scale-[0.99] flex items-center justify-center space-x-2 group cursor-pointer">
                             <span>Masuk ke Sistem</span>
                             <i class="fa-solid fa-arrow-right text-xs transform group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                        <button type="button" onclick="openCreateAccountModal()" class="w-full bg-indigo-600/20 hover:bg-indigo-600/35 border border-indigo-400/30 text-indigo-200 font-semibold py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer text-sm">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Create Account</span>
                         </button>
                     </form>
                 </div>
@@ -114,35 +116,74 @@
                 </div>
             </div>
         </div>
+
+        <!-- POPUP MODAL CREATE ACCOUNT -->
+        <div id="createAccountModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+            <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-8 relative shadow-2xl text-left border border-indigo-500/20">
+                <button type="button" onclick="closeCreateAccountModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="mb-6">
+                    <span class="inline-block px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold uppercase tracking-wider mb-2">Registrasi Karyawan</span>
+                    <h3 class="text-2xl font-extrabold text-white">Create Account</h3>
+                    <p class="text-xs text-slate-400 mt-1">Isi Nama Lengkap dan NPK/NIK. Akun akan aktif setelah dikonfirmasi oleh USER.</p>
+                </div>
+                <form id="createAccountForm" onsubmit="handleCreateAccount(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">1. Nama Lengkap</label>
+                        <input type="text" id="regFullName" required placeholder="Contoh: Budi Santoso" class="custom-input w-full text-white placeholder-slate-500 text-sm rounded-xl py-3 px-4 outline-none font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">2. NPK/NIK Nomor Induk Karyawan</label>
+                        <input type="text" id="regNpk" required placeholder="Contoh: 123456" class="custom-input w-full text-white placeholder-slate-500 text-sm rounded-xl py-3 px-4 outline-none font-mono font-bold">
+                    </div>
+                    <div class="flex items-center space-x-3 pt-2">
+                        <button type="button" onclick="closeCreateAccountModal()" class="w-1/3 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer">Batal</button>
+                        <button type="submit" class="w-2/3 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-sm font-bold shadow-lg transition cursor-pointer flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>Ajukan Akun</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- MAIN APPLICATION -->
     <div id="mainApp" class="hidden flex-1 flex flex-col bg-slate-100 text-slate-800">
         <header class="bg-darkSlate text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <button onclick="toggleSidebar()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition focus:outline-none cursor-pointer">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
+                <div class="flex items-center space-x-2.5 min-w-0">
+                    <button onclick="toggleSidebar()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition focus:outline-none cursor-pointer shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
-                    <span class="font-black text-lg tracking-wider editable-text" data-key="brand_badge">WKS <span class="text-accentRed">TOOL APPS</span></span>
-                    <h2 class="font-bold text-sm sm:text-base text-slate-300 hidden md:block border-l border-slate-700 pl-3 editable-text" data-key="navbar_title">Grinding & Regrind Tracker</h2>
+                    <span class="font-black text-base sm:text-lg tracking-wider editable-text truncate" data-key="brand_badge">WKS <span class="text-accentRed">TOOL APPS</span></span>
+                    <h2 class="font-bold text-sm text-slate-300 hidden lg:block border-l border-slate-700 pl-3 editable-text" data-key="navbar_title">Grinding &amp; Regrind Tracker</h2>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <button onclick="switchMainView('costReduction')" class="flex items-center space-x-1.5 bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-md cursor-pointer" title="Cost Reduction RealTime">
+                <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                    <!-- Tombol Kelola Akses Per Halaman & Konfirmasi Akun khusus login USER -->
+                    <button id="btnHeaderUnlockAccess" onclick="openAccessControlModal()" class="hidden relative items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-md cursor-pointer" title="Kelola Akses Halaman Per Menu & Konfirmasi Akun Karyawan">
+                        <i id="headerUnlockIcon" class="fa-solid fa-sliders"></i>
+                        <span id="headerUnlockText" class="hidden sm:inline">Kelola Akses</span>
+                        <span id="headerPendingBadge" class="hidden -top-1.5 -right-1.5 absolute min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center shadow">0</span>
+                    </button>
+                    <button id="btnHeaderCR" onclick="guardedSwitchView('costReduction')" class="flex items-center space-x-1.5 bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-md cursor-pointer" title="Cost Reduction RealTime">
                         <i class="fa-solid fa-coins"></i>
                         <span class="hidden sm:inline">Cost Reduction</span>
                     </button>
-                    <div class="text-right flex items-center space-x-2">
+                    <div class="text-right flex items-center space-x-2 bg-slate-900/70 border border-slate-700/80 px-2.5 py-1.5 rounded-xl">
                         <span id="syncIndicator" class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" title="Menghubungkan ke Firebase..."></span>
-                        <p id="navUserRole" class="text-xs font-bold text-accentRed uppercase tracking-wider"></p>
+                        <div class="leading-tight text-left">
+                            <p id="navAccountName" class="text-xs font-bold text-white truncate max-w-[120px] sm:max-w-[180px]"></p>
+                            <p id="navUserRole" class="text-[10px] font-bold text-accentRed uppercase tracking-wider"></p>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
-
         <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden transition-opacity"></div>
         <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-darkSlate text-white z-50 shadow-2xl flex flex-col justify-between p-6 transform -translate-x-full sidebar-transition border-r border-slate-800">
-            <div class="space-y-6">
+            <div class="space-y-6 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <div class="flex items-center space-x-2">
                         <span class="w-3 h-3 rounded-full bg-accentRed"></span>
@@ -153,38 +194,47 @@
                     </button>
                 </div>
 
+                <!-- Tombol Kelola Akses Per Halaman & Konfirmasi Akun khusus login USER di Sidebar -->
+                <button id="btnSidebarUnlockAccess" onclick="openAccessControlModal(); toggleSidebar();" class="w-full hidden items-center justify-between px-4 py-3 rounded-xl text-xs font-bold bg-indigo-600/25 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/40 transition cursor-pointer">
+                    <span class="flex items-center space-x-2">
+                        <i id="sidebarUnlockIcon" class="fa-solid fa-sliders"></i>
+                        <span id="sidebarUnlockText">Akses Halaman &amp; Akun</span>
+                    </span>
+                    <span id="sidebarUnlockBadge" class="px-2 py-0.5 rounded-full text-[10px] bg-slate-900/60 text-amber-300">0 Pending</span>
+                </button>
+
                 <nav class="space-y-2">
-                    <button id="btnNavProgress" onclick="switchMainView('progress'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
+                    <button id="btnNavProgress" onclick="guardedSwitchView('progress'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         <span> Tracking Progress</span>
                     </button>
-                    <button id="btnNavCR" onclick="switchMainView('costReduction'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition cursor-pointer">
+                    <button id="btnNavStock" onclick="guardedSwitchView('stock'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        <span> Buffer Stok &amp; Scrap</span>
+                    </button>
+                    <button id="btnNavCR" onclick="guardedSwitchView('costReduction'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition cursor-pointer">
                         <i class="fa-solid fa-coins text-lg"></i>
                         <span> C . R real time </span>
                     </button>
-                    <button id="btnNavTrial" onclick="switchMainView('trial'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
+                    <button id="btnNavTrial" onclick="guardedSwitchView('trial'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
                         <i class="fa-solid fa-flask-vial text-lg"></i>
                         <span> Menu Trial Proses</span>
                     </button>
-                    <button id="btnNavMaster" onclick="switchMainView('master'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition hidden cursor-pointer">
+                    <button id="btnNavMaster" onclick="guardedSwitchView('master'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
                         <span> Data Master</span>
                     </button>
-                    <button id="btnNavStock" onclick="switchMainView('stock'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                        <span> Buffer Stok & Scrap</span>
-                    </button>
-                    <button id="btnNavKnowledgeCycle" onclick="switchMainView('knowledgeCycle'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
+                    <button id="btnNavKnowledgeCycle" onclick="guardedSwitchView('knowledgeCycle'); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-brandBlue hover:text-white transition cursor-pointer">
                         <i class="fa-solid fa-book-bookmark w-5 text-center"></i>
-                        <span> Knowledge & C . T</span>
+                        <span> Knowledge &amp; C . T</span>
                     </button>
-                    <button id="btnNavLog" onclick="promptAuditTrailPassword(); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-indigo-600 hover:text-white transition cursor-pointer">
+                    <button id="btnNavLog" onclick="guardedAuditTrailPrompt(); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-indigo-600 hover:text-white transition cursor-pointer">
                         <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
                         <span> Menu Log Riwayat</span>
                     </button>
                     <button id="btnBuilder" onclick="toggleBuilderMode(); toggleSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition hidden cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        <span>️ Mode Builder (Off)</span>
+                        <span> Mode Builder (Off)</span>
                     </button>
                 </nav>
             </div>
@@ -265,7 +315,7 @@
                             <option value="New Grinding">New Grinding</option>
                             <option value="Re Grinding">Re Grinding</option>
                         </select>
-                        <button id="btnAddItem" onclick="openModalAddItem()" class="bg-brandBlue hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-blue-500/20 hidden cursor-pointer">
+                        <button id="btnAddItem" onclick="openModalAddItem()" class="bg-brandBlue hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-blue-500/20 cursor-pointer">
                             + Input Item Baru
                         </button>
                     </div>
@@ -321,7 +371,7 @@
                                         <th class="p-4 font-bold">Deskripsi Tool</th>
                                         <th class="p-4 font-bold">QTY Selesai</th>
                                         <th class="p-4 font-bold">Type Grinding</th>
-                                        <th class="p-4 text-center font-bold">Status & Tanggal Selesai</th>
+                                        <th class="p-4 text-center font-bold">Status &amp; Tanggal Selesai</th>
                                         <th class="p-4 text-center font-bold">Aksi / Repair</th>
                                     </tr>
                                 </thead>
@@ -340,7 +390,7 @@
                         <h3 class="text-2xl font-black text-slate-900"> Cost Reduction RealTime System</h3>
                         <p class="text-xs text-slate-500 mt-1">Terintegrasi otomatis dengan Tracking Progress. Selesaikan item di tracking untuk menambah CR harian secara real-time.</p>
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex flex-wrap items-center gap-2">
                         <button onclick="openModalAddCR()" class="bg-brandBlue hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition shadow-md shadow-blue-500/20 cursor-pointer">
                             + Tambah Item CR
                         </button>
@@ -355,7 +405,7 @@
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="bg-darkSlate text-white p-4 font-bold text-sm flex justify-between items-center">
-                        <span> Tabel Database & Cost Reduction</span>
+                        <span> Tabel Database &amp; Cost Reduction</span>
                         <span class="text-xs text-slate-400 font-normal">Rumus CR = (Rp. Out House - Rp. In House)</span>
                     </div>
                     <div class="overflow-x-auto">
@@ -378,15 +428,15 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-4 gap-4">
                         <div>
-                            <h4 class="text-lg font-bold text-slate-900">1. Cost Reduction Harian (Real-Time & Auto-Sync)</h4>
-                            <p class="text-xs text-slate-500">Klik "Mulai" di pagi hari. Saat item berstatus "FINISHED" di Tracking Progress, sistem otomatis mencocokkan Item Number & menghitung Rp. CR.</p>
+                            <h4 class="text-lg font-bold text-slate-900">1. Cost Reduction Harian (Real-Time &amp; Auto-Sync)</h4>
+                            <p class="text-xs text-slate-500">Klik "Mulai" di pagi hari. Saat item berstatus "FINISHED" di Tracking Progress, sistem otomatis mencocokkan Item Number &amp; menghitung Rp. CR.</p>
                         </div>
                         <div class="flex items-center space-x-3">
                             <button id="btnStartDaily" onclick="startDailyCR()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition cursor-pointer">
                                 <i class="fa-solid fa-play mr-1"></i> Mulai Harian
                             </button>
                             <button id="btnFinishDaily" onclick="finishDailyCR()" class="bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition cursor-pointer" disabled>
-                                <i class="fa-solid fa-stop mr-1"></i> Selesai & Masuk Bulanan
+                                <i class="fa-solid fa-stop mr-1"></i> Selesai &amp; Masuk Bulanan
                             </button>
                         </div>
                     </div>
@@ -431,7 +481,7 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-4 gap-4">
                         <div>
                             <h4 class="text-lg font-bold text-slate-900">2. Cost Reduction Bulanan (Real-Time Chart)</h4>
-                            <p class="text-xs text-slate-500">Akumulasi dari harian (Januari s.d. Desember). Maksimal Sumbu Y: 800 pcs & Rp 2 Miliar.</p>
+                            <p class="text-xs text-slate-500">Akumulasi dari harian (Januari s.d. Desember). Maksimal Sumbu Y: 800 pcs &amp; Rp 2 Miliar.</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <button onclick="downloadMonthlyPDF()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
@@ -483,7 +533,7 @@
             <div id="viewTrial" class="space-y-6 hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-flask-vial text-brandBlue mr-2"></i> Manajemen Trial Proses & Project Baru</h3>
+                        <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-flask-vial text-brandBlue mr-2"></i> Manajemen Trial Proses &amp; Project Baru</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Kelola data pengujian cutting tool, parameter mesin CNC, history trail, hingga evaluasi akhir sukses/failed.</p>
                     </div>
                     <div>
@@ -496,7 +546,7 @@
                 <div id="trialListContainer" class="space-y-6"></div>
             </div>
 
-            <!-- VIEW: MASTER TABLES (DENGAN GLOBAL SEARCH BOX) -->
+            <!-- VIEW: MASTER TABLES -->
             <div id="viewMaster" class="space-y-6 hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
@@ -521,7 +571,7 @@
             <div id="viewStock" class="space-y-6 hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900"> Manajemen Buffer Stok & Scrap Tool</h3>
+                        <h3 class="text-lg font-bold text-slate-900"> Manajemen Buffer Stok &amp; Scrap Tool</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Kelola data stok, update quantity, dan daftar afkir (scrap).</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
@@ -561,7 +611,7 @@
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                     <div class="bg-red-900 text-white p-4 flex justify-between items-center text-sm font-bold">
-                        <span>️ Data Tool Scrap (Max Regrind / Rusak Patah)</span>
+                        <span> Data Tool Scrap (Max Regrind / Rusak Patah)</span>
                     </div>
                     <div class="table-popup-container">
                         <table class="w-full text-left border-collapse text-sm">
@@ -571,7 +621,7 @@
                                     <th class="p-4">Nama / Deskripsi Tool</th>
                                     <th class="p-4 text-center">Riwayat Regrind</th>
                                     <th class="p-4">Alasan Scrap</th>
-                                    <th class="p-4 text-center">Tanggal & Dicatat Oleh</th>
+                                    <th class="p-4 text-center">Tanggal &amp; Dicatat Oleh</th>
                                     <th class="p-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -585,7 +635,7 @@
             <div id="viewKnowledgeCycle" class="space-y-8 hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900"> Knowledge & Cycle Time Management</h3>
+                        <h3 class="text-lg font-bold text-slate-900"> Knowledge &amp; Cycle Time Management</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Kelola data kategori drawing tool dan cycle time bergaya pop-up akordion agar lebih rapi.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
@@ -615,20 +665,18 @@
                 </div>
             </div>
 
-            <!-- VIEW: MENU LOG RIWAYAT (DENGAN FITUR BACKUP & RESTORE JSON) -->
+            <!-- VIEW: MENU LOG RIWAYAT -->
             <div id="viewAuditTrail" class="space-y-6 hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 gap-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-2"></i> Menu Log Riwayat & Backup Data</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Pencatatan rekam jejak audit trail serta fitur Backup & Restore Database JSON aplikasi.</p>
+                        <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-2"></i> Menu Log Riwayat &amp; Backup Data</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Pencatatan rekam jejak audit trail serta fitur Backup &amp; Restore Database JSON aplikasi.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <!-- Tombol Backup JSON -->
                         <button onclick="exportJSONBackup()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5" title="Download seluruh database aplikasi ke file JSON">
                             <i class="fa-solid fa-download text-[11px]"></i>
                             <span>Backup (Download JSON)</span>
                         </button>
-                        <!-- Tombol Restore JSON -->
                         <label class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5" title="Upload file JSON backup untuk memulihkan database">
                             <i class="fa-solid fa-upload text-[11px]"></i>
                             <span>Restore (Upload JSON)</span>
@@ -669,7 +717,6 @@
 
         </main>
     </div>
-
     <!-- MODAL: ADD COST REDUCTION ITEM -->
     <div id="modalAddCR" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left relative">
@@ -954,7 +1001,7 @@
     <div id="scannerModal" class="fixed inset-0 bg-slate-950/80 z-50 hidden flex flex-col items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl text-center relative">
             <h3 class="font-bold text-slate-900 mb-1">Scan Barcode / QR Code</h3>
-            <p class="text-xs text-slate-500 mb-4">Arahkan kamera ke barcode pada fisik tool</p>
+            <p class="text-xs text-slate-500 mb-4">Arahkan kamera ke barcode </p>
             <div id="reader" class="w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-300"></div>
             <button type="button" onclick="closeScannerModal()" class="mt-4 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition cursor-pointer">Tutup Kamera</button>
         </div>
@@ -1021,11 +1068,11 @@
                 </div>
 
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
-                    <p class="text-xs font-bold text-slate-800 uppercase"><i class="fa-solid fa-gears text-brandBlue mr-1"></i> Parameter Mesin & Cutting Conditions</p>
+                    <p class="text-xs font-bold text-slate-800 uppercase"><i class="fa-solid fa-gears text-brandBlue mr-1"></i> Parameter Mesin &amp; Cutting Conditions</p>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Mesin CNC</label>
-                            <input type="text" id="trialMachine" placeholder="Mori Seiki #03" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white">
+                            <input type="text" id="trialMachine" placeholder="Makino CNJ2" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-white">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Material</label>
@@ -1066,7 +1113,7 @@
     <!-- MODAL: UPDATE / ADD TRIAL LOG & EVALUATION -->
     <div id="modalUpdateTrial" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left relative max-h-[90vh] overflow-y-auto">
-            <h3 class="text-lg font-bold text-slate-900 mb-1">Catat Log & Evaluasi Trial</h3>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">Catat Log &amp; Evaluasi Trial</h3>
             <p id="trialUpdateHeader" class="text-xs text-brandBlue font-mono font-bold mb-4 bg-indigo-50 p-2 rounded-lg"></p>
 
             <form onsubmit="handleSaveTrialLog(event)" class="space-y-4">
@@ -1091,10 +1138,10 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Status Trial Akhir</label>
                         <select id="logStatus" class="w-full border border-slate-300 rounded-xl p-2 text-xs font-bold bg-white cursor-pointer">
-                            <option value="RUNNING">⏳ RUNNING (Sedang Diuji)</option>
-                            <option value="SUKSES">✅ SUKSES (Approved)</option>
-                            <option value="REVISE">⚠️ REVISE / MODIFICATION</option>
-                            <option value="FAILED">❌ FAILED (Rejected)</option>
+                            <option value="RUNNING">RUNNING (Sedang Diuji)</option>
+                            <option value="SUKSES">SUKSES (Approved)</option>
+                            <option value="REVISE">REVISE / MODIFICATION</option>
+                            <option value="FAILED">FAILED (Rejected)</option>
                         </select>
                     </div>
                     <div>
@@ -1217,6 +1264,64 @@
         </div>
     </div>
 
+    <!-- MODAL: QUICK PRIORITY PICKER (KLIK LANGSUNG KOLOM REGULER / URGENT) -->
+    <div id="modalQuickPriority" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xs w-full p-5 modal-enter border border-slate-100 text-center relative">
+            <button onclick="closeModal('modalQuickPriority')" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-wider mb-1">Ubah Prioritas Item</span>
+            <h3 class="text-base font-black text-slate-900">Pilih Status Prioritas</h3>
+            <p id="quickPriorityItemInfo" class="text-xs font-mono font-bold text-slate-500 mt-1 mb-4 bg-slate-100 p-2 rounded-xl truncate"></p>
+            <input type="hidden" id="quickPriorityItemId">
+            <div class="grid grid-cols-2 gap-3">
+                <button type="button" id="btnChooseReguler" onclick="applyQuickPriority('Reguler')" class="py-3 px-3 rounded-xl border-2 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1">
+                    <i class="fa-solid fa-layer-group text-base"></i>
+                    <span>Reguler</span>
+                </button>
+                <button type="button" id="btnChooseUrgent" onclick="applyQuickPriority('Urgent')" class="py-3 px-3 rounded-xl border-2 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1">
+                    <i class="fa-solid fa-bolt text-base"></i>
+                    <span>Urgent</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: KELOLA AKSES PER HALAMAN & KONFIRMASI AKUN (KHUSUS USER) -->
+    <div id="modalAccessControl" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 modal-enter border border-slate-100 text-left max-h-[90vh] overflow-y-auto relative space-y-6">
+            <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-lg font-black text-slate-900"><i class="fa-solid fa-user-shield text-indigo-600 mr-2"></i> Kelola Akses Halaman &amp; Konfirmasi Akun</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Konfirmasi pendaftaran akun karyawan dan atur izin buka/kunci halaman per menu.</p>
+                </div>
+                <button onclick="closeModal('modalAccessControl')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Bagian 1: Konfirmasi Akun Karyawan -->
+            <div class="space-y-2.5">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-700"><i class="fa-solid fa-user-check text-emerald-600 mr-1"></i> Daftar Akun Karyawan (Create Account)</h4>
+                    <span id="modalPendingCountLabel" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">0 Menunggu Konfirmasi</span>
+                </div>
+                <div id="registeredAccountsList" class="border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-56 overflow-y-auto bg-slate-50/40"></div>
+            </div>
+
+            <!-- Bagian 2: Buka / Kunci Menu Per Halaman -->
+            <div class="space-y-2.5">
+                <h4 class="text-xs font-black uppercase tracking-wider text-slate-700"><i class="fa-solid fa-toggle-on text-indigo-600 mr-1"></i> Izin Akses Halaman Per Menu (Akun Karyawan)</h4>
+                <p class="text-[11px] text-slate-500">Menu <strong>Tracking Progress</strong> dan <strong>Buffer Stok &amp; Scrap</strong> selalu terbuka. Aktifkan halaman di bawah untuk membukanya ke akun karyawan:</p>
+                <div id="perPageAccessList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeModal('modalAccessControl')" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition cursor-pointer">Selesai</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: REPAIR COMPLETED ITEM -->
     <div id="modalRepairItem" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 modal-enter border border-slate-100 text-left">
@@ -1302,7 +1407,7 @@
         }
     </script>
 
-    <script>
+        <script>
         const stagesDefinition = {
             "New Grinding": [
                 "1. PREPARE MANUAL",
@@ -1322,7 +1427,24 @@
             ]
         };
 
+        const controllablePageDefs = [
+            { key: 'master', label: 'Data Master', icon: 'fa-database' },
+            { key: 'costReduction', label: 'C.R Real Time', icon: 'fa-coins' },
+            { key: 'trial', label: 'Menu Trial Proses', icon: 'fa-flask-vial' },
+            { key: 'knowledgeCycle', label: 'Knowledge & C.T', icon: 'fa-book-bookmark' },
+            { key: 'auditTrail', label: 'Menu Log Riwayat', icon: 'fa-clock-rotate-left' }
+        ];
+
         let authCredentials = { USER: "USER", LOG_PWD: "USER" };
+        let registeredAccounts = [];
+        let operatorUnlockedViews = {
+            master: false,
+            costReduction: false,
+            trial: false,
+            knowledgeCycle: false,
+            auditTrail: false
+        };
+
         let masterTables = [];
         let bufferStockItems = [];
         let scrapItems = [];
@@ -1347,16 +1469,486 @@
         const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         let currentUser = sessionStorage.getItem('wks_current_user') || null;
+        let currentRole = sessionStorage.getItem('wks_current_role') || null;
+        let currentNpk = sessionStorage.getItem('wks_current_npk') || null;
         let currentTab = 'active'; 
         let currentMainView = 'progress'; 
         let builderModeActive = false;
 
-        // --- FITUR BACKUP & RESTORE JSON ---
+        // --- HELPER PUSAT (FIREBASE, HITUNG CR, PENCARIAN MASTER, HAPUS + AUDIT, FILE & KATEGORI) ---
+        function syncToDb(path, payload) {
+            if (window.db && window.dbRef && window.dbSet) {
+                window.dbSet(window.dbRef(window.db, path), payload);
+            }
+        }
+
+        function calculateUnitCR(crItem) {
+            if (!crItem) return 0;
+            return (Number(crItem.outHouse) || 0) - (Number(crItem.inHouse) || 0);
+        }
+
+        function getMasterMatches(keyword) {
+            if (!keyword || keyword.trim() === '') return [];
+            const q = keyword.toLowerCase().trim();
+            const matches = [];
+            masterTables.forEach(table => {
+                if (table.rows && Array.isArray(table.rows)) {
+                    table.rows.forEach(row => {
+                        const matchNum = row.itemNumber && row.itemNumber.toLowerCase().includes(q);
+                        const matchDesc = row.desc && row.desc.toLowerCase().includes(q);
+                        if (matchNum || matchDesc) {
+                            matches.push({
+                                itemNumber: row.itemNumber,
+                                desc: row.desc,
+                                tableName: table.tableName
+                            });
+                        }
+                    });
+                }
+            });
+            return matches;
+        }
+
+        function renderMasterDropdown(listContainer, keyword, onSelect) {
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+            if (!keyword || keyword.trim() === '') {
+                listContainer.classList.add('hidden');
+                return;
+            }
+            const matches = getMasterMatches(keyword);
+            if (matches.length === 0) {
+                listContainer.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">Tidak ada item master yang cocok</div>`;
+                listContainer.classList.remove('hidden');
+                return;
+            }
+            matches.forEach(m => {
+                const div = document.createElement('div');
+                div.className = "p-3 hover:bg-indigo-50 cursor-pointer transition flex flex-col";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-mono font-bold text-brandBlue text-xs">${m.itemNumber}</span>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">${m.tableName}</span>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-800 mt-0.5">${m.desc}</span>
+                `;
+                div.onclick = () => {
+                    onSelect(m);
+                    listContainer.classList.add('hidden');
+                };
+                listContainer.appendChild(div);
+            });
+            listContainer.classList.remove('hidden');
+        }
+
+        function deleteRecordWithAudit({
+            confirmMsg,
+            getArray,
+            setArray,
+            matchFn,
+            dbPath,
+            auditType,
+            getItemNumber,
+            getAuditDetail,
+            toastTitle,
+            toastMsg,
+            onAfterDelete
+        }) {
+            if (!confirm(confirmMsg)) return;
+            const currentArr = getArray() || [];
+            const target = currentArr.find(matchFn);
+            const nextArr = currentArr.filter(item => !matchFn(item));
+            setArray(nextArr);
+            if (dbPath) syncToDb(dbPath, nextArr);
+            if (target && auditType) {
+                const itemNum = typeof getItemNumber === 'function' ? getItemNumber(target) : '-';
+                const detailStr = typeof getAuditDetail === 'function' ? getAuditDetail(target) : '-';
+                logAuditActivity(auditType, itemNum, detailStr);
+            }
+            if (typeof onAfterDelete === 'function') onAfterDelete(target);
+            if (toastTitle && toastMsg) showToast(toastTitle, toastMsg, 'info');
+        }
+
+        function readFileAsDataURL(file, onLoaded) {
+            if (!file) {
+                onLoaded('');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(evt) { onLoaded(evt.target.result || ''); };
+            reader.readAsDataURL(file);
+        }
+
+        function readExcelRows(file, onRowsLoaded, errorMsg = 'Gagal membaca file Excel.') {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    onRowsLoaded(rows || []);
+                } catch (err) {
+                    console.error(err);
+                    alert(errorMsg);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function appendRowToCategory(categories, catId, dbPath, newRow, onSaved) {
+            const cat = (categories || []).find(c => c.id === catId);
+            if (!cat) return null;
+            if (!cat.rows) cat.rows = [];
+            cat.rows.push(newRow);
+            if (dbPath) syncToDb(dbPath, categories);
+            if (typeof onSaved === 'function') onSaved(cat, newRow);
+            return cat;
+        }
+
+        function toggleCategoryAccordion(categories, catId, renderFn) {
+            const cat = (categories || []).find(c => c.id === catId);
+            if (cat) {
+                cat.expanded = cat.expanded !== undefined ? !cat.expanded : false;
+                if (typeof renderFn === 'function') renderFn();
+            }
+        }
+
+        function renderAccordionSection({
+            container,
+            categories,
+            emptyText,
+            getCountText,
+            getHeaderActionsHTML,
+            renderRowsHTML,
+            tableHeadHTML,
+            chevronColorClass = 'text-brandBlue',
+            onToggleId
+        }) {
+            if (!container) return;
+            container.innerHTML = '';
+            if (!categories || categories.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200 text-xs">${emptyText}</div>`;
+                return;
+            }
+
+            categories.forEach(cat => {
+                const isExpanded = cat.expanded !== undefined ? cat.expanded : true;
+                const countLabel = typeof getCountText === 'function'
+                    ? getCountText(cat)
+                    : `(${cat.rows ? cat.rows.length : 0} Item)`;
+                const actionsHTML = typeof getHeaderActionsHTML === 'function' ? getHeaderActionsHTML(cat) : '';
+                const rowsHTML = typeof renderRowsHTML === 'function' ? renderRowsHTML(cat) : '';
+
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
+                div.innerHTML = `
+                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="${onToggleId}('${cat.id}')">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid ${isExpanded ? `fa-chevron-down ${chevronColorClass}` : 'fa-chevron-right text-slate-400'} text-sm transition-transform"></i>
+                            <h4 class="font-bold text-sm tracking-wide">${cat.categoryName || cat.tableName} <span class="text-xs text-slate-400 font-normal ml-2">${countLabel}</span></h4>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2" onclick="event.stopPropagation()">
+                            ${actionsHTML}
+                        </div>
+                    </div>
+                    <div class="${isExpanded ? '' : 'hidden'} table-popup-container border-t border-slate-800">
+                        <table class="w-full text-left border-collapse">
+                            ${tableHeadHTML}
+                            <tbody>${rowsHTML}</tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function getActorLabel() {
+            if (!currentUser) return 'SYSTEM';
+            if (currentRole === 'OPERATOR' && currentNpk) {
+                return `${currentUser} (NPK: ${currentNpk})`;
+            }
+            return currentUser;
+        }
+
+        function normalizeUnlockedViews(raw) {
+            const base = {
+                master: false,
+                costReduction: false,
+                trial: false,
+                knowledgeCycle: false,
+                auditTrail: false
+            };
+            if (!raw || typeof raw !== 'object') return base;
+            Object.keys(base).forEach(k => {
+                base[k] = Boolean(raw[k]);
+            });
+            return base;
+        }
+
+        function isViewUnlockedForOperator(view) {
+            if (currentRole === 'ADMIN_USER') return true;
+            if (view === 'progress' || view === 'stock') return true;
+            return Boolean(operatorUnlockedViews[view]);
+        }
+
+        function isOperatorRestrictedView(view) {
+            if (currentRole !== 'OPERATOR') return false;
+            return !isViewUnlockedForOperator(view);
+        }
+
+        function guardedSwitchView(view) {
+            if (isOperatorRestrictedView(view)) {
+                showToast('Akses Terkunci', 'Halaman ini masih dikunci untuk akun karyawan. Minta USER membukanya di Kelola Akses.', 'error');
+                return;
+            }
+            switchMainView(view);
+        }
+
+        function guardedAuditTrailPrompt() {
+            if (currentRole === 'OPERATOR' && !isViewUnlockedForOperator('auditTrail')) {
+                showToast('Akses Terkunci', 'Menu Log Riwayat dikunci untuk akun karyawan. Minta USER membukanya di Kelola Akses.', 'error');
+                return;
+            }
+            promptAuditTrailPassword();
+        }
+
+        function getPendingAccountsCount() {
+            return registeredAccounts.filter(acc => acc.status === 'PENDING' || acc.approved === false).length;
+        }
+
+        function updateAccessControlBadgesUI() {
+            const isAdmin = currentRole === 'ADMIN_USER';
+            const btnHeader = document.getElementById('btnHeaderUnlockAccess');
+            const btnSidebar = document.getElementById('btnSidebarUnlockAccess');
+            const headerBadge = document.getElementById('headerPendingBadge');
+            const sidebarBadge = document.getElementById('sidebarUnlockBadge');
+
+            if (btnHeader) {
+                btnHeader.classList.toggle('hidden', !isAdmin);
+                btnHeader.classList.toggle('flex', isAdmin);
+            }
+            if (btnSidebar) {
+                btnSidebar.classList.toggle('hidden', !isAdmin);
+                btnSidebar.classList.toggle('flex', isAdmin);
+            }
+
+            const pendingCount = getPendingAccountsCount();
+            if (headerBadge) {
+                headerBadge.innerText = String(pendingCount);
+                headerBadge.classList.toggle('hidden', pendingCount === 0);
+            }
+            if (sidebarBadge) {
+                sidebarBadge.innerText = pendingCount > 0 ? `${pendingCount} Pending` : 'Kelola';
+                sidebarBadge.className = pendingCount > 0
+                    ? 'px-2 py-0.5 rounded-full text-[10px] bg-red-600 text-white font-black'
+                    : 'px-2 py-0.5 rounded-full text-[10px] bg-slate-900/60 text-emerald-300';
+            }
+        }
+
+        function openAccessControlModal() {
+            if (currentRole !== 'ADMIN_USER') {
+                showToast('Akses Ditolak', 'Hanya login USER yang dapat mengelola akses halaman dan konfirmasi akun.', 'error');
+                return;
+            }
+            renderAccessControlModalContent();
+            document.getElementById('modalAccessControl').classList.remove('hidden');
+        }
+
+        function renderAccessControlModalContent() {
+            const accountsContainer = document.getElementById('registeredAccountsList');
+            const pagesContainer = document.getElementById('perPageAccessList');
+            const pendingLabel = document.getElementById('modalPendingCountLabel');
+
+            const pendingCount = getPendingAccountsCount();
+            if (pendingLabel) {
+                pendingLabel.innerText = `${pendingCount} Menunggu Konfirmasi`;
+                pendingLabel.className = pendingCount > 0
+                    ? 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-700'
+                    : 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+            }
+
+            if (accountsContainer) {
+                if (!registeredAccounts || registeredAccounts.length === 0) {
+                    accountsContainer.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Belum ada pendaftaran akun karyawan.</div>`;
+                } else {
+                    accountsContainer.innerHTML = registeredAccounts.map(acc => {
+                        const isPending = acc.status === 'PENDING' || acc.approved === false;
+                        const statusBadge = isPending
+                            ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">PENDING</span>`
+                            : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">APPROVED</span>`;
+
+                        return `
+                            <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs font-bold text-slate-900">${acc.fullName}</span>
+                                        <span class="text-[11px] font-mono font-bold text-brandBlue">NPK/NIK: ${acc.npk}</span>
+                                        ${statusBadge}
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Terdaftar: ${acc.createdAt ? new Date(acc.createdAt).toLocaleString('id-ID') : '-'}</p>
+                                </div>
+                                <div class="flex items-center space-x-1.5 shrink-0">
+                                    ${isPending ? `
+                                        <button type="button" onclick="approveEmployeeAccount('${acc.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer">
+                                            <i class="fa-solid fa-check mr-1"></i>Setujui
+                                        </button>
+                                    ` : ''}
+                                    <button type="button" onclick="rejectOrDeleteAccount('${acc.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer">
+                                        <i class="fa-solid fa-trash mr-1"></i>${isPending ? 'Tolak' : 'Hapus'}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+
+            if (pagesContainer) {
+                pagesContainer.innerHTML = controllablePageDefs.map(pg => {
+                    const unlocked = Boolean(operatorUnlockedViews[pg.key]);
+                    return `
+                        <button type="button" onclick="toggleSinglePageAccess('${pg.key}')" class="flex items-center justify-between p-3 rounded-xl border text-left transition cursor-pointer ${unlocked ? 'bg-emerald-50/70 border-emerald-300 text-slate-900' : 'bg-slate-50 border-slate-200 text-slate-600'}">
+                            <span class="flex items-center space-x-2.5 text-xs font-bold">
+                                <i class="fa-solid ${pg.icon} ${unlocked ? 'text-emerald-600' : 'text-slate-400'}"></i>
+                                <span>${pg.label}</span>
+                            </span>
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black ${unlocked ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}">
+                                ${unlocked ? 'TERBUKA' : 'TERKUNCI'}
+                            </span>
+                        </button>
+                    `;
+                }).join('');
+            }
+        }
+
+        function toggleSinglePageAccess(pageKey) {
+            if (currentRole !== 'ADMIN_USER') {
+                showToast('Akses Ditolak', 'Hanya login USER yang dapat mengubah izin halaman.', 'error');
+                return;
+            }
+            const pageDef = controllablePageDefs.find(p => p.key === pageKey);
+            if (!pageDef) return;
+
+            operatorUnlockedViews[pageKey] = !Boolean(operatorUnlockedViews[pageKey]);
+            syncToDb('access_control/operator_unlocked_views', operatorUnlockedViews);
+            setupUIRoles();
+            renderAccessControlModalContent();
+            logAuditActivity(
+                'ACCESS_CONTROL',
+                '-',
+                `USER ${operatorUnlockedViews[pageKey] ? 'membuka' : 'mengunci'} akses halaman "${pageDef.label}" untuk akun karyawan`
+            );
+            showToast(
+                operatorUnlockedViews[pageKey] ? 'Halaman Dibuka' : 'Halaman Dikunci',
+                `${pageDef.label} sekarang ${operatorUnlockedViews[pageKey] ? 'dapat diakses' : 'terkunci'} untuk akun karyawan.`,
+                'info'
+            );
+        }
+
+        function approveEmployeeAccount(accountId) {
+            if (currentRole !== 'ADMIN_USER') return;
+            const acc = registeredAccounts.find(a => a.id === accountId);
+            if (!acc) return;
+
+            acc.status = 'APPROVED';
+            acc.approved = true;
+            acc.approvedAt = new Date().toISOString();
+            acc.approvedBy = getActorLabel();
+
+            syncToDb('registered_accounts', registeredAccounts);
+            updateAccessControlBadgesUI();
+            renderAccessControlModalContent();
+            logAuditActivity('ACCOUNT_APPROVAL', acc.npk, `Menyetujui akun karyawan: ${acc.fullName} (NPK/NIK: ${acc.npk})`);
+            showToast('Akun Disetujui', `${acc.fullName} sekarang sudah dapat login ke sistem.`, 'success');
+        }
+
+        function rejectOrDeleteAccount(accountId) {
+            if (currentRole !== 'ADMIN_USER') return;
+            const acc = registeredAccounts.find(a => a.id === accountId);
+            if (!acc) return;
+            const isPending = acc.status === 'PENDING' || acc.approved === false;
+            deleteRecordWithAudit({
+                confirmMsg: isPending
+                    ? `Tolak dan hapus pendaftaran akun atas nama "${acc.fullName}" (NPK: ${acc.npk})?`
+                    : `Hapus akses akun karyawan "${acc.fullName}" (NPK: ${acc.npk})?`,
+                getArray: () => registeredAccounts,
+                setArray: (next) => { registeredAccounts = next; },
+                matchFn: (a) => a.id === accountId,
+                dbPath: 'registered_accounts',
+                auditType: 'ACCOUNT_APPROVAL',
+                getItemNumber: (a) => a.npk,
+                getAuditDetail: (a) => `${isPending ? 'Menolak pendaftaran' : 'Menghapus'} akun karyawan: ${a.fullName} (NPK/NIK: ${a.npk})`,
+                toastTitle: isPending ? 'Pendaftaran Ditolak' : 'Akun Dihapus',
+                toastMsg: `Akun ${acc.fullName} telah diproses.`,
+                onAfterDelete: () => {
+                    updateAccessControlBadgesUI();
+                    renderAccessControlModalContent();
+                }
+            });
+        }
+
+        function openCreateAccountModal() {
+            document.getElementById('regFullName').value = '';
+            document.getElementById('regNpk').value = '';
+            document.getElementById('createAccountModal').classList.remove('hidden');
+        }
+
+        function closeCreateAccountModal() {
+            document.getElementById('createAccountModal').classList.add('hidden');
+        }
+
+        function handleCreateAccount(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('regFullName').value.trim();
+            const npk = document.getElementById('regNpk').value.trim();
+
+            if (!fullName || !npk) {
+                showToast('Data Belum Lengkap', 'Nama Lengkap dan NPK/NIK wajib diisi.', 'error');
+                return;
+            }
+
+            if (fullName.toUpperCase() === 'USER') {
+                showToast('Nama Tidak Diizinkan', 'Nama USER dicadangkan untuk akun utama.', 'error');
+                return;
+            }
+
+            const existingIdx = registeredAccounts.findIndex(
+                acc => String(acc.npk || '').trim().toLowerCase() === npk.toLowerCase()
+            );
+
+            const accountRecord = {
+                id: existingIdx >= 0 ? registeredAccounts[existingIdx].id : ('acc_' + Date.now()),
+                fullName: fullName,
+                npk: npk,
+                status: 'PENDING',
+                approved: false,
+                createdAt: new Date().toISOString()
+            };
+
+            if (existingIdx >= 0) registeredAccounts[existingIdx] = accountRecord;
+            else registeredAccounts.push(accountRecord);
+
+            syncToDb('registered_accounts', registeredAccounts);
+
+            const prevUser = currentUser;
+            currentUser = fullName;
+            logAuditActivity('CREATE_ACCOUNT', npk, `Pengajuan akun baru (PENDING): ${fullName} (NPK/NIK: ${npk})`);
+            currentUser = prevUser;
+
+            closeCreateAccountModal();
+            document.getElementById('loginUser').value = fullName;
+            document.getElementById('loginPass').value = npk;
+            showToast('Menunggu Konfirmasi USER', 'Pendaftaran terkirim. Silakan tunggu persetujuan dari USER sebelum login.', 'info');
+        }
+
         function exportJSONBackup() {
             const backupData = {
-                version: "1.0",
+                version: "1.2",
                 backupDate: new Date().toISOString(),
                 auth: authCredentials,
+                registered_accounts: registeredAccounts,
+                operator_unlocked_views: operatorUnlockedViews,
                 tool_items: items,
                 repair_special_items: repairSpecialItems,
                 master_tables: masterTables,
@@ -1397,28 +1989,35 @@
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    
-                    // Validasi struktur dasar
                     if (!imported.tool_items && !imported.master_tables) {
                         alert('Format file JSON tidak valid untuk WKS Tool Apps.');
                         return;
                     }
 
-                    // Push ke state lokal & Firebase
-                    if (imported.auth) window.dbSet(window.dbRef(window.db, 'auth'), imported.auth);
-                    if (imported.tool_items) window.dbSet(window.dbRef(window.db, 'tool_items'), imported.tool_items);
-                    if (imported.repair_special_items) window.dbSet(window.dbRef(window.db, 'repair_special_items'), imported.repair_special_items);
-                    if (imported.master_tables) window.dbSet(window.dbRef(window.db, 'master_tables'), imported.master_tables);
-                    if (imported.buffer_stock) window.dbSet(window.dbRef(window.db, 'buffer_stock'), imported.buffer_stock);
-                    if (imported.scrap_items) window.dbSet(window.dbRef(window.db, 'scrap_items'), imported.scrap_items);
-                    if (imported.cost_reduction_db) window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), imported.cost_reduction_db);
-                    if (imported.cost_reduction_monthly) window.dbSet(window.dbRef(window.db, 'cost_reduction_monthly'), imported.cost_reduction_monthly);
-                    if (imported.cost_reduction_yearly) window.dbSet(window.dbRef(window.db, 'cost_reduction_yearly'), imported.cost_reduction_yearly);
-                    if (imported.knowledge_categories) window.dbSet(window.dbRef(window.db, 'knowledge_categories'), imported.knowledge_categories);
-                    if (imported.cycle_time_categories) window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), imported.cycle_time_categories);
-                    if (imported.audit_trail_logs) window.dbSet(window.dbRef(window.db, 'audit_trail_logs'), imported.audit_trail_logs);
-                    if (imported.trial_proses_list) window.dbSet(window.dbRef(window.db, 'trial_proses_list'), imported.trial_proses_list);
-                    if (imported.custom_texts) window.dbSet(window.dbRef(window.db, 'custom_texts'), imported.custom_texts);
+                    const restoreMap = {
+                        auth: imported.auth,
+                        registered_accounts: imported.registered_accounts,
+                        'access_control/operator_unlocked_views': imported.operator_unlocked_views
+                            ? normalizeUnlockedViews(imported.operator_unlocked_views)
+                            : undefined,
+                        tool_items: imported.tool_items,
+                        repair_special_items: imported.repair_special_items,
+                        master_tables: imported.master_tables,
+                        buffer_stock: imported.buffer_stock,
+                        scrap_items: imported.scrap_items,
+                        cost_reduction_db: imported.cost_reduction_db,
+                        cost_reduction_monthly: imported.cost_reduction_monthly,
+                        cost_reduction_yearly: imported.cost_reduction_yearly,
+                        knowledge_categories: imported.knowledge_categories,
+                        cycle_time_categories: imported.cycle_time_categories,
+                        audit_trail_logs: imported.audit_trail_logs,
+                        trial_proses_list: imported.trial_proses_list,
+                        custom_texts: imported.custom_texts
+                    };
+
+                    Object.entries(restoreMap).forEach(([path, val]) => {
+                        if (val !== undefined) syncToDb(path, val);
+                    });
 
                     logAuditActivity('RESTORE_JSON', 'SYSTEM', 'Memulihkan Database dari file JSON Backup');
                     showToast('Restore Berhasil', 'Data aplikasi berhasil dipulihkan dari file JSON!', 'success');
@@ -1438,7 +2037,7 @@
             doc.setFont("helvetica", "bold"); doc.setFontSize(15);
             doc.text(`WKS TOOL APPS — ${title.toUpperCase()}`, 14, 16);
             doc.setFont("helvetica", "normal"); doc.setFontSize(9);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser || 'SYSTEM'}`, 14, 22);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${getActorLabel()}`, 14, 22);
             if(subtitle) doc.text(subtitle, 14, 27);
 
             doc.autoTable({
@@ -1456,7 +2055,35 @@
 
             window.dbOnValue(window.dbRef(window.db, 'auth'), (snapshot) => {
                 if(snapshot.exists()) { authCredentials = snapshot.val(); } 
-                else { window.dbSet(window.dbRef(window.db, 'auth'), authCredentials); }
+                else { syncToDb('auth', authCredentials); }
+            });
+
+            window.dbOnValue(window.dbRef(window.db, 'registered_accounts'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    const rawList = Array.isArray(val) ? val : Object.values(val);
+                    registeredAccounts = rawList.map(acc => ({
+                        ...acc,
+                        status: acc.status || (acc.approved === false ? 'PENDING' : 'APPROVED'),
+                        approved: acc.approved !== undefined ? Boolean(acc.approved) : (acc.status !== 'PENDING')
+                    }));
+                } else {
+                    registeredAccounts = [];
+                }
+                updateAccessControlBadgesUI();
+                const accessModal = document.getElementById('modalAccessControl');
+                if (accessModal && !accessModal.classList.contains('hidden')) {
+                    renderAccessControlModalContent();
+                }
+            });
+
+            window.dbOnValue(window.dbRef(window.db, 'access_control/operator_unlocked_views'), (snapshot) => {
+                operatorUnlockedViews = snapshot.exists() ? normalizeUnlockedViews(snapshot.val()) : normalizeUnlockedViews(null);
+                if(currentUser) setupUIRoles();
+                const accessModal = document.getElementById('modalAccessControl');
+                if (accessModal && !accessModal.classList.contains('hidden')) {
+                    renderAccessControlModalContent();
+                }
             });
 
             window.dbOnValue(window.dbRef(window.db, 'tool_items'), (snapshot) => {
@@ -1467,7 +2094,7 @@
                     const defaultItems = [
                         { id: "1", item_number: "WKS-2026-001", item_name: "Endmill 4-Flute Carbide", qty: 5, type_grinding: "New Grinding", current_stage_index: 1, priority: "Reguler", supplier_access: false, last_updated_by: "USER" }
                     ];
-                    window.dbSet(window.dbRef(window.db, 'tool_items'), defaultItems);
+                    syncToDb('tool_items', defaultItems);
                     items = defaultItems;
                 }
                 indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block";
@@ -1493,12 +2120,10 @@
                         {
                             id: "table_1",
                             tableName: "Katalog Endmill Standard",
-                            rows: [
-                                { id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }
-                            ]
+                            rows: [{ id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }]
                         }
                     ];
-                    window.dbSet(window.dbRef(window.db, 'master_tables'), defaultMasters);
+                    syncToDb('master_tables', defaultMasters);
                     masterTables = defaultMasters;
                 }
                 if(currentUser) renderMasterTablesContainer();
@@ -1512,7 +2137,7 @@
                     const defaultBuffer = [
                         { id: "b1", itemNumber: "BUF-2026-001", desc: "Endmill Carbide D10", currentStock: 4, minStock: 2 }
                     ];
-                    window.dbSet(window.dbRef(window.db, 'buffer_stock'), defaultBuffer);
+                    syncToDb('buffer_stock', defaultBuffer);
                     bufferStockItems = defaultBuffer;
                 }
                 if(currentUser) renderStockAndScrap();
@@ -1534,7 +2159,7 @@
                     crDatabase = [
                         { id: "cr1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", outHouse: 150000, inHouse: 90000 }
                     ];
-                    window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), crDatabase);
+                    syncToDb('cost_reduction_db', crDatabase);
                 }
                 if(currentUser) { renderCRDatabase(); populateCRSelect(); }
             });
@@ -1550,15 +2175,13 @@
             });
 
             window.dbOnValue(window.dbRef(window.db, 'cost_reduction_monthly'), (snapshot) => {
-                if(snapshot.exists()) { monthlyData = snapshot.val(); }
-                else { monthlyData = Array(12).fill({ qty: 0, rupiah: 0 }); }
-                if(currentUser) { updateMonthlyChart(); }
+                monthlyData = snapshot.exists() ? snapshot.val() : Array(12).fill({ qty: 0, rupiah: 0 });
+                if(currentUser) updateMonthlyChart();
             });
 
             window.dbOnValue(window.dbRef(window.db, 'cost_reduction_yearly'), (snapshot) => {
-                if(snapshot.exists()) { yearlyData = snapshot.val(); }
-                else { yearlyData = Array(12).fill({ qty: 0, rupiah: 0 }); }
-                if(currentUser) { renderYearlyTable(); }
+                yearlyData = snapshot.exists() ? snapshot.val() : Array(12).fill({ qty: 0, rupiah: 0 });
+                if(currentUser) renderYearlyTable();
             });
 
             window.dbOnValue(window.dbRef(window.db, 'knowledge_categories'), (snapshot) => {
@@ -1572,12 +2195,10 @@
                             id: "kcat_1",
                             categoryName: "Drawing Standard Endmill",
                             expanded: true,
-                            rows: [
-                                { id: "k1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide D10", drawing: "" }
-                            ]
+                            rows: [{ id: "k1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide D10", drawing: "" }]
                         }
                     ];
-                    window.dbSet(window.dbRef(window.db, 'knowledge_categories'), defaultKnowledgeCat);
+                    syncToDb('knowledge_categories', defaultKnowledgeCat);
                     knowledgeCategories = defaultKnowledgeCat;
                 }
                 if(currentUser) renderKnowledgeCategoriesContainer();
@@ -1594,12 +2215,10 @@
                             id: "ctcat_1",
                             categoryName: "Line CNC Grinding Utama",
                             expanded: true,
-                            rows: [
-                                { id: "ct1", itemNumber: "WKS-2026-001", deskripsiTool: "Endmill 4-Flute Carbide D10", p1: "Setup", t1: "45", p2: "Roughing", t2: "120", p3: "Finishing", t3: "90", p4: "-", t4: "0", p5: "-", t5: "0", p6: "-", t6: "0", p7: "-", t7: "0", p8: "-", t8: "0" }
-                            ]
+                            rows: [{ id: "ct1", itemNumber: "WKS-2026-001", deskripsiTool: "Endmill 4-Flute Carbide D10", p1: "Setup", t1: "45", p2: "Roughing", t2: "120", p3: "Finishing", t3: "90", p4: "-", t4: "0", p5: "-", t5: "0", p6: "-", t6: "0", p7: "-", t7: "0", p8: "-", t8: "0" }]
                         }
                     ];
-                    window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), defaultCycleCat);
+                    syncToDb('cycle_time_categories', defaultCycleCat);
                     cycleTimeCategories = defaultCycleCat;
                 }
                 if(currentUser) renderCycleTimeCategoriesContainer();
@@ -1633,6 +2252,9 @@
         window.addEventListener('DOMContentLoaded', () => {
             applyCustomTexts();
             if(currentUser) {
+                if (!currentRole) {
+                    currentRole = currentUser.toUpperCase() === 'USER' ? 'ADMIN_USER' : 'OPERATOR';
+                }
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 setupUIRoles();
@@ -1648,6 +2270,10 @@
 
         document.getElementById('loginModal').addEventListener('click', function(e) {
             if (e.target === this) togglePopup(false);
+        });
+
+        document.getElementById('createAccountModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCreateAccountModal();
         });
 
         function togglePassword() {
@@ -1699,14 +2325,14 @@
             const logEntry = {
                 id: 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                 timestamp: timestamp,
-                user: currentUser || 'SYSTEM',
+                user: getActorLabel(),
                 activityType: activityType,
                 itemNumber: itemNumber || '-',
                 details: details || '-'
             };
             auditTrailLogs.unshift(logEntry);
             if(auditTrailLogs.length > 200) auditTrailLogs.pop();
-            window.dbSet(window.dbRef(window.db, 'audit_trail_logs'), auditTrailLogs);
+            syncToDb('audit_trail_logs', auditTrailLogs);
         }
 
         function promptAuditTrailPassword() {
@@ -1730,9 +2356,9 @@
             }
             auditTrailLogs.forEach(log => {
                 let badgeColor = 'bg-slate-100 text-slate-700';
-                if(log.activityType === 'CREATE') badgeColor = 'bg-blue-100 text-blue-700';
-                else if(log.activityType === 'STAGE_UPDATE') badgeColor = 'bg-indigo-100 text-indigo-700';
-                else if(log.activityType === 'REPAIR_MIGRATE') badgeColor = 'bg-amber-100 text-amber-700';
+                if(log.activityType === 'CREATE' || log.activityType === 'CREATE_ACCOUNT') badgeColor = 'bg-blue-100 text-blue-700';
+                else if(log.activityType === 'STAGE_UPDATE' || log.activityType === 'PRIORITY_CHANGE') badgeColor = 'bg-indigo-100 text-indigo-700';
+                else if(log.activityType === 'REPAIR_MIGRATE' || log.activityType === 'ACCESS_CONTROL' || log.activityType === 'ACCOUNT_APPROVAL') badgeColor = 'bg-amber-100 text-amber-700';
                 else if(log.activityType === 'EDIT' || log.activityType === 'TRIAL_LOG') badgeColor = 'bg-emerald-100 text-emerald-700';
                 else if(log.activityType === 'DELETE' || log.activityType === 'BACKUP_JSON' || log.activityType === 'RESTORE_JSON') badgeColor = 'bg-red-100 text-red-700';
 
@@ -1740,7 +2366,7 @@
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 tr.innerHTML = `
                     <td class="p-4 font-mono text-xs text-slate-600">${log.timestamp}</td>
-                    <td class="p-4 font-bold text-slate-800 uppercase">${log.user}</td>
+                    <td class="p-4 font-bold text-slate-800">${log.user}</td>
                     <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${log.activityType}</span></td>
                     <td class="p-4 font-mono font-bold text-brandBlue">${log.itemNumber}</td>
                     <td class="p-4 text-xs font-medium text-slate-700">${log.details}</td>
@@ -1752,26 +2378,18 @@
         function clearAuditTrail() {
             if(confirm('Bersihkan semua riwayat log audit?')) {
                 auditTrailLogs = [];
-                window.dbSet(window.dbRef(window.db, 'audit_trail_logs'), auditTrailLogs);
+                syncToDb('audit_trail_logs', auditTrailLogs);
                 renderAuditTrailTable();
                 showToast('Log Dikosongkan', 'Riwayat log berhasil dibersihkan.', 'info');
             }
         }
 
-        // --- TRIAL PROSES ---
         function openModalAddTrial() {
             document.getElementById('trialIdDoc').value = 'TRL-' + new Date().getFullYear() + '-' + Math.floor(100 + Math.random() * 900);
             document.getElementById('trialPic').value = currentUser || '';
-            document.getElementById('trialProject').value = '';
-            document.getElementById('trialItemNumber').value = '';
-            document.getElementById('trialDescTool').value = '';
-            document.getElementById('trialMachine').value = '';
-            document.getElementById('trialMaterial').value = '';
-            document.getElementById('trialRpm').value = '';
-            document.getElementById('trialVc').value = '';
-            document.getElementById('trialFeed').value = '';
-            document.getElementById('trialDoc').value = '';
-            document.getElementById('trialImageFile').value = '';
+            ['trialProject', 'trialItemNumber', 'trialDescTool', 'trialMachine', 'trialMaterial', 'trialRpm', 'trialVc', 'trialFeed', 'trialDoc', 'trialImageFile'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
             document.getElementById('modalAddTrial').classList.remove('hidden');
         }
 
@@ -1798,17 +2416,13 @@
                     historyLogs: []
                 };
                 trialProsesList.unshift(newTrial);
-                window.dbSet(window.dbRef(window.db, 'trial_proses_list'), trialProsesList);
+                syncToDb('trial_proses_list', trialProsesList);
                 logAuditActivity('CREATE', newTrial.itemNumber, `Membuat Trial Proses baru: ${newTrial.idDoc} (${newTrial.project})`);
                 closeModal('modalAddTrial');
                 showToast('Berhasil', 'Data trial proses baru berhasil diinisialisasi.', 'success');
             };
 
-            if(fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(evt) { processSave(evt.target.result); };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else { processSave(''); }
+            readFileAsDataURL(fileInput.files && fileInput.files[0], processSave);
         }
 
         function renderTrialProsesContainer() {
@@ -1821,10 +2435,10 @@
             }
 
             trialProsesList.forEach(trl => {
-                let statusBadge = `<span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold">⏳ RUNNING</span>`;
-                if(trl.statusFinal === 'SUKSES') statusBadge = `<span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold">✅ SUKSES (Approved)</span>`;
-                else if(trl.statusFinal === 'REVISE') statusBadge = `<span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs font-bold">⚠️ REVISE / MODIFICATION</span>`;
-                else if(trl.statusFinal === 'FAILED') statusBadge = `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-bold">❌ FAILED (Rejected)</span>`;
+                let statusBadge = `<span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold">RUNNING</span>`;
+                if(trl.statusFinal === 'SUKSES') statusBadge = `<span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold">SUKSES (Approved)</span>`;
+                else if(trl.statusFinal === 'REVISE') statusBadge = `<span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs font-bold">REVISE / MODIFICATION</span>`;
+                else if(trl.statusFinal === 'FAILED') statusBadge = `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-bold">FAILED (Rejected)</span>`;
 
                 let logsHTML = '';
                 if(!trl.historyLogs || trl.historyLogs.length === 0) {
@@ -1856,9 +2470,9 @@
                             <p class="text-xs text-slate-500">Item: <strong class="text-slate-800">${trl.itemNumber}</strong> (${trl.descTool}) | PIC: <strong class="text-slate-800">${trl.pic}</strong> | Mulai: ${trl.startDate}</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="openModalUpdateTrial('${trl.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Log & Evaluasi</button>
+                            <button onclick="openModalUpdateTrial('${trl.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Log &amp; Evaluasi</button>
                             <button onclick="exportTrialPDF('${trl.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"><i class="fa-solid fa-file-pdf mr-1"></i> Cetak PDF</button>
-                            ${currentUser === 'USER' ? `<button onclick="deleteTrial('${trl.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 p-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            ${currentRole === 'ADMIN_USER' ? `<button onclick="deleteTrial('${trl.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 p-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
                         </div>
                     </div>
 
@@ -1900,10 +2514,8 @@
             if(!trl) return;
             document.getElementById('activeTrialId').value = trl.id;
             document.getElementById('trialUpdateHeader').innerText = `${trl.idDoc} — ${trl.project}`;
-            document.getElementById('logHours').value = '';
+            ['logHours', 'logCondition', 'logIssue'].forEach(fid => { document.getElementById(fid).value = ''; });
             document.getElementById('logQty').value = '100';
-            document.getElementById('logCondition').value = '';
-            document.getElementById('logIssue').value = '';
             document.getElementById('logStatus').value = trl.statusFinal || 'RUNNING';
             document.getElementById('logConclusion').value = trl.conclusion || '';
             document.getElementById('modalUpdateTrial').classList.remove('hidden');
@@ -1915,18 +2527,17 @@
             const trl = trialProsesList.find(t => t.id === id);
             if(trl) {
                 if(!trl.historyLogs) trl.historyLogs = [];
-                const newLog = {
+                trl.historyLogs.push({
                     date: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}),
                     hours: document.getElementById('logHours').value.trim() || '1 Shift',
                     qty: parseInt(document.getElementById('logQty').value) || 0,
                     condition: document.getElementById('logCondition').value.trim() || '-',
                     issue: document.getElementById('logIssue').value.trim() || '-'
-                };
-                trl.historyLogs.push(newLog);
+                });
                 trl.statusFinal = document.getElementById('logStatus').value;
                 trl.conclusion = document.getElementById('logConclusion').value.trim();
 
-                window.dbSet(window.dbRef(window.db, 'trial_proses_list'), trialProsesList);
+                syncToDb('trial_proses_list', trialProsesList);
                 logAuditActivity('TRIAL_LOG', trl.itemNumber, `Menambah log & evaluasi trial ${trl.idDoc} (Status: ${trl.statusFinal})`);
                 closeModal('modalUpdateTrial');
                 showToast('Berhasil', 'Log trial berhasil dicatat.', 'success');
@@ -1934,10 +2545,16 @@
         }
 
         function deleteTrial(id) {
-            if(confirm('Hapus data trial proses ini?')) {
-                trialProsesList = trialProsesList.filter(t => t.id !== id);
-                window.dbSet(window.dbRef(window.db, 'trial_proses_list'), trialProsesList);
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus data trial proses ini?',
+                getArray: () => trialProsesList,
+                setArray: (next) => { trialProsesList = next; },
+                matchFn: (t) => t.id === id,
+                dbPath: 'trial_proses_list',
+                auditType: 'DELETE',
+                getItemNumber: (t) => t.itemNumber,
+                getAuditDetail: (t) => `Menghapus Trial Proses: ${t.idDoc} (${t.project})`
+            });
         }
 
         function exportTrialPDF(id) {
@@ -1958,7 +2575,6 @@
                 filename: `Trial_${trl.idDoc}_WKS.pdf`
             });
         }
-
         // --- BARCODE & MASTER TABLES ---
         function generateBarcodeLabel(itemNumber, desc) {
             document.getElementById('labelItemNumber').innerText = itemNumber;
@@ -1975,95 +2591,96 @@
 
         function printBarcodeLabel() {
             const printContents = document.getElementById('barcodePrintArea').innerHTML;
-            const originalContents = document.body.innerHTML;
-            document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh;"><div style="border:1px solid #000; padding:15px; width:250px; text-align:center;">${printContents}</div></div>`;
-            window.print();
-            document.body.innerHTML = originalContents;
-            window.location.reload();
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
+
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <html><head><title>Cetak Label Barcode</title></head>
+                <body style="display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; font-family:Poppins,sans-serif;">
+                    <div style="border:1px solid #000; padding:16px; width:260px; text-align:center;">${printContents}</div>
+                </body></html>
+            `);
+            doc.close();
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(() => {
+                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+            }, 500);
+        }
+
+        function getFilteredMasterRows(table, globalSearchVal) {
+            let filteredRows = table.rows || [];
+            if (globalSearchVal) {
+                filteredRows = filteredRows.filter(row =>
+                    (row.itemNumber && row.itemNumber.toLowerCase().includes(globalSearchVal)) ||
+                    (row.desc && row.desc.toLowerCase().includes(globalSearchVal)) ||
+                    (row.note && row.note.toLowerCase().includes(globalSearchVal))
+                );
+            }
+            return filteredRows;
         }
 
         function renderMasterTablesContainer() {
             const container = document.getElementById('masterTablesContainer');
             if(!container) return;
             const globalSearchVal = (document.getElementById('searchMasterGlobalBox')?.value || '').toLowerCase();
-            container.innerHTML = '';
-            
-            if(!masterTables || masterTables.length === 0) {
-                container.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200">Belum ada tabel master.</div>`;
-                return;
-            }
 
-            masterTables.forEach((table) => {
-                let filteredRows = table.rows || [];
-                if (globalSearchVal) {
-                    filteredRows = filteredRows.filter(row => 
-                        (row.itemNumber && row.itemNumber.toLowerCase().includes(globalSearchVal)) || 
-                        (row.desc && row.desc.toLowerCase().includes(globalSearchVal)) ||
-                        (row.note && row.note.toLowerCase().includes(globalSearchVal))
-                    );
+            renderAccordionSection({
+                container,
+                categories: masterTables,
+                emptyText: 'Belum ada tabel master.',
+                onToggleId: 'toggleMasterAccordion',
+                chevronColorClass: 'text-brandBlue',
+                getCountText: (table) => `(${getFilteredMasterRows(table, globalSearchVal).length} Item)`,
+                getHeaderActionsHTML: (table) => currentRole === 'ADMIN_USER' ? `
+                    <button onclick="openModalAddMasterRow('${table.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Baris</button>
+                    <button onclick="downloadTableTemplate('${table.tableName}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Template</button>
+                    <button onclick="exportMasterTablePDF('${table.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Export PDF</button>
+                    <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Import <input type="file" accept=".xlsx, .xls, .csv" onchange="importSingleTable(event, '${table.id}')" class="hidden"></label>
+                    <button onclick="deleteMasterTable('${table.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>
+                ` : '',
+                tableHeadHTML: `
+                    <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm text-sm">
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-4 font-bold">Item Number &amp; Barcode</th>
+                            <th class="p-4 font-bold">Deskripsi Tool</th>
+                            <th class="p-4 font-bold">Tool Life (Pcs)</th>
+                            <th class="p-4 font-bold">Keterangan</th>
+                            ${currentRole === 'ADMIN_USER' ? `<th class="p-4 text-center font-bold">Aksi</th>` : ''}
+                        </tr>
+                    </thead>
+                `,
+                renderRowsHTML: (table) => {
+                    const filteredRows = getFilteredMasterRows(table, globalSearchVal);
+                    if (filteredRows.length === 0) {
+                        return `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Tidak ada item yang cocok dengan pencarian di tabel ini.</td></tr>`;
+                    }
+                    return filteredRows.map(row => `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-sm">
+                            <td class="p-4 font-mono font-bold text-brandBlue flex items-center space-x-2">
+                                <span>${row.itemNumber}</span>
+                                <button onclick="generateBarcodeLabel('${row.itemNumber}', '${row.desc}')" class="p-1 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-lg text-xs transition cursor-pointer" title="Cetak Label"><i class="fa-solid fa-barcode"></i></button>
+                            </td>
+                            <td class="p-4 font-medium text-slate-900">${row.desc}</td>
+                            <td class="p-4"><span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-lg font-bold">${row.toolLife || '-'}</span></td>
+                            <td class="p-4 text-slate-600">${row.note || '-'}</td>
+                            ${currentRole === 'ADMIN_USER' ? `<td class="p-4 text-center"><button onclick="deleteMasterRow('${table.id}', '${row.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>` : ''}
+                        </tr>
+                    `).join('');
                 }
-
-                let rowsHTML = '';
-                if(filteredRows.length === 0) {
-                    rowsHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Tidak ada item yang cocok dengan pencarian di tabel ini.</td></tr>`;
-                } else {
-                    filteredRows.forEach((row) => {
-                        rowsHTML += `
-                            <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-sm">
-                                <td class="p-4 font-mono font-bold text-brandBlue flex items-center space-x-2">
-                                    <span>${row.itemNumber}</span>
-                                    <button onclick="generateBarcodeLabel('${row.itemNumber}', '${row.desc}')" class="p-1 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-lg text-xs transition cursor-pointer" title="Cetak Label"><i class="fa-solid fa-barcode"></i></button>
-                                </td>
-                                <td class="p-4 font-medium text-slate-900">${row.desc}</td>
-                                <td class="p-4"><span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-lg font-bold">${row.toolLife || '-'}</span></td>
-                                <td class="p-4 text-slate-600">${row.note || '-'}</td>
-                                ${currentUser === 'USER' ? `<td class="p-4 text-center"><button onclick="deleteMasterRow('${table.id}', '${row.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>` : ''}
-                            </tr>
-                        `;
-                    });
-                }
-
-                const isExpanded = table.expanded !== undefined ? table.expanded : true;
-                const tableDiv = document.createElement('div');
-                tableDiv.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
-                tableDiv.innerHTML = `
-                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="toggleMasterAccordion('${table.id}')">
-                        <div class="flex items-center space-x-3">
-                            <i id="icon_acc_${table.id}" class="fa-solid ${isExpanded ? 'fa-chevron-down text-brandBlue' : 'fa-chevron-right text-slate-400'} text-sm transition-transform"></i>
-                            <h4 class="font-bold text-sm tracking-wide">📂 ${table.tableName} <span class="text-xs text-slate-400 font-normal ml-2">(${filteredRows.length} Item)</span></h4>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2" onclick="event.stopPropagation()">
-                            ${currentUser === 'USER' ? `
-                                <button onclick="openModalAddMasterRow('${table.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Baris</button>
-                                <button onclick="downloadTableTemplate('${table.tableName}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Template</button>
-                                <button onclick="exportMasterTablePDF('${table.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">📥 Export PDF</button>
-                                <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Import <input type="file" accept=".xlsx, .xls, .csv" onchange="importSingleTable(event, '${table.id}')" class="hidden"></label>
-                                <button onclick="deleteMasterTable('${table.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div id="content_acc_${table.id}" class="${isExpanded ? '' : 'hidden'} table-popup-container border-t border-slate-800">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm">
-                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                    <th class="p-4 font-bold">Item Number & Barcode</th>
-                                    <th class="p-4 font-bold">Deskripsi Tool</th>
-                                    <th class="p-4 font-bold">Tool Life (Pcs)</th>
-                                    <th class="p-4 font-bold">Keterangan</th>
-                                    ${currentUser === 'USER' ? `<th class="p-4 text-center font-bold">Aksi</th>` : ''}
-                                </tr>
-                            </thead>
-                            <tbody>${rowsHTML}</tbody>
-                        </table>
-                    </div>
-                `;
-                container.appendChild(tableDiv);
             });
         }
 
         function toggleMasterAccordion(tableId) {
-            const table = masterTables.find(t => t.id === tableId);
-            if(table) { table.expanded = table.expanded !== undefined ? !table.expanded : false; renderMasterTablesContainer(); }
+            toggleCategoryAccordion(masterTables, tableId, renderMasterTablesContainer);
         }
 
         // --- KNOWLEDGE & CYCLE TIME CATEGORIES ---
@@ -2076,24 +2693,28 @@
             e.preventDefault();
             const name = document.getElementById('inputKnowledgeCategoryName').value.trim();
             knowledgeCategories.push({ id: 'kcat_' + Date.now(), categoryName: name, expanded: true, rows: [] });
-            window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
+            syncToDb('knowledge_categories', knowledgeCategories);
             closeModal('modalAddKnowledgeCategory');
             showToast('Berhasil', 'Kategori drawing baru berhasil dibuat.', 'success');
         }
 
         function deleteKnowledgeCategory(catId) {
-            if(confirm('Hapus kategori drawing ini beserta isinya?')) {
-                knowledgeCategories = knowledgeCategories.filter(c => c.id !== catId);
-                window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus kategori drawing ini beserta isinya?',
+                getArray: () => knowledgeCategories,
+                setArray: (next) => { knowledgeCategories = next; },
+                matchFn: (c) => c.id === catId,
+                dbPath: 'knowledge_categories',
+                auditType: 'DELETE',
+                getAuditDetail: (c) => `Menghapus Kategori Drawing: ${c.categoryName}`
+            });
         }
 
         function openModalAddKnowledgeRow(catId) {
             document.getElementById('activeKnowledgeCatId').value = catId;
-            document.getElementById('knowledgeItemNumber').value = '';
-            document.getElementById('knowledgeDesc').value = '';
-            document.getElementById('knowledgeImageFile').value = '';
-            document.getElementById('modalKnowledgeMasterSearch').value = '';
+            ['knowledgeItemNumber', 'knowledgeDesc', 'knowledgeImageFile', 'modalKnowledgeMasterSearch'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
             document.getElementById('modalAddKnowledgeRow').classList.remove('hidden');
         }
 
@@ -2104,55 +2725,73 @@
             const desc = document.getElementById('knowledgeDesc').value.trim();
             const fileInput = document.getElementById('knowledgeImageFile');
 
-            const saveToCat = (drawingBase64) => {
-                const cat = knowledgeCategories.find(c => c.id === catId);
-                if(cat) {
-                    if(!cat.rows) cat.rows = [];
-                    cat.rows.push({ id: 'k_' + Date.now(), itemNumber, desc, drawing: drawingBase64 || "" });
-                    window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
-                    logAuditActivity('CREATE', itemNumber, `Menambah Data Drawing ke Kategori ${cat.categoryName}`);
-                    closeModal('modalAddKnowledgeRow');
-                    showToast('Berhasil', 'Data drawing berhasil disimpan.', 'success');
-                }
-            };
-
-            if(fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(evt) { saveToCat(evt.target.result); };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else { saveToCat(''); }
+            readFileAsDataURL(fileInput.files && fileInput.files[0], (drawingBase64) => {
+                appendRowToCategory(
+                    knowledgeCategories,
+                    catId,
+                    'knowledge_categories',
+                    { id: 'k_' + Date.now(), itemNumber, desc, drawing: drawingBase64 || "" },
+                    (cat) => {
+                        logAuditActivity('CREATE', itemNumber, `Menambah Data Drawing ke Kategori ${cat.categoryName}`);
+                        closeModal('modalAddKnowledgeRow');
+                        showToast('Berhasil', 'Data drawing berhasil disimpan.', 'success');
+                    }
+                );
+            });
         }
 
         function deleteKnowledgeRow(catId, rowId) {
             const cat = knowledgeCategories.find(c => c.id === catId);
-            if(cat && cat.rows) {
-                cat.rows = cat.rows.filter(r => r.id !== rowId);
-                window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
-            }
+            if(!cat) return;
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus data drawing ini?',
+                getArray: () => cat.rows || [],
+                setArray: (next) => { cat.rows = next; },
+                matchFn: (r) => r.id === rowId,
+                dbPath: 'knowledge_categories',
+                auditType: 'DELETE',
+                getItemNumber: (r) => r.itemNumber,
+                getAuditDetail: (r) => `Menghapus Drawing ${r.desc} dari ${cat.categoryName}`,
+                onAfterDelete: () => renderKnowledgeCategoriesContainer()
+            });
         }
 
         function toggleKnowledgeAccordion(catId) {
-            const cat = knowledgeCategories.find(c => c.id === catId);
-            if(cat) { cat.expanded = cat.expanded !== undefined ? !cat.expanded : false; renderKnowledgeCategoriesContainer(); }
+            toggleCategoryAccordion(knowledgeCategories, catId, renderKnowledgeCategoriesContainer);
         }
 
         function renderKnowledgeCategoriesContainer() {
             const container = document.getElementById('knowledgeCategoriesContainer');
             if(!container) return;
-            container.innerHTML = '';
-            if(!knowledgeCategories || knowledgeCategories.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200 text-xs">Belum ada kategori drawing tool.</div>`;
-                return;
-            }
 
-            knowledgeCategories.forEach(cat => {
-                let rowsHTML = '';
-                if(!cat.rows || cat.rows.length === 0) {
-                    rowsHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada data drawing dalam kategori ini.</td></tr>`;
-                } else {
-                    cat.rows.forEach(item => {
+            renderAccordionSection({
+                container,
+                categories: knowledgeCategories,
+                emptyText: 'Belum ada kategori drawing tool.',
+                onToggleId: 'toggleKnowledgeAccordion',
+                chevronColorClass: 'text-brandBlue',
+                getHeaderActionsHTML: (cat) => currentRole === 'ADMIN_USER' ? `
+                    <button onclick="openModalAddKnowledgeRow('${cat.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Drawing</button>
+                    <button onclick="deleteKnowledgeCategory('${cat.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
+                ` : '',
+                tableHeadHTML: `
+                    <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm">
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-4 font-bold">Item Number</th>
+                            <th class="p-4 font-bold">Deskripsi Tool</th>
+                            <th class="p-4 font-bold">Drawing Tool (Upload &amp; View)</th>
+                            <th class="p-4 text-center font-bold">Print PDF</th>
+                            <th class="p-4 text-center font-bold">Aksi</th>
+                        </tr>
+                    </thead>
+                `,
+                renderRowsHTML: (cat) => {
+                    if (!cat.rows || cat.rows.length === 0) {
+                        return `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada data drawing dalam kategori ini.</td></tr>`;
+                    }
+                    return cat.rows.map(item => {
                         const hasDrawing = item.drawing && item.drawing.trim() !== "";
-                        const drawingCellHTML = hasDrawing 
+                        const drawingCellHTML = hasDrawing
                             ? `<div class="flex items-center space-x-2">
                                    <button onclick="viewDrawing('${cat.id}', '${item.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-eye text-[11px]"></i><span>View</span></button>
                                    <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Ganti <input type="file" accept="image/*" onchange="uploadDrawingCat(event, '${cat.id}', '${item.id}')" class="hidden"></label>
@@ -2162,7 +2801,7 @@
                                    <input type="file" accept="image/*" onchange="uploadDrawingCat(event, '${cat.id}', '${item.id}')" class="hidden">
                                </label>`;
 
-                        rowsHTML += `
+                        return `
                             <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-sm">
                                 <td class="p-4 font-mono font-bold text-brandBlue">${item.itemNumber || '-'}</td>
                                 <td class="p-4 font-medium text-slate-900">${item.desc || '-'}</td>
@@ -2179,61 +2818,25 @@
                                 </td>
                             </tr>
                         `;
-                    });
+                    }).join('');
                 }
-
-                const isExpanded = cat.expanded !== undefined ? cat.expanded : true;
-                const div = document.createElement('div');
-                div.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
-                div.innerHTML = `
-                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="toggleKnowledgeAccordion('${cat.id}')">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid ${isExpanded ? 'fa-chevron-down text-brandBlue' : 'fa-chevron-right text-slate-400'} text-sm transition-transform"></i>
-                            <h4 class="font-bold text-sm tracking-wide">📂 ${cat.categoryName} <span class="text-xs text-slate-400 font-normal ml-2">(${cat.rows ? cat.rows.length : 0} Item)</span></h4>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2" onclick="event.stopPropagation()">
-                            ${currentUser === 'USER' ? `
-                                <button onclick="openModalAddKnowledgeRow('${cat.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Drawing</button>
-                                <button onclick="deleteKnowledgeCategory('${cat.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div class="${isExpanded ? '' : 'hidden'} table-popup-container border-t border-slate-800">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm">
-                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                    <th class="p-4 font-bold">Item Number</th>
-                                    <th class="p-4 font-bold">Deskripsi Tool</th>
-                                    <th class="p-4 font-bold">Drawing Tool (Upload & View)</th>
-                                    <th class="p-4 text-center font-bold">Print PDF</th>
-                                    <th class="p-4 text-center font-bold">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rowsHTML}</tbody>
-                        </table>
-                    </div>
-                `;
-                container.appendChild(div);
             });
         }
 
         function uploadDrawingCat(e, catId, rowId) {
             const file = e.target.files[0];
             if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const base64String = evt.target.result;
+            readFileAsDataURL(file, (base64String) => {
                 const cat = knowledgeCategories.find(c => c.id === catId);
                 if(cat && cat.rows) {
                     const row = cat.rows.find(r => r.id === rowId);
                     if(row) {
                         row.drawing = base64String;
-                        window.dbSet(window.dbRef(window.db, 'knowledge_categories'), knowledgeCategories);
+                        syncToDb('knowledge_categories', knowledgeCategories);
                         showToast('Berhasil', 'Gambar drawing diperbarui!', 'success');
                     }
                 }
-            };
-            reader.readAsDataURL(file);
+            });
         }
 
         function viewDrawing(catId, rowId) {
@@ -2264,7 +2867,7 @@
             doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("WKS TOOL APPS — KNOWLEDGE & DRAWING REPORT", 14, 18);
             doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`Kategori: ${cat.categoryName} | Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 25);
+            doc.text(`Kategori: ${cat.categoryName} | Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${getActorLabel()}`, 14, 25);
             doc.autoTable({
                 startY: 32,
                 head: [["Item Number", "Deskripsi Tool", "Status Drawing"]],
@@ -2292,16 +2895,21 @@
             e.preventDefault();
             const name = document.getElementById('inputCycleTimeCategoryName').value.trim();
             cycleTimeCategories.push({ id: 'ctcat_' + Date.now(), categoryName: name, expanded: true, rows: [] });
-            window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), cycleTimeCategories);
+            syncToDb('cycle_time_categories', cycleTimeCategories);
             closeModal('modalAddCycleTimeCategory');
             showToast('Berhasil', 'Kategori cycle time baru berhasil dibuat.', 'success');
         }
 
         function deleteCycleTimeCategory(catId) {
-            if(confirm('Hapus kategori cycle time ini beserta isinya?')) {
-                cycleTimeCategories = cycleTimeCategories.filter(c => c.id !== catId);
-                window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), cycleTimeCategories);
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus kategori cycle time ini beserta isinya?',
+                getArray: () => cycleTimeCategories,
+                setArray: (next) => { cycleTimeCategories = next; },
+                matchFn: (c) => c.id === catId,
+                dbPath: 'cycle_time_categories',
+                auditType: 'DELETE',
+                getAuditDetail: (c) => `Menghapus Kategori Cycle Time: ${c.categoryName}`
+            });
         }
 
         function openModalAddCycleTimeRow(catId) {
@@ -2319,69 +2927,86 @@
         function handleSaveCycleTimeRow(e) {
             e.preventDefault();
             const catId = document.getElementById('activeCycleTimeCatId').value;
-            const cat = cycleTimeCategories.find(c => c.id === catId);
-            if(cat) {
-                if(!cat.rows) cat.rows = [];
-                const newCt = {
-                    id: 'ct_' + Date.now(),
-                    itemNumber: document.getElementById('ctItemNumber').value.trim(),
-                    deskripsiTool: document.getElementById('ctDesc').value.trim(),
-                    p1: document.getElementById('ctP1').value.trim() || '-', t1: document.getElementById('ctT1').value || '0',
-                    p2: document.getElementById('ctP2').value.trim() || '-', t2: document.getElementById('ctT2').value || '0',
-                    p3: document.getElementById('ctP3').value.trim() || '-', t3: document.getElementById('ctT3').value || '0',
-                    p4: document.getElementById('ctP4').value.trim() || '-', t4: document.getElementById('ctT4').value || '0',
-                    p5: document.getElementById('ctP5').value.trim() || '-', t5: document.getElementById('ctT5').value || '0',
-                    p6: document.getElementById('ctP6').value.trim() || '-', t6: document.getElementById('ctT6').value || '0',
-                    p7: document.getElementById('ctP7').value.trim() || '-', t7: document.getElementById('ctT7').value || '0',
-                    p8: document.getElementById('ctP8').value.trim() || '-', t8: document.getElementById('ctT8').value || '0'
-                };
-                cat.rows.push(newCt);
-                window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), cycleTimeCategories);
+            const newCt = {
+                id: 'ct_' + Date.now(),
+                itemNumber: document.getElementById('ctItemNumber').value.trim(),
+                deskripsiTool: document.getElementById('ctDesc').value.trim()
+            };
+            for (let i = 1; i <= 8; i++) {
+                newCt[`p${i}`] = document.getElementById(`ctP${i}`).value.trim() || '-';
+                newCt[`t${i}`] = document.getElementById(`ctT${i}`).value || '0';
+            }
+            appendRowToCategory(cycleTimeCategories, catId, 'cycle_time_categories', newCt, () => {
                 closeModal('modalAddCycleTimeRow');
                 showToast('Berhasil', 'Data cycle time berhasil disimpan ke kategori.', 'success');
-            }
+            });
         }
 
         function deleteCycleTimeRow(catId, rowId) {
             const cat = cycleTimeCategories.find(c => c.id === catId);
-            if(cat && cat.rows) {
-                cat.rows = cat.rows.filter(r => r.id !== rowId);
-                window.dbSet(window.dbRef(window.db, 'cycle_time_categories'), cycleTimeCategories);
-            }
+            if(!cat) return;
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus data cycle time ini?',
+                getArray: () => cat.rows || [],
+                setArray: (next) => { cat.rows = next; },
+                matchFn: (r) => r.id === rowId,
+                dbPath: 'cycle_time_categories',
+                auditType: 'DELETE',
+                getItemNumber: (r) => r.itemNumber,
+                getAuditDetail: (r) => `Menghapus Cycle Time ${r.deskripsiTool} dari ${cat.categoryName}`,
+                onAfterDelete: () => renderCycleTimeCategoriesContainer()
+            });
         }
 
         function toggleCycleTimeAccordion(catId) {
-            const cat = cycleTimeCategories.find(c => c.id === catId);
-            if(cat) { cat.expanded = cat.expanded !== undefined ? !cat.expanded : false; renderCycleTimeCategoriesContainer(); }
+            toggleCategoryAccordion(cycleTimeCategories, catId, renderCycleTimeCategoriesContainer);
         }
 
         function renderCycleTimeCategoriesContainer() {
             const container = document.getElementById('cycleTimeCategoriesContainer');
             if(!container) return;
-            container.innerHTML = '';
-            if(!cycleTimeCategories || cycleTimeCategories.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200 text-xs">Belum ada kategori cycle time.</div>`;
-                return;
-            }
 
-            cycleTimeCategories.forEach(cat => {
-                let rowsHTML = '';
-                if(!cat.rows || cat.rows.length === 0) {
-                    rowsHTML = `<tr><td colspan="11" class="p-4 text-center text-slate-400 text-xs">Belum ada data cycle time dalam kategori ini.</td></tr>`;
-                } else {
-                    cat.rows.forEach(ct => {
-                        rowsHTML += `
+            renderAccordionSection({
+                container,
+                categories: cycleTimeCategories,
+                emptyText: 'Belum ada kategori cycle time.',
+                onToggleId: 'toggleCycleTimeAccordion',
+                chevronColorClass: 'text-amber-500',
+                getHeaderActionsHTML: (cat) => currentRole === 'ADMIN_USER' ? `
+                    <button onclick="openModalAddCycleTimeRow('${cat.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Cycle Time</button>
+                    <button onclick="deleteCycleTimeCategory('${cat.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
+                ` : '',
+                tableHeadHTML: `
+                    <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm text-slate-700 uppercase tracking-wider border-b border-slate-200 text-center font-bold text-xs">
+                        <tr>
+                            <th class="p-3 text-left">Item Number</th>
+                            <th class="p-3 text-left">Deskripsi Tool</th>
+                            <th class="p-3">Proses 1</th>
+                            <th class="p-3">Proses 2</th>
+                            <th class="p-3">Proses 3</th>
+                            <th class="p-3">Proses 4</th>
+                            <th class="p-3">Proses 5</th>
+                            <th class="p-3">Proses 6</th>
+                            <th class="p-3">Proses 7</th>
+                            <th class="p-3">Proses 8</th>
+                            <th class="p-3">Aksi</th>
+                        </tr>
+                    </thead>
+                `,
+                renderRowsHTML: (cat) => {
+                    if (!cat.rows || cat.rows.length === 0) {
+                        return `<tr><td colspan="11" class="p-4 text-center text-slate-400 text-xs">Belum ada data cycle time dalam kategori ini.</td></tr>`;
+                    }
+                    return cat.rows.map(ct => {
+                        let procCells = '';
+                        for (let i = 1; i <= 8; i++) {
+                            procCells += `<td class="p-3"><div class="font-medium text-slate-800">${ct[`p${i}`] || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct[`t${i}`] || '0'} s</div></td>`;
+                        }
+                        return `
                             <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-center text-xs">
                                 <td class="p-3 text-left font-mono font-bold text-brandBlue">${ct.itemNumber || '-'}</td>
                                 <td class="p-3 text-left font-medium text-slate-900">${ct.deskripsiTool || '-'}</td>
-                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p1 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t1 || '0'} s</div></td>
-                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p2 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t2 || '0'} s</div></td>
-                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p3 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t3 || '0'} s</div></td>
-                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p4 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t4 || '0'} s</div></td>
-                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p5 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t5 || '0'} s</div></td>
-                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p6 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t6 || '0'} s</div></td>
-                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p7 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t7 || '0'} s</div></td>
-                                <td class="p-3"><div class="font-medium text-slate-800">${ct.p8 || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct.t8 || '0'} s</div></td>
+                                ${procCells}
                                 <td class="p-3">
                                     <button onclick="deleteCycleTimeRow('${cat.id}', '${ct.id}')" class="p-1.5 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer shadow-sm">
                                         <i class="fa-solid fa-trash"></i>
@@ -2389,47 +3014,8 @@
                                 </td>
                             </tr>
                         `;
-                    });
+                    }).join('');
                 }
-
-                const isExpanded = cat.expanded !== undefined ? cat.expanded : true;
-                const div = document.createElement('div');
-                div.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
-                div.innerHTML = `
-                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="toggleCycleTimeAccordion('${cat.id}')">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid ${isExpanded ? 'fa-chevron-down text-amber-500' : 'fa-chevron-right text-slate-400'} text-sm transition-transform"></i>
-                            <h4 class="font-bold text-sm tracking-wide">📂 ${cat.categoryName} <span class="text-xs text-slate-400 font-normal ml-2">(${cat.rows ? cat.rows.length : 0} Item)</span></h4>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2" onclick="event.stopPropagation()">
-                            ${currentUser === 'USER' ? `
-                                <button onclick="openModalAddCycleTimeRow('${cat.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Cycle Time</button>
-                                <button onclick="deleteCycleTimeCategory('${cat.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div class="${isExpanded ? '' : 'hidden'} table-popup-container border-t border-slate-800">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm text-slate-700 uppercase tracking-wider border-b border-slate-200 text-center font-bold text-xs">
-                                <tr>
-                                    <th class="p-3 text-left">Item Number</th>
-                                    <th class="p-3 text-left">Deskripsi Tool</th>
-                                    <th class="p-3">Proses 1</th>
-                                    <th class="p-3">Proses 2</th>
-                                    <th class="p-3">Proses 3</th>
-                                    <th class="p-3">Proses 4</th>
-                                    <th class="p-3">Proses 5</th>
-                                    <th class="p-3">Proses 6</th>
-                                    <th class="p-3">Proses 7</th>
-                                    <th class="p-3">Proses 8</th>
-                                    <th class="p-3">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rowsHTML}</tbody>
-                        </table>
-                    </div>
-                `;
-                container.appendChild(div);
             });
         }
 
@@ -2443,7 +3029,7 @@
                 return;
             }
             crDatabase.forEach(item => {
-                const crVal = (item.outHouse || 0) - (item.inHouse || 0);
+                const crVal = calculateUnitCR(item);
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 tr.innerHTML = `
@@ -2463,11 +3049,9 @@
         }
 
         function openModalAddCR() {
-            document.getElementById('crItemNumber').value = '';
-            document.getElementById('crDesc').value = '';
-            document.getElementById('crOutHouse').value = '';
-            document.getElementById('crInHouse').value = '';
-            document.getElementById('modalCrMasterSearch').value = '';
+            ['crItemNumber', 'crDesc', 'crOutHouse', 'crInHouse', 'modalCrMasterSearch'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
             document.getElementById('modalAddCR').classList.remove('hidden');
         }
 
@@ -2481,16 +3065,23 @@
                 inHouse: parseFloat(document.getElementById('crInHouse').value) || 0
             };
             crDatabase.push(newItem);
-            window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), crDatabase);
+            syncToDb('cost_reduction_db', crDatabase);
+            logAuditActivity('CREATE', newItem.itemNumber, `Menambah database CR: ${newItem.desc}`);
             closeModal('modalAddCR');
             showToast('Berhasil', 'Item Cost Reduction ditambahkan.', 'success');
         }
 
         function deleteCRItem(id) {
-            if(confirm('Hapus item dari database Cost Reduction ini?')) {
-                crDatabase = crDatabase.filter(item => item.id !== id);
-                window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), crDatabase);
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus item dari database Cost Reduction ini?',
+                getArray: () => crDatabase,
+                setArray: (next) => { crDatabase = next; },
+                matchFn: (item) => item.id === id,
+                dbPath: 'cost_reduction_db',
+                auditType: 'DELETE',
+                getItemNumber: (item) => item.itemNumber,
+                getAuditDetail: (item) => `Menghapus item database CR: ${item.desc}`
+            });
         }
 
         function populateCRSelect() {
@@ -2513,10 +3104,15 @@
             document.getElementById('dailyManualQtyInput').value = "1";
         }
 
+        function saveDailyStateAndRefresh() {
+            syncToDb('cost_reduction_daily_state', { dailyActive, dailyQty, dailyRupiah });
+            updateDailyUIState();
+        }
+
         function startDailyCR() {
             dailyActive = true;
-            window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
-            updateDailyUIState();
+            saveDailyStateAndRefresh();
+            logAuditActivity('CR_DAILY_START', '-', 'Memulai sesi Cost Reduction Harian');
             showToast('Mulai', 'Sesi Cost Reduction harian dimulai (Auto-Sync aktif).', 'info');
         }
 
@@ -2527,10 +3123,10 @@
                 qty: (monthlyData[currentMonth]?.qty || 0) + dailyQty,
                 rupiah: (monthlyData[currentMonth]?.rupiah || 0) + dailyRupiah
             };
-            window.dbSet(window.dbRef(window.db, 'cost_reduction_monthly'), monthlyData);
+            syncToDb('cost_reduction_monthly', monthlyData);
+            logAuditActivity('CR_DAILY_FINISH', '-', `Menutup sesi harian (${dailyQty} Pcs, Rp ${Number(dailyRupiah).toLocaleString('id-ID')}) ke ${monthNames[currentMonth]}`);
             dailyActive = false; dailyQty = 0; dailyRupiah = 0;
-            window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
-            updateDailyUIState();
+            saveDailyStateAndRefresh();
             updateMonthlyChart();
             showToast('Selesai', 'Sesi harian ditutup dan masuk ke rekap bulanan.', 'success');
         }
@@ -2543,7 +3139,7 @@
             if(dailyActive) {
                 btnStart.disabled = true; btnFinish.disabled = false;
                 badge.className = "p-3 bg-emerald-100 rounded-xl text-sm font-bold text-emerald-800 text-center animate-pulse";
-                badge.innerText = "🟢 Real-Time Berjalan";
+                badge.innerText = "Real-Time Berjalan";
             } else {
                 btnStart.disabled = false; btnFinish.disabled = true;
                 badge.className = "p-3 bg-slate-200 rounded-xl text-sm font-bold text-slate-600 text-center";
@@ -2560,11 +3156,10 @@
             const addQty = parseInt(document.getElementById('dailyManualQtyInput').value) || 0;
             const item = crDatabase.find(i => i.id === selectedId);
             if(!item) return;
-            const crPerUnit = (item.outHouse || 0) - (item.inHouse || 0);
             dailyQty += addQty;
-            dailyRupiah += (crPerUnit * addQty);
-            window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
-            updateDailyUIState();
+            dailyRupiah += (calculateUnitCR(item) * addQty);
+            saveDailyStateAndRefresh();
+            logAuditActivity('CR_MANUAL', item.itemNumber, `Input manual CR harian +${addQty} Pcs`);
             showToast('Berhasil', `Menambahkan ${addQty} Pcs untuk ${item.itemNumber}`, 'success');
         }
 
@@ -2573,12 +3168,10 @@
             const matchedCR = crDatabase.find(cr => cr.itemNumber.trim().toUpperCase() === item.item_number.trim().toUpperCase());
             if(matchedCR) {
                 const itemQty = item.qty || 1;
-                const crPerUnit = (matchedCR.outHouse || 0) - (matchedCR.inHouse || 0);
                 dailyQty += itemQty;
-                dailyRupiah += (crPerUnit * itemQty);
-                window.dbSet(window.dbRef(window.db, 'cost_reduction_daily_state'), { dailyActive, dailyQty, dailyRupiah });
-                updateDailyUIState();
-                showToast('🪙 CR RealTime Sync', `Item ${matchedCR.itemNumber} selesai! +${itemQty} Pcs`, 'success');
+                dailyRupiah += (calculateUnitCR(matchedCR) * itemQty);
+                saveDailyStateAndRefresh();
+                showToast('CR RealTime Sync', `Item ${matchedCR.itemNumber} selesai! +${itemQty} Pcs`, 'success');
             }
         }
 
@@ -2620,11 +3213,12 @@
                         rupiah: (yearlyData[i]?.rupiah || 0) + (monthlyData[i]?.rupiah || 0)
                     };
                 }
-                window.dbSet(window.dbRef(window.db, 'cost_reduction_yearly'), yearlyData);
+                syncToDb('cost_reduction_yearly', yearlyData);
                 monthlyData = Array(12).fill({ qty: 0, rupiah: 0 });
-                window.dbSet(window.dbRef(window.db, 'cost_reduction_monthly'), monthlyData);
+                syncToDb('cost_reduction_monthly', monthlyData);
                 updateMonthlyChart();
                 renderYearlyTable();
+                logAuditActivity('CR_MONTHLY_FINISH', '-', 'Memindahkan rekap CR Bulanan ke Tahunan');
                 showToast('Sukses', 'Data bulanan masuk ke rekap tahunan!', 'success');
             }
         }
@@ -2650,8 +3244,9 @@
         function resetYearlyCR() {
             if(confirm('Reset manual data CR Tahunan?')) {
                 yearlyData = Array(12).fill({ qty: 0, rupiah: 0 });
-                window.dbSet(window.dbRef(window.db, 'cost_reduction_yearly'), yearlyData);
+                syncToDb('cost_reduction_yearly', yearlyData);
                 renderYearlyTable();
+                logAuditActivity('CR_YEARLY_RESET', '-', 'Reset manual data CR Tahunan');
                 showToast('Reset', 'Data CR Tahunan di-reset.', 'info');
             }
         }
@@ -2667,27 +3262,21 @@
         function importCRExcel(e) {
             const file = e.target.files[0];
             if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                    json.forEach((row, idx) => {
-                        crDatabase.push({
-                            id: 'imp_cr_' + Date.now() + '_' + idx,
-                            itemNumber: row["Item Number"] || "CR-NEW",
-                            desc: row["Deskripsi Tool"] || "Tool Baru",
-                            outHouse: parseFloat(row["Rp. Out house"]) || 0,
-                            inHouse: parseFloat(row["Rp. In house"]) || 0
-                        });
+            readExcelRows(file, (json) => {
+                json.forEach((row, idx) => {
+                    crDatabase.push({
+                        id: 'imp_cr_' + Date.now() + '_' + idx,
+                        itemNumber: row["Item Number"] || "CR-NEW",
+                        desc: row["Deskripsi Tool"] || "Tool Baru",
+                        outHouse: parseFloat(row["Rp. Out house"]) || 0,
+                        inHouse: parseFloat(row["Rp. In house"]) || 0
                     });
-                    window.dbSet(window.dbRef(window.db, 'cost_reduction_db'), crDatabase);
-                    showToast('Berhasil', 'Database Cost Reduction di-import!', 'success');
-                } catch(err) { alert('Gagal membaca file Excel.'); }
+                });
+                syncToDb('cost_reduction_db', crDatabase);
+                logAuditActivity('IMPORT_CR', '-', `Import ${json.length} baris ke Database Cost Reduction`);
+                showToast('Berhasil', 'Database Cost Reduction di-import!', 'success');
                 e.target.value = '';
-            };
-            reader.readAsArrayBuffer(file);
+            });
         }
 
         function downloadMonthlyPDF() {
@@ -2750,7 +3339,7 @@
             doc.setFont("helvetica", "bold"); doc.setFontSize(16);
             doc.text("WKS TOOL APPS — LAPORAN BUFFER STOK & SCRAP", 14, 18);
             doc.setFont("helvetica", "normal"); doc.setFontSize(9);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${currentUser}`, 14, 24);
+            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} | User: ${getActorLabel()}`, 14, 24);
 
             doc.setFont("helvetica", "bold"); doc.setFontSize(12);
             doc.text("1. Data Buffer Stok Gudang", 14, 32);
@@ -2782,7 +3371,7 @@
             } else {
                 bufferStockItems.forEach(b => {
                     const isLow = b.currentStock <= b.minStock;
-                    const statusBadge = isLow ? `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">⚠️ Stok Menipis</span>` : `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Aman</span>`;
+                    const statusBadge = isLow ? `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">Stok Menipis</span>` : `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Aman</span>`;
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                     tr.innerHTML = `
@@ -2795,7 +3384,7 @@
                             <div class="inline-flex items-center space-x-1.5">
                                 <button onclick="adjustBufferStock('${b.id}', 1)" class="px-3 py-1.5 bg-blue-50 text-brandBlue hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah</button>
                                 <button onclick="adjustBufferStock('${b.id}', -1)" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">- Kurang</button>
-                                ${currentUser === 'USER' ? `<button onclick="deleteBufferStock('${b.id}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : ''}
+                                ${currentRole === 'ADMIN_USER' ? `<button onclick="deleteBufferStock('${b.id}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : ''}
                             </div>
                         </td>
                     `;
@@ -2818,7 +3407,7 @@
                         <td class="p-4 text-center"><span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-lg font-bold">${s.regrindCount}</span></td>
                         <td class="p-4 text-slate-700 font-medium">${s.reason}</td>
                         <td class="p-4 text-center text-xs text-slate-500">${s.date} (${s.recordedBy})</td>
-                        <td class="p-4 text-center">${currentUser === 'USER' ? `<button onclick="deleteScrap('${s.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : '-'}</td>
+                        <td class="p-4 text-center">${currentRole === 'ADMIN_USER' ? `<button onclick="deleteScrap('${s.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : '-'}</td>
                     `;
                     scrapTbody.appendChild(tr);
                 });
@@ -2844,8 +3433,8 @@
                 minStock: parseInt(document.getElementById('bufferMinStock').value) || 0
             };
             bufferStockItems.unshift(newItem);
-            window.dbSet(window.dbRef(window.db, 'buffer_stock'), bufferStockItems);
-            logAuditActivity('CREATE', newItem.itemNumber, `Menambah Buffer Stok baru: ${newItem.itemNumber} (${newItem.desc})`);
+            syncToDb('buffer_stock', bufferStockItems);
+            logAuditActivity('CREATE', newItem.itemNumber, `Menambah Buffer Stok baru: ${newItem.itemNumber} (${newItem.desc}, Stok: ${newItem.currentStock} Pcs)`);
             closeModal('modalAddBufferStock');
             showToast('Berhasil', 'Buffer stok berhasil ditambahkan.', 'success');
         }
@@ -2853,16 +3442,24 @@
         function adjustBufferStock(id, amount) {
             const item = bufferStockItems.find(b => b.id === id);
             if(item) {
+                const oldStock = item.currentStock;
                 item.currentStock = Math.max(0, item.currentStock + amount);
-                window.dbSet(window.dbRef(window.db, 'buffer_stock'), bufferStockItems);
+                syncToDb('buffer_stock', bufferStockItems);
+                logAuditActivity('EDIT', item.itemNumber, `Update Buffer Stok: ${oldStock} Pcs ➔ ${item.currentStock} Pcs`);
             }
         }
 
         function deleteBufferStock(id) {
-            if(confirm('Hapus item buffer stok ini?')) {
-                bufferStockItems = bufferStockItems.filter(b => b.id !== id);
-                window.dbSet(window.dbRef(window.db, 'buffer_stock'), bufferStockItems);
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus item buffer stok ini?',
+                getArray: () => bufferStockItems,
+                setArray: (next) => { bufferStockItems = next; },
+                matchFn: (b) => b.id === id,
+                dbPath: 'buffer_stock',
+                auditType: 'DELETE',
+                getItemNumber: (b) => b.itemNumber,
+                getAuditDetail: (b) => `Menghapus Buffer Stok: ${b.desc}`
+            });
         }
 
         function openModalAddScrap() {
@@ -2881,19 +3478,25 @@
                 regrindCount: document.getElementById('scrapRegrindCount').value.trim(),
                 reason: document.getElementById('scrapReason').value,
                 date: new Date().toISOString().split('T')[0],
-                recordedBy: currentUser
+                recordedBy: getActorLabel()
             };
             scrapItems.unshift(newItem);
-            window.dbSet(window.dbRef(window.db, 'scrap_items'), scrapItems);
+            syncToDb('scrap_items', scrapItems);
             logAuditActivity('CREATE', newItem.itemNumber, `Mencatat Tool Scrap: ${newItem.itemNumber} (${newItem.reason})`);
             closeModal('modalAddScrap');
         }
 
         function deleteScrap(id) {
-            if(confirm('Hapus catatan scrap ini?')) {
-                scrapItems = scrapItems.filter(s => s.id !== id);
-                window.dbSet(window.dbRef(window.db, 'scrap_items'), scrapItems);
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus catatan scrap ini?',
+                getArray: () => scrapItems,
+                setArray: (next) => { scrapItems = next; },
+                matchFn: (s) => s.id === id,
+                dbPath: 'scrap_items',
+                auditType: 'DELETE',
+                getItemNumber: (s) => s.itemNumber,
+                getAuditDetail: (s) => `Menghapus catatan Scrap: ${s.desc}`
+            });
         }
 
         function openModalAddMasterTable() {
@@ -2905,15 +3508,21 @@
             e.preventDefault();
             const name = document.getElementById('inputMasterTableName').value.trim();
             masterTables.push({ id: 'table_' + Date.now(), tableName: name, rows: [], expanded: true });
-            window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
+            syncToDb('master_tables', masterTables);
+            logAuditActivity('CREATE', '-', `Membuat Tabel Master baru: ${name}`);
             closeModal('modalAddMasterTable');
         }
 
         function deleteMasterTable(tableId) {
-            if(confirm('Hapus seluruh tabel master ini?')) {
-                masterTables = masterTables.filter(t => t.id !== tableId);
-                window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus seluruh tabel master ini?',
+                getArray: () => masterTables,
+                setArray: (next) => { masterTables = next; },
+                matchFn: (t) => t.id === tableId,
+                dbPath: 'master_tables',
+                auditType: 'DELETE',
+                getAuditDetail: (t) => `Menghapus Tabel Master: ${t.tableName}`
+            });
         }
 
         function openModalAddMasterRow(tableId) {
@@ -2928,28 +3537,34 @@
         function handleSaveMasterRow(e) {
             e.preventDefault();
             const tableId = document.getElementById('activeMasterTableId').value;
-            const table = masterTables.find(t => t.id === tableId);
-            if(table) {
-                if(!table.rows) table.rows = [];
-                table.rows.push({
-                    id: 'r_' + Date.now(),
-                    itemNumber: document.getElementById('rowItemNumber').value.trim(),
-                    desc: document.getElementById('rowDesc').value.trim(),
-                    toolLife: document.getElementById('rowToolLife').value.trim(),
-                    note: document.getElementById('rowNote').value.trim()
-                });
-                window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
-                logAuditActivity('CREATE', document.getElementById('rowItemNumber').value.trim(), `Menambah baris ke master ${table.tableName}`);
+            const itemNum = document.getElementById('rowItemNumber').value.trim();
+            const newRow = {
+                id: 'r_' + Date.now(),
+                itemNumber: itemNum,
+                desc: document.getElementById('rowDesc').value.trim(),
+                toolLife: document.getElementById('rowToolLife').value.trim(),
+                note: document.getElementById('rowNote').value.trim()
+            };
+            appendRowToCategory(masterTables, tableId, 'master_tables', newRow, (table) => {
+                logAuditActivity('CREATE', itemNum, `Menambah baris ke master ${table.tableName}`);
                 closeModal('modalAddMasterRow');
-            }
+            });
         }
 
         function deleteMasterRow(tableId, rowId) {
             const table = masterTables.find(t => t.id === tableId);
-            if(table && table.rows) {
-                table.rows = table.rows.filter(r => r.id !== rowId);
-                window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
-            }
+            if(!table) return;
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus baris dari tabel master ini?',
+                getArray: () => table.rows || [],
+                setArray: (next) => { table.rows = next; },
+                matchFn: (r) => r.id === rowId,
+                dbPath: 'master_tables',
+                auditType: 'DELETE',
+                getItemNumber: (r) => r.itemNumber,
+                getAuditDetail: (r) => `Menghapus baris dari master ${table.tableName}`,
+                onAfterDelete: () => renderMasterTablesContainer()
+            });
         }
 
         function downloadTableTemplate(tableName) {
@@ -2963,31 +3578,25 @@
         function importSingleTable(e, tableId) {
             const file = e.target.files[0];
             if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                    const table = masterTables.find(t => t.id === tableId);
-                    if(table) {
-                        if(!table.rows) table.rows = [];
-                        json.forEach((row, idx) => {
-                            table.rows.push({
-                                id: 'imp_' + Date.now() + '_' + idx,
-                                itemNumber: row["Item Number"] || "-",
-                                desc: row["Deskripsi Tool"] || "-",
-                                toolLife: row["Tool Life"] || "-",
-                                note: row["Keterangan"] || ""
-                            });
+            readExcelRows(file, (json) => {
+                const table = masterTables.find(t => t.id === tableId);
+                if(table) {
+                    if(!table.rows) table.rows = [];
+                    json.forEach((row, idx) => {
+                        table.rows.push({
+                            id: 'imp_' + Date.now() + '_' + idx,
+                            itemNumber: row["Item Number"] || "-",
+                            desc: row["Deskripsi Tool"] || "-",
+                            toolLife: row["Tool Life"] || "-",
+                            note: row["Keterangan"] || ""
                         });
-                        window.dbSet(window.dbRef(window.db, 'master_tables'), masterTables);
-                        alert('Berhasil import data!');
-                    }
-                } catch(err) { alert('Gagal membaca file Excel.'); }
+                    });
+                    syncToDb('master_tables', masterTables);
+                    logAuditActivity('IMPORT_MASTER', '-', `Import ${json.length} baris ke tabel master ${table.tableName}`);
+                    alert('Berhasil import data!');
+                }
                 e.target.value = '';
-            };
-            reader.readAsArrayBuffer(file);
+            });
         }
 
         function closeModal(modalId) {
@@ -3006,12 +3615,12 @@
                 priority: document.getElementById('newItemPriority').value,
                 current_stage_index: 0,
                 supplier_access: false,
-                last_updated_by: currentUser,
+                last_updated_by: getActorLabel(),
                 completed_at: null,
                 completed_by: null
             };
             items.unshift(newItem);
-            window.dbSet(window.dbRef(window.db, 'tool_items'), items);
+            syncToDb('tool_items', items);
             logAuditActivity('CREATE', newItemNumber, `Membuat item tracking baru (${newItem.type_grinding}, Qty: ${newItem.qty})`);
             closeModal('modalAddItem');
             showToast('Berhasil', 'Item baru berhasil ditambahkan ke Tracking Progress.', 'success');
@@ -3034,7 +3643,7 @@
             const key = e.target.getAttribute('data-key');
             if(key) { 
                 customTexts[key] = e.target.innerText.trim(); 
-                window.dbSet(window.dbRef(window.db, 'custom_texts'), customTexts);
+                syncToDb('custom_texts', customTexts);
             }
         }
 
@@ -3055,7 +3664,8 @@
             const newPass = document.getElementById('newPasswordWebInput').value.trim();
             if(newPass) {
                 authCredentials.USER = newPass;
-                window.dbSet(window.dbRef(window.db, 'auth'), authCredentials);
+                syncToDb('auth', authCredentials);
+                logAuditActivity('CHANGE_PWD', '-', 'Mengubah Password Login Web USER');
                 showToast('Berhasil', 'Password Login Web berhasil diubah!', 'success');
                 closeModal('modalChangePassWeb');
             }
@@ -3071,7 +3681,8 @@
             const newPass = document.getElementById('newPasswordLogInput').value.trim();
             if(newPass) {
                 authCredentials.LOG_PWD = newPass;
-                window.dbSet(window.dbRef(window.db, 'auth'), authCredentials);
+                syncToDb('auth', authCredentials);
+                logAuditActivity('CHANGE_PWD', '-', 'Mengubah Password Menu Log Riwayat');
                 showToast('Berhasil', 'Password Log Riwayat berhasil diubah!', 'success');
                 closeModal('modalChangePassLog');
             }
@@ -3094,14 +3705,13 @@
         }
 
         function switchMainView(view) {
+            if (isOperatorRestrictedView(view)) {
+                view = 'progress';
+            }
             currentMainView = view;
-            document.getElementById('viewProgress').classList.add('hidden');
-            document.getElementById('viewMaster').classList.add('hidden');
-            document.getElementById('viewStock').classList.add('hidden');
-            document.getElementById('viewCostReduction').classList.add('hidden');
-            document.getElementById('viewKnowledgeCycle').classList.add('hidden');
-            document.getElementById('viewAuditTrail').classList.add('hidden');
-            document.getElementById('viewTrial').classList.add('hidden');
+            ['viewProgress', 'viewMaster', 'viewStock', 'viewCostReduction', 'viewKnowledgeCycle', 'viewAuditTrail', 'viewTrial'].forEach(vId => {
+                document.getElementById(vId).classList.add('hidden');
+            });
 
             if(view === 'progress') {
                 document.getElementById('viewProgress').classList.remove('hidden');
@@ -3131,6 +3741,46 @@
                 document.getElementById('viewTrial').classList.remove('hidden');
                 renderTrialProsesContainer();
             }
+        }
+
+        function openQuickPriorityModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const currentPrio = item.priority === 'Urgent' ? 'Urgent' : 'Reguler';
+            document.getElementById('quickPriorityItemId').value = item.id;
+            document.getElementById('quickPriorityItemInfo').innerText = `${item.item_number} — ${item.item_name} (${currentPrio})`;
+
+            const btnReg = document.getElementById('btnChooseReguler');
+            const btnUrg = document.getElementById('btnChooseUrgent');
+
+            btnReg.className = currentPrio === 'Reguler'
+                ? 'py-3 px-3 rounded-xl border-2 border-slate-700 bg-slate-800 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-sm'
+                : 'py-3 px-3 rounded-xl border-2 border-slate-200 bg-slate-50 hover:border-slate-400 text-slate-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
+
+            btnUrg.className = currentPrio === 'Urgent'
+                ? 'py-3 px-3 rounded-xl border-2 border-red-600 bg-red-600 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-sm'
+                : 'py-3 px-3 rounded-xl border-2 border-red-200 bg-red-50/60 hover:border-red-500 text-red-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
+
+            document.getElementById('modalQuickPriority').classList.remove('hidden');
+        }
+
+        function applyQuickPriority(chosenPriority) {
+            const itemId = document.getElementById('quickPriorityItemId').value;
+            const item = items.find(i => i.id === itemId);
+            closeModal('modalQuickPriority');
+            if (!item) return;
+
+            const oldPriority = item.priority === 'Urgent' ? 'Urgent' : 'Reguler';
+            if (oldPriority === chosenPriority) return;
+
+            item.priority = chosenPriority;
+            item.last_updated_by = getActorLabel();
+
+            syncToDb('tool_items', items);
+            logAuditActivity('PRIORITY_CHANGE', item.item_number, `Ubah prioritas: ${oldPriority} ➔ ${chosenPriority}`);
+            renderTables();
+            showToast('Prioritas Diperbarui', `${item.item_number} diubah menjadi ${chosenPriority}.`, 'success');
         }
 
         function renderTables() {
@@ -3163,9 +3813,11 @@
                 const isFinished = item.current_stage_index >= stages.length - 1;
                 const currentStageName = stages[item.current_stage_index] || stages[0];
                 const progressPercentage = Math.round(((item.current_stage_index + 1) / stages.length) * 100);
+                const prioLabel = item.priority === 'Urgent' ? 'Urgent' : 'Reguler';
 
                 if(!isFinished) {
                     const updateButtonHTML = `<button onclick="openModalUpdate('${item.id}')" class="bg-slate-900 hover:bg-brandBlue text-white px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer">Update Status</button>`;
+                    const priorityBadgeHTML = `<button type="button" onclick="openQuickPriorityModal('${item.id}')" title="Klik untuk ubah Reguler / Urgent" class="px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer inline-flex items-center space-x-1 ${prioLabel === 'Urgent' ? 'bg-red-100 text-red-700 hover:bg-red-200 ring-1 ring-red-300' : 'bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-700'}"><span>${prioLabel}</span><i class="fa-solid fa-chevron-down text-[9px] opacity-70"></i></button>`;
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
@@ -3181,8 +3833,8 @@
                             </div>
                         </td>
                         <td class="p-4 text-center">${updateButtonHTML}</td>
-                        <td class="p-4 text-center"><span class="px-3 py-1 rounded-lg text-xs font-bold ${item.priority === 'Urgent' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'}">${item.priority}</span></td>
-                        <td class="p-4 text-center"><span class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">${item.last_updated_by || 'SYSTEM'}</span></td>
+                        <td class="p-4 text-center">${priorityBadgeHTML}</td>
+                        <td class="p-4 text-center"><span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">${item.last_updated_by || 'SYSTEM'}</span></td>
                     `;
                     activeTbody.appendChild(tr);
 
@@ -3193,20 +3845,23 @@
                             <div><span class="font-mono font-bold text-brandBlue text-sm">${item.item_number}</span><h4 class="font-bold text-slate-900 text-base mt-0.5">${item.item_name}</h4></div>
                             <span class="text-xs px-2.5 py-1 rounded-full font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">${item.type_grinding}</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl items-center">
                             <div>QTY: <strong class="text-blue-700">${item.qty || 1} Pcs</strong></div>
-                            <div>Prioritas: <strong class="${item.priority === 'Urgent' ? 'text-red-600' : 'text-slate-900'}">${item.priority}</strong></div>
+                            <div class="flex items-center space-x-1.5"><span>Prioritas:</span> ${priorityBadgeHTML}</div>
                         </div>
                         <div class="space-y-1">
                             <div class="flex justify-between text-xs font-bold text-slate-700"><span>Progress: ${currentStageName}</span><span>${progressPercentage}%</span></div>
                             <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-brandBlue h-full" style="width: ${progressPercentage}%"></div></div>
                         </div>
-                        <div class="flex justify-end items-center pt-2 border-t border-slate-100">${updateButtonHTML}</div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                            <span>Oleh: <strong>${item.last_updated_by || 'SYSTEM'}</strong></span>
+                            ${updateButtonHTML}
+                        </div>
                     `;
                     activeCards.appendChild(card);
 
                 } else {
-                    const deleteButtonHTML = currentUser === 'USER' ? `<button onclick="deleteItem('${item.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>` : '-';
+                    const deleteButtonHTML = currentRole === 'ADMIN_USER' ? `<button onclick="deleteItem('${item.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>` : '-';
                     const repairButtonHTML = `<button onclick="openModalRepair('${item.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-wrench text-[10px]"></i><span>Repair</span></button>`;
                     const completedDateStr = item.completed_at || '-';
 
@@ -3220,7 +3875,7 @@
                         <td class="p-4 text-center">
                             <div class="flex flex-col items-center space-y-0.5">
                                 <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700">Finished</span>
-                                <span class="text-[11px] font-semibold text-slate-500">${completedDateStr}</span>
+                                <span class="text-[11px] font-semibold text-slate-500">${completedDateStr} (${item.completed_by || '-'})</span>
                             </div>
                         </td>
                         <td class="p-4 text-center"><div class="inline-flex items-center space-x-2">${repairButtonHTML}${deleteButtonHTML}</div></td>
@@ -3271,14 +3926,24 @@
 
         function updateRepairNote(id, note) {
             const item = repairSpecialItems.find(r => r.id === id);
-            if(item) { item.keterangan = note; window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems); }
+            if(item && item.keterangan !== note) {
+                item.keterangan = note;
+                syncToDb('repair_special_items', repairSpecialItems);
+                logAuditActivity('EDIT', item.itemNumber, `Update keterangan repair: "${note}"`);
+            }
         }
 
         function deleteSpecialRepair(id) {
-            if(confirm('Hapus item dari kolom khusus repair ini?')) {
-                repairSpecialItems = repairSpecialItems.filter(r => r.id !== id);
-                window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems);
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus item dari kolom khusus repair ini?',
+                getArray: () => repairSpecialItems,
+                setArray: (next) => { repairSpecialItems = next; },
+                matchFn: (r) => r.id === id,
+                dbPath: 'repair_special_items',
+                auditType: 'DELETE',
+                getItemNumber: (r) => r.itemNumber,
+                getAuditDetail: () => 'Menghapus item dari antrian Tool Repair'
+            });
         }
 
         function openModalUpdate(id) {
@@ -3310,18 +3975,18 @@
 
                 item.current_stage_index = newStageIndex;
                 item.priority = document.getElementById('updatePrioritySelect').value;
-                item.last_updated_by = currentUser;
+                item.last_updated_by = getActorLabel();
 
                 if(!wasFinished && isNowFinished) {
                     const now = new Date();
                     item.completed_at = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                    item.completed_by = currentUser;
+                    item.completed_by = getActorLabel();
                     checkAndProcessAutoSyncCR(item);
                 } else if(!isNowFinished) {
                     item.completed_at = null; item.completed_by = null;
                 }
-                window.dbSet(window.dbRef(window.db, 'tool_items'), items);
-                logAuditActivity('STAGE_UPDATE', item.item_number, `Update Tahapan: "${oldStage}" ➔ "${newStage}"`);
+                syncToDb('tool_items', items);
+                logAuditActivity('STAGE_UPDATE', item.item_number, `Update Tahapan: "${oldStage}" -> "${newStage}" (${item.priority})`);
             }
             closeModal('modalUpdateProgress');
         }
@@ -3345,88 +4010,57 @@
             if(repairQty > (parentItem.qty || 1)) { alert('Jumlah QTY repair tidak boleh melebihi QTY selesai!'); return; }
 
             parentItem.qty = (parentItem.qty || 1) - repairQty;
-            const newRepairEntry = {
+            parentItem.last_updated_by = getActorLabel();
+            repairSpecialItems.unshift({
                 id: 'rep_' + Date.now(),
                 itemNumber: parentItem.item_number,
                 detailBarang: `${parentItem.item_name}`,
                 qty: repairQty,
                 keterangan: ''
-            };
-            repairSpecialItems.unshift(newRepairEntry);
-            window.dbSet(window.dbRef(window.db, 'tool_items'), items);
-            window.dbSet(window.dbRef(window.db, 'repair_special_items'), repairSpecialItems);
+            });
+            syncToDb('tool_items', items);
+            syncToDb('repair_special_items', repairSpecialItems);
             logAuditActivity('REPAIR_MIGRATE', parentItem.item_number, `Migrasi ${repairQty} Pcs ke Kolom Repair`);
             closeModal('modalRepairItem');
             showToast('Berhasil', `${repairQty} Pcs dipindahkan ke Kolom Khusus Repair!`, 'success');
         }
 
         function deleteItem(id) {
-            if(confirm('Apakah Anda yakin ingin menghapus item ini dari Tracking Progress?')) {
-                const item = items.find(i => i.id === id);
-                if(item) logAuditActivity('DELETE', item.item_number, `Menghapus item tracking: ${item.item_name}`);
-                items = items.filter(i => i.id !== id);
-                window.dbSet(window.dbRef(window.db, 'tool_items'), items);
-                renderTables();
-                showToast('Berhasil', 'Item berhasil dihapus.', 'info');
-            }
+            deleteRecordWithAudit({
+                confirmMsg: 'Apakah Anda yakin ingin menghapus item ini dari Tracking Progress?',
+                getArray: () => items,
+                setArray: (next) => { items = next; },
+                matchFn: (i) => i.id === id,
+                dbPath: 'tool_items',
+                auditType: 'DELETE',
+                getItemNumber: (i) => i.item_number,
+                getAuditDetail: (i) => `Menghapus item tracking: ${i.item_name}`,
+                toastTitle: 'Berhasil',
+                toastMsg: 'Item berhasil dihapus.',
+                onAfterDelete: () => renderTables()
+            });
         }
 
         function filterMasterSuggestionsGeneric(keyword, targetType) {
             const listMap = { buffer: 'bufferSuggestionsList', knowledge: 'knowledgeSuggestionsList', ct: 'ctSuggestionsList', cr: 'crSuggestionsList' };
-            const listId = listMap[targetType];
-            const listContainer = document.getElementById(listId);
-            if(!listContainer) return;
-            listContainer.innerHTML = '';
-            if(!keyword || keyword.trim() === '') { listContainer.classList.add('hidden'); return; }
-
-            const q = keyword.toLowerCase();
-            let matches = [];
-            masterTables.forEach(table => {
-                if(table.rows && Array.isArray(table.rows)) {
-                    table.rows.forEach(row => {
-                        if((row.itemNumber && row.itemNumber.toLowerCase().includes(q)) || (row.desc && row.desc.toLowerCase().includes(q))) {
-                            matches.push({ itemNumber: row.itemNumber, desc: row.desc, tableName: table.tableName });
-                        }
-                    });
-                }
-            });
-
-            if(matches.length === 0) {
-                listContainer.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">Tidak ada item master yang cocok</div>`;
-                listContainer.classList.remove('hidden');
-                return;
-            }
-
-            matches.forEach(m => {
-                const div = document.createElement('div');
-                div.className = "p-3 hover:bg-indigo-50 cursor-pointer transition flex flex-col";
-                div.innerHTML = `
-                    <div class="flex justify-between items-center"><span class="font-mono font-bold text-brandBlue text-xs">${m.itemNumber}</span><span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">${m.tableName}</span></div>
-                    <span class="text-xs font-semibold text-slate-800 mt-0.5">${m.desc}</span>
-                `;
-                div.onclick = () => selectMasterSuggestionGeneric(m.itemNumber, m.desc, targetType);
-                listContainer.appendChild(div);
-            });
-            listContainer.classList.remove('hidden');
-        }
-
-        function selectMasterSuggestionGeneric(itemNumber, desc, targetType) {
             const prefixMap = { buffer: 'buffer', knowledge: 'knowledge', ct: 'ct', cr: 'cr' };
+            const listContainer = document.getElementById(listMap[targetType]);
             const p = prefixMap[targetType];
-            document.getElementById(`${p}ItemNumber`).value = itemNumber;
-            document.getElementById(`${p}Desc`).value = desc;
-            document.getElementById(`modal${targetType.charAt(0).toUpperCase() + targetType.slice(1)}MasterSearch`).value = `${itemNumber} - ${desc}`;
-            document.getElementById(`${targetType}SuggestionsList`).classList.add('hidden');
-            showToast('Auto-Fill', 'Item berhasil dipilih dari Data Master.', 'info');
+
+            renderMasterDropdown(listContainer, keyword, (m) => {
+                document.getElementById(`${p}ItemNumber`).value = m.itemNumber;
+                document.getElementById(`${p}Desc`).value = m.desc;
+                document.getElementById(`modal${targetType.charAt(0).toUpperCase() + targetType.slice(1)}MasterSearch`).value = `${m.itemNumber} - ${m.desc}`;
+                showToast('Auto-Fill', 'Item berhasil dipilih dari Data Master.', 'info');
+            });
         }
 
         function openModalAddItem() {
-            document.getElementById('modalMasterSearch').value = '';
-            document.getElementById('newItemNumber').value = '';
-            document.getElementById('newItemName').value = '';
+            ['modalMasterSearch', 'newItemNumber', 'newItemName'].forEach(id => { document.getElementById(id).value = ''; });
             document.getElementById('newItemQty').value = '1';
-            document.getElementById('masterSuggestionsList').classList.add('hidden');
-            document.getElementById('masterSuggestionsList').innerHTML = '';
+            const listEl = document.getElementById('masterSuggestionsList');
+            listEl.classList.add('hidden');
+            listEl.innerHTML = '';
             document.getElementById('modalAddItem').classList.remove('hidden');
         }
 
@@ -3448,14 +4082,8 @@
         function handleScanSuccess(scannedCode) {
             closeScannerModal();
             document.getElementById('modalMasterSearch').value = scannedCode;
-            let foundMatch = null;
-            masterTables.forEach(table => {
-                if(table.rows && Array.isArray(table.rows)) {
-                    table.rows.forEach(row => {
-                        if(row.itemNumber && row.itemNumber.trim().toUpperCase() === scannedCode.toUpperCase()) foundMatch = row;
-                    });
-                }
-            });
+            const matches = getMasterMatches(scannedCode);
+            const foundMatch = matches.find(m => m.itemNumber && m.itemNumber.trim().toUpperCase() === scannedCode.toUpperCase());
             if(foundMatch) {
                 document.getElementById('newItemNumber').value = foundMatch.itemNumber;
                 document.getElementById('newItemName').value = foundMatch.desc;
@@ -3469,41 +4097,11 @@
 
         function filterMasterSuggestions(keyword) {
             const listContainer = document.getElementById('masterSuggestionsList');
-            if(!listContainer) return;
-            listContainer.innerHTML = '';
-            if(!keyword || keyword.trim() === '') { listContainer.classList.add('hidden'); return; }
-            const q = keyword.toLowerCase();
-            let matches = [];
-            masterTables.forEach(table => {
-                if(table.rows && Array.isArray(table.rows)) {
-                    table.rows.forEach(row => {
-                        if((row.itemNumber && row.itemNumber.toLowerCase().includes(q)) || (row.desc && row.desc.toLowerCase().includes(q))) {
-                            matches.push({ itemNumber: row.itemNumber, desc: row.desc, tableName: table.tableName });
-                        }
-                    });
-                }
+            renderMasterDropdown(listContainer, keyword, (m) => {
+                document.getElementById('newItemNumber').value = m.itemNumber;
+                document.getElementById('newItemName').value = m.desc;
+                document.getElementById('modalMasterSearch').value = `${m.itemNumber} - ${m.desc}`;
             });
-            if(matches.length === 0) {
-                listContainer.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">Tidak ada item master yang cocok</div>`;
-                listContainer.classList.remove('hidden');
-                return;
-            }
-            matches.forEach(m => {
-                const div = document.createElement('div');
-                div.className = "p-3 hover:bg-indigo-50 cursor-pointer transition flex flex-col";
-                div.innerHTML = `
-                    <div class="flex justify-between items-center"><span class="font-mono font-bold text-brandBlue text-xs">${m.itemNumber}</span><span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">${m.tableName}</span></div>
-                    <span class="text-xs font-semibold text-slate-800 mt-0.5">${m.desc}</span>
-                `;
-                div.onclick = () => {
-                    document.getElementById('newItemNumber').value = m.itemNumber;
-                    document.getElementById('newItemName').value = m.desc;
-                    document.getElementById('modalMasterSearch').value = `${m.itemNumber} - ${m.desc}`;
-                    listContainer.classList.add('hidden');
-                };
-                listContainer.appendChild(div);
-            });
-            listContainer.classList.remove('hidden');
         }
 
         document.addEventListener('click', function(e) {
@@ -3515,59 +4113,138 @@
             });
         });
 
+        function refreshAllAppViews() {
+            renderTables();
+            renderSpecialRepairTable();
+            renderMasterTablesContainer();
+            renderStockAndScrap();
+            renderCRDatabase();
+            populateCRSelect();
+            if(!monthlyChartInstance) initMonthlyChart();
+            else updateMonthlyChart();
+            renderYearlyTable();
+            renderKnowledgeCategoriesContainer();
+            renderCycleTimeCategoriesContainer();
+            renderAuditTrailTable();
+            renderTrialProsesContainer();
+        }
+
+        function completeLoginSession(displayName, role, npk) {
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Memproses...</span>`;
+            setTimeout(() => {
+                btn.innerHTML = `<span>Masuk ke Sistem</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
+                showToast('Login Berhasil', `Selamat datang, ${displayName}!`, 'success');
+                setTimeout(() => {
+                    togglePopup(false);
+                    currentUser = displayName;
+                    currentRole = role;
+                    currentNpk = npk || null;
+
+                    sessionStorage.setItem('wks_current_user', currentUser);
+                    sessionStorage.setItem('wks_current_role', currentRole);
+                    if (currentNpk) sessionStorage.setItem('wks_current_npk', currentNpk);
+                    else sessionStorage.removeItem('wks_current_npk');
+
+                    setupUIRoles();
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+
+                    logAuditActivity('LOGIN', currentNpk || '-', `Login ke sistem sebagai ${getActorLabel()}`);
+                    refreshAllAppViews();
+                }, 700);
+            }, 500);
+        }
+
         function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('loginUser').value.trim().toUpperCase();
-            const p = document.getElementById('loginPass').value.trim();
-            const btn = document.getElementById('loginBtn');
+            const rawUser = document.getElementById('loginUser').value.trim();
+            const rawPass = document.getElementById('loginPass').value.trim();
+            const upperUser = rawUser.toUpperCase();
 
-            if(u === 'USER' && p === authCredentials.USER) {
-                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Memproses...</span>`;
-                setTimeout(() => {
-                    btn.innerHTML = `<span>Masuk ke Sistem</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
-                    showToast('Login Berhasil', `Selamat datang kembali, ${u}!`, 'success');
-                    setTimeout(() => {
-                        togglePopup(false);
-                        currentUser = u;
-                        sessionStorage.setItem('wks_current_user', currentUser);
-                        setupUIRoles();
-                        document.getElementById('loginScreen').classList.add('hidden');
-                        document.getElementById('mainApp').classList.remove('hidden');
-                        renderTables();
-                        renderSpecialRepairTable();
-                        renderMasterTablesContainer();
-                        renderStockAndScrap();
-                        renderCRDatabase();
-                        populateCRSelect();
-                        initMonthlyChart();
-                        renderYearlyTable();
-                        renderKnowledgeCategoriesContainer();
-                        renderCycleTimeCategoriesContainer();
-                        renderAuditTrailTable();
-                        renderTrialProsesContainer();
-                    }, 1000);
-                }, 800);
-            } else {
-                showToast('Login Gagal', 'Username atau Password salah!', 'error');
+            if (upperUser === 'USER') {
+                if (rawPass === authCredentials.USER) {
+                    completeLoginSession('USER', 'ADMIN_USER', null);
+                } else {
+                    showToast('Login Gagal', 'Password USER salah!', 'error');
+                }
+                return;
             }
+
+            const matchedAccount = registeredAccounts.find(acc =>
+                String(acc.fullName || '').trim().toLowerCase() === rawUser.toLowerCase() &&
+                String(acc.npk || '').trim().toLowerCase() === rawPass.toLowerCase()
+            );
+
+            if (!matchedAccount) {
+                showToast('Akun Belum Terdaftar', 'Nama atau NPK/NIK tidak ditemukan. Klik Create Account untuk mendaftar.', 'error');
+                return;
+            }
+
+            if (matchedAccount.status === 'PENDING' || matchedAccount.approved === false) {
+                showToast('Menunggu Konfirmasi USER', 'Akun Anda masih menunggu persetujuan dari USER sebelum bisa login.', 'info');
+                return;
+            }
+
+            completeLoginSession(matchedAccount.fullName, 'OPERATOR', matchedAccount.npk);
         }
 
         function setupUIRoles() {
-            document.getElementById('navUserRole').innerText = `Role: ${currentUser}`;
-            if(currentUser === 'USER') {
-                document.getElementById('btnAddItem').classList.remove('hidden');
-                document.getElementById('btnBuilder').classList.remove('hidden');
-                document.getElementById('btnNavMaster').classList.remove('hidden');
-            } else {
-                document.getElementById('btnAddItem').classList.add('hidden');
-                document.getElementById('btnBuilder').classList.add('hidden');
-                document.getElementById('btnNavMaster').classList.add('hidden');
+            const nameEl = document.getElementById('navAccountName');
+            const roleEl = document.getElementById('navUserRole');
+            const headerCrBtn = document.getElementById('btnHeaderCR');
+
+            if (nameEl) {
+                nameEl.innerText = currentRole === 'OPERATOR' && currentNpk
+                    ? `${currentUser} (${currentNpk})`
+                    : (currentUser || 'USER');
+            }
+            if (roleEl) {
+                if (currentRole === 'ADMIN_USER') {
+                    roleEl.innerText = 'Role: USER';
+                } else {
+                    const unlockedCount = controllablePageDefs.filter(p => operatorUnlockedViews[p.key]).length;
+                    roleEl.innerText = unlockedCount > 0 ? `Nama & NPK (${unlockedCount} Menu)` : 'Nama & NPK';
+                }
+            }
+
+            const isAdmin = currentRole === 'ADMIN_USER';
+            const canAccessMaster = isAdmin || Boolean(operatorUnlockedViews.master);
+            const canAccessCR = isAdmin || Boolean(operatorUnlockedViews.costReduction);
+            const canAccessTrial = isAdmin || Boolean(operatorUnlockedViews.trial);
+            const canAccessKC = isAdmin || Boolean(operatorUnlockedViews.knowledgeCycle);
+            const canAccessLog = isAdmin || Boolean(operatorUnlockedViews.auditTrail);
+
+            document.getElementById('btnAddItem').classList.remove('hidden');
+            document.getElementById('btnNavMaster').classList.toggle('hidden', !canAccessMaster);
+            document.getElementById('btnNavCR').classList.toggle('hidden', !canAccessCR);
+            document.getElementById('btnNavTrial').classList.toggle('hidden', !canAccessTrial);
+            document.getElementById('btnNavKnowledgeCycle').classList.toggle('hidden', !canAccessKC);
+            document.getElementById('btnNavLog').classList.toggle('hidden', !canAccessLog);
+            document.getElementById('btnBuilder').classList.toggle('hidden', !isAdmin);
+
+            if (headerCrBtn) {
+                headerCrBtn.classList.toggle('hidden', !canAccessCR);
+                headerCrBtn.classList.toggle('flex', canAccessCR);
+            }
+
+            updateAccessControlBadgesUI();
+
+            if (isOperatorRestrictedView(currentMainView)) {
+                switchMainView('progress');
             }
         }
 
         function logout() {
+            if (currentUser) {
+                logAuditActivity('LOGOUT', currentNpk || '-', `Keluar dari sistem (${getActorLabel()})`);
+            }
             currentUser = null;
+            currentRole = null;
+            currentNpk = null;
             sessionStorage.removeItem('wks_current_user');
+            sessionStorage.removeItem('wks_current_role');
+            sessionStorage.removeItem('wks_current_npk');
             document.getElementById('mainApp').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('loginUser').value = '';
