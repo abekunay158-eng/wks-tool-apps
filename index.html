@@ -1465,6 +1465,96 @@
                 .replace(/'/g, "\\'");
         }
 
+        // --- NORMALISASI KHUSUS DATA MASTER ---
+        function normalizeMasterRow(rawRow, idx = 0) {
+            if (!rawRow || typeof rawRow !== 'object') return null;
+            const itemNumber = String(
+                rawRow.itemNumber ?? rawRow.item_number ?? rawRow.code ?? rawRow.kode ?? ''
+            ).trim();
+            const desc = String(
+                rawRow.desc ?? rawRow.deskripsi ?? rawRow.description ?? rawRow.item_name ?? rawRow.name ?? ''
+            ).trim();
+            const toolLife = String(
+                rawRow.toolLife ?? rawRow.tool_life ?? rawRow.life ?? '500 Pcs'
+            ).trim();
+            const note = String(
+                rawRow.note ?? rawRow.keterangan ?? rawRow.catatan ?? rawRow.remark ?? '-'
+            ).trim();
+
+            if (!itemNumber && !desc && !rawRow.id) return null;
+
+            return {
+                ...rawRow,
+                id: String(rawRow.id ?? `r_${Date.now()}_${idx}`),
+                itemNumber: itemNumber || '-',
+                desc: desc || '-',
+                toolLife: toolLife || '500 Pcs',
+                note: note || '-'
+            };
+        }
+
+        function normalizeMasterTableEntry(rawTable, idx = 0) {
+            if (!rawTable || typeof rawTable !== 'object') return null;
+
+            const rawTitle =
+                rawTable.tableName ??
+                rawTable.categoryName ??
+                rawTable.name ??
+                rawTable.title ??
+                rawTable.label ??
+                '';
+            const cleanTitle = String(rawTitle ?? '').trim();
+            const tableName =
+                !cleanTitle ||
+                cleanTitle.toLowerCase() === 'undefined' ||
+                cleanTitle.toLowerCase() === 'null'
+                    ? `Tabel Master ${idx + 1}`
+                    : cleanTitle;
+
+            const rawRows = rawTable.rows ?? rawTable.items ?? rawTable.data ?? [];
+            const rowList = Array.isArray(rawRows)
+                ? rawRows
+                : (rawRows && typeof rawRows === 'object' ? Object.values(rawRows) : []);
+
+            const normalizedRows = rowList
+                .map((r, rIdx) => normalizeMasterRow(r, rIdx))
+                .filter(Boolean);
+
+            return {
+                ...rawTable,
+                id: String(rawTable.id ?? `table_${idx + 1}`),
+                tableName,
+                rows: normalizedRows,
+                expanded: rawTable.expanded !== undefined ? Boolean(rawTable.expanded) : true
+            };
+        }
+
+        function attachMasterTablesListener() {
+            if (!window.db || !window.dbRef || !window.dbOnValue) return;
+
+            window.dbOnValue(window.dbRef(window.db, 'master_tables'), (snapshot) => {
+                if (snapshot.exists()) {
+                    const val = snapshot.val();
+                    const rawTables = Array.isArray(val) ? val : Object.values(val || {});
+                    masterTables = rawTables
+                        .map((t, idx) => normalizeMasterTableEntry(t, idx))
+                        .filter(Boolean);
+                } else {
+                    const defaultMasters = [
+                        {
+                            id: "table_1",
+                            tableName: "Katalog Endmill Standard",
+                            expanded: true,
+                            rows: [{ id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }]
+                        }
+                    ];
+                    syncToDb('master_tables', defaultMasters);
+                    masterTables = defaultMasters;
+                }
+                if (currentUser) renderMasterTablesContainer();
+            });
+        }
+
         let authCredentials = { USER: "USER", LOG_PWD: "USER" };
         let registeredAccounts = [];
         let operatorUnlockedViews = {
@@ -2138,28 +2228,8 @@
                 if(currentUser) renderSpecialRepairTable();
             });
 
-            window.dbOnValue(window.dbRef(window.db, 'master_tables'), (snapshot) => {
-                if(snapshot.exists()) {
-                    const val = snapshot.val();
-                    masterTables = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
-                    masterTables.forEach(t => {
-                        if(!t.rows) t.rows = [];
-                        else if(!Array.isArray(t.rows)) t.rows = Object.values(t.rows);
-                        t.rows = t.rows.filter(Boolean);
-                    });
-                } else {
-                    const defaultMasters = [
-                        {
-                            id: "table_1",
-                            tableName: "Katalog Endmill Standard",
-                            rows: [{ id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }]
-                        }
-                    ];
-                    syncToDb('master_tables', defaultMasters);
-                    masterTables = defaultMasters;
-                }
-                if(currentUser) renderMasterTablesContainer();
-            });
+            // Listener Data Master ternormalisasi
+            attachMasterTablesListener();
 
             window.dbOnValue(window.dbRef(window.db, 'buffer_stock'), (snapshot) => {
                 if(snapshot.exists()) {
@@ -2621,7 +2691,8 @@
                 filename: `Trial_${trl.idDoc}_WKS.pdf`
             });
         }
-        // --- BARCODE & MASTER TABLES ---
+
+        // --- BARCODE & MASTER TABLES (TERPERBAIKI) ---
         function generateBarcodeLabel(itemNumber, desc) {
             document.getElementById('labelItemNumber').innerText = itemNumber;
             document.getElementById('labelDesc').innerText = desc;
@@ -2663,35 +2734,38 @@
         }
 
         function getFilteredMasterRows(table, globalSearchVal) {
-            let filteredRows = Array.isArray(table.rows) ? table.rows.filter(Boolean) : [];
-            if (globalSearchVal) {
-                filteredRows = filteredRows.filter(row =>
-                    (row.itemNumber && String(row.itemNumber).toLowerCase().includes(globalSearchVal)) ||
-                    (row.desc && String(row.desc).toLowerCase().includes(globalSearchVal)) ||
-                    (row.note && String(row.note).toLowerCase().includes(globalSearchVal))
-                );
-            }
-            return filteredRows;
+            const rows = Array.isArray(table?.rows) ? table.rows.filter(Boolean) : [];
+            const q = String(globalSearchVal || '').trim().toLowerCase();
+            if (!q) return rows;
+            return rows.filter(row =>
+                String(row.itemNumber || '').toLowerCase().includes(q) ||
+                String(row.desc || '').toLowerCase().includes(q) ||
+                String(row.toolLife || '').toLowerCase().includes(q) ||
+                String(row.note || '').toLowerCase().includes(q)
+            );
         }
 
         function renderMasterTablesContainer() {
             const container = document.getElementById('masterTablesContainer');
             if(!container) return;
-            const globalSearchVal = (document.getElementById('searchMasterGlobalBox')?.value || '').toLowerCase();
+            const globalSearchVal = document.getElementById('searchMasterGlobalBox')?.value || '';
+            const safeTables = Array.isArray(masterTables)
+                ? masterTables.map((t, i) => normalizeMasterTableEntry(t, i)).filter(Boolean)
+                : [];
 
             renderAccordionSection({
                 container,
-                categories: masterTables,
+                categories: safeTables,
                 emptyText: 'Belum ada tabel master.',
                 onToggleId: 'toggleMasterAccordion',
                 chevronColorClass: 'text-brandBlue',
                 getCountText: (table) => `(${getFilteredMasterRows(table, globalSearchVal).length} Item)`,
                 getHeaderActionsHTML: (table) => currentRole === 'ADMIN_USER' ? `
-                    <button onclick="openModalAddMasterRow('${escapeJsSingleQuote(table.id)}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Baris</button>
-                    <button onclick="downloadTableTemplate('${escapeJsSingleQuote(table.tableName)}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Template</button>
-                    <button onclick="exportMasterTablePDF('${escapeJsSingleQuote(table.id)}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Export PDF</button>
+                    <button type="button" onclick="openModalAddMasterRow('${escapeJsSingleQuote(table.id)}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Baris</button>
+                    <button type="button" onclick="downloadTableTemplate('${escapeJsSingleQuote(table.tableName)}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Template</button>
+                    <button type="button" onclick="exportMasterTablePDF('${escapeJsSingleQuote(table.id)}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Export PDF</button>
                     <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Import <input type="file" accept=".xlsx, .xls, .csv" onchange="importSingleTable(event, '${escapeJsSingleQuote(table.id)}')" class="hidden"></label>
-                    <button onclick="deleteMasterTable('${escapeJsSingleQuote(table.id)}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>
+                    <button type="button" onclick="deleteMasterTable('${escapeJsSingleQuote(table.id)}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>
                 ` : '',
                 tableHeadHTML: `
                     <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm text-sm">
@@ -2727,6 +2801,112 @@
 
         function toggleMasterAccordion(tableId) {
             toggleCategoryAccordion(masterTables, tableId, renderMasterTablesContainer);
+        }
+
+        function openModalAddMasterTable() {
+            document.getElementById('inputMasterTableName').value = '';
+            document.getElementById('modalAddMasterTable').classList.remove('hidden');
+        }
+
+        function handleCreateMasterTable(e) {
+            e.preventDefault();
+            const name = document.getElementById('inputMasterTableName').value.trim();
+            if (!name) return;
+            masterTables.push({ id: 'table_' + Date.now(), tableName: name, rows: [], expanded: true });
+            syncToDb('master_tables', masterTables);
+            logAuditActivity('CREATE', '-', `Membuat Tabel Master baru: ${name}`);
+            closeModal('modalAddMasterTable');
+            renderMasterTablesContainer();
+            showToast('Berhasil', `Tabel master "${name}" dibuat.`, 'success');
+        }
+
+        function deleteMasterTable(tableId) {
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus seluruh tabel master ini?',
+                getArray: () => masterTables,
+                setArray: (next) => { masterTables = next; },
+                matchFn: (t) => String(t.id) === String(tableId),
+                dbPath: 'master_tables',
+                auditType: 'DELETE',
+                getAuditDetail: (t) => `Menghapus Tabel Master: ${t.tableName}`,
+                onAfterDelete: () => renderMasterTablesContainer()
+            });
+        }
+
+        function openModalAddMasterRow(tableId) {
+            document.getElementById('activeMasterTableId').value = tableId;
+            document.getElementById('rowItemNumber').value = '';
+            document.getElementById('rowDesc').value = '';
+            document.getElementById('rowToolLife').value = '500 Pcs';
+            document.getElementById('rowNote').value = '';
+            document.getElementById('modalAddMasterRow').classList.remove('hidden');
+        }
+
+        function handleSaveMasterRow(e) {
+            e.preventDefault();
+            const tableId = document.getElementById('activeMasterTableId').value;
+            const tableIdx = masterTables.findIndex(t => t && String(t.id) === String(tableId));
+            if (tableIdx < 0) return;
+
+            const itemNum = document.getElementById('rowItemNumber').value.trim();
+            const newRow = {
+                id: 'r_' + Date.now(),
+                itemNumber: itemNum,
+                desc: document.getElementById('rowDesc').value.trim(),
+                toolLife: document.getElementById('rowToolLife').value.trim() || '500 Pcs',
+                note: document.getElementById('rowNote').value.trim() || '-'
+            };
+
+            const currentRows = Array.isArray(masterTables[tableIdx].rows)
+                ? masterTables[tableIdx].rows.filter(Boolean)
+                : Object.values(masterTables[tableIdx].rows || {}).filter(Boolean);
+            const nextRows = [...currentRows, newRow];
+            masterTables[tableIdx] = { ...masterTables[tableIdx], rows: nextRows };
+
+            if (window.db && window.dbRef && window.dbSet) {
+                window.dbSet(window.dbRef(window.db, `master_tables/${tableIdx}/rows`), nextRows);
+            }
+
+            logAuditActivity('CREATE', itemNum, `Menambah baris ke master ${masterTables[tableIdx].tableName}`);
+            closeModal('modalAddMasterRow');
+            renderMasterTablesContainer();
+            showToast('Berhasil', `Baris ${itemNum} ditambahkan ke tabel master.`, 'success');
+        }
+
+        function deleteMasterRow(tableId, rowId) {
+            const tableIdx = masterTables.findIndex(t => t && String(t.id) === String(tableId));
+            if (tableIdx < 0) return;
+
+            const table = masterTables[tableIdx];
+            const currentRows = Array.isArray(table.rows)
+                ? table.rows.filter(Boolean)
+                : Object.values(table.rows || {}).filter(Boolean);
+
+            const targetRow = currentRows.find(r => r && String(r.id) === String(rowId));
+            if (!targetRow) return;
+
+            if (!confirm(`Hapus baris "${targetRow.itemNumber || '-'} - ${targetRow.desc || '-'}" dari tabel master ini?`)) {
+                return;
+            }
+
+            const nextRows = currentRows.filter(r => r && String(r.id) !== String(rowId));
+            masterTables[tableIdx] = {
+                ...table,
+                rows: nextRows
+            };
+
+            if (window.db && window.dbRef && window.dbSet) {
+                window.dbSet(window.dbRef(window.db, `master_tables/${tableIdx}/rows`), nextRows);
+            }
+
+            logAuditActivity(
+                'DELETE',
+                targetRow.itemNumber || '-',
+                `Menghapus baris ${targetRow.itemNumber || '-'} (${targetRow.desc || '-'}) dari ${table.tableName}`
+            );
+
+            renderMasterTablesContainer();
+            showToast('Baris Dihapus', `${targetRow.itemNumber || 'Item'} berhasil dihapus dari tabel master.`, 'info');
         }
 
         // --- KNOWLEDGE & CYCLE TIME CATEGORIES ---
@@ -3403,7 +3583,7 @@
         }
 
         function exportMasterTablePDF(tableId) {
-            const table = masterTables.find(t => t.id === tableId);
+            const table = masterTables.find(t => String(t.id) === String(tableId));
             if(!table || !table.rows || table.rows.length === 0) { alert('Tabel master kosong.'); return; }
             exportWksPdf({
                 title: table.tableName,
@@ -3486,8 +3666,12 @@
                         <td class="p-4 font-medium text-slate-900">${escapeHtmlText(s.desc)}</td>
                         <td class="p-4 text-center"><span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-lg font-bold">${escapeHtmlText(s.regrindCount)}</span></td>
                         <td class="p-4 text-slate-700 font-medium">${escapeHtmlText(s.reason)}</td>
-                        <td class="p-4 text-center text-xs text-slate-500">${escapeHtmlText(s.date)} (${escapeHtmlText(s.recordedBy)})</td>
-                        <td class="p-4 text-center">${currentRole === 'ADMIN_USER' ? `<button type="button" onclick="deleteScrap('${escapeJsSingleQuote(s.id)}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : '-'}</td>
+                        <td class="p-4 text-center text-xs text-slate-600">${escapeHtmlText(s.date)}<br><span class="text-slate-400">oleh ${escapeHtmlText(s.recordedBy || '-')}</span></td>
+                        <td class="p-4 text-center">
+                            <button type="button" onclick="deleteScrap('${escapeJsSingleQuote(s.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
                     `;
                     scrapTbody.appendChild(tr);
                 });
@@ -3495,38 +3679,28 @@
         }
 
         function openModalAddBufferStock() {
-            document.getElementById('bufferItemNumber').value = '';
-            document.getElementById('bufferDesc').value = '';
+            ['bufferItemNumber', 'bufferDesc', 'modalBufferMasterSearch'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
             document.getElementById('bufferCurrentStock').value = '5';
             document.getElementById('bufferMinStock').value = '2';
-            document.getElementById('modalBufferMasterSearch').value = '';
             document.getElementById('modalAddBufferStock').classList.remove('hidden');
         }
 
         function handleSaveBufferStock(e) {
             e.preventDefault();
-            const newItem = {
-                id: 'buf_' + Date.now(),
+            const newBuf = {
+                id: 'b_' + Date.now(),
                 itemNumber: document.getElementById('bufferItemNumber').value.trim(),
                 desc: document.getElementById('bufferDesc').value.trim(),
                 currentStock: parseInt(document.getElementById('bufferCurrentStock').value) || 0,
                 minStock: parseInt(document.getElementById('bufferMinStock').value) || 0
             };
-            bufferStockItems.unshift(newItem);
+            bufferStockItems.push(newBuf);
             syncToDb('buffer_stock', bufferStockItems);
-            logAuditActivity('CREATE', newItem.itemNumber, `Menambah Buffer Stok baru: ${newItem.itemNumber} (${newItem.desc}, Stok: ${newItem.currentStock} Pcs)`);
+            logAuditActivity('CREATE', newBuf.itemNumber, `Menambah Buffer Stok mandiri: ${newBuf.desc} (Stok: ${newBuf.currentStock} Pcs)`);
             closeModal('modalAddBufferStock');
-            showToast('Berhasil', 'Buffer stok berhasil ditambahkan.', 'success');
-        }
-
-        function adjustBufferStock(id, amount) {
-            const item = bufferStockItems.find(b => b.id === id);
-            if(item) {
-                const oldStock = item.currentStock;
-                item.currentStock = Math.max(0, item.currentStock + amount);
-                syncToDb('buffer_stock', bufferStockItems);
-                logAuditActivity('EDIT', item.itemNumber, `Update Buffer Stok: ${oldStock} Pcs ➔ ${item.currentStock} Pcs`);
-            }
+            showToast('Berhasil', 'Item buffer stok ditambahkan.', 'success');
         }
 
         function deleteBufferStock(id) {
@@ -3542,6 +3716,16 @@
             });
         }
 
+        function adjustBufferStock(id, delta) {
+            const b = bufferStockItems.find(item => item.id === id);
+            if(!b) return;
+            const prev = b.currentStock;
+            b.currentStock = Math.max(0, (b.currentStock || 0) + delta);
+            syncToDb('buffer_stock', bufferStockItems);
+            logAuditActivity('EDIT', b.itemNumber, `Update Buffer Stok ${b.desc} (${prev} Pcs -> ${b.currentStock} Pcs)`);
+            renderStockAndScrap();
+        }
+
         function openModalAddScrap() {
             document.getElementById('scrapItemNumber').value = '';
             document.getElementById('scrapDesc').value = '';
@@ -3551,24 +3735,25 @@
 
         function handleSaveScrap(e) {
             e.preventDefault();
-            const newItem = {
-                id: 'scrap_' + Date.now(),
+            const newScrap = {
+                id: 's_' + Date.now(),
                 itemNumber: document.getElementById('scrapItemNumber').value.trim(),
                 desc: document.getElementById('scrapDesc').value.trim(),
                 regrindCount: document.getElementById('scrapRegrindCount').value.trim(),
                 reason: document.getElementById('scrapReason').value,
-                date: new Date().toISOString().split('T')[0],
+                date: new Date().toLocaleDateString('id-ID'),
                 recordedBy: getActorLabel()
             };
-            scrapItems.unshift(newItem);
+            scrapItems.unshift(newScrap);
             syncToDb('scrap_items', scrapItems);
-            logAuditActivity('CREATE', newItem.itemNumber, `Mencatat Tool Scrap: ${newItem.itemNumber} (${newItem.reason})`);
+            logAuditActivity('CREATE', newScrap.itemNumber, `Mencatat Tool Scrap: ${newScrap.desc} (${newScrap.reason})`);
             closeModal('modalAddScrap');
+            showToast('Dicatat', 'Tool scrap ditambahkan ke daftar.', 'info');
         }
 
         function deleteScrap(id) {
             deleteRecordWithAudit({
-                confirmMsg: 'Hapus catatan scrap ini?',
+                confirmMsg: 'Hapus catatan tool scrap ini?',
                 getArray: () => scrapItems,
                 setArray: (next) => { scrapItems = next; },
                 matchFn: (s) => s.id === id,
@@ -3579,77 +3764,9 @@
             });
         }
 
-        function openModalAddMasterTable() {
-            document.getElementById('inputMasterTableName').value = '';
-            document.getElementById('modalAddMasterTable').classList.remove('hidden');
-        }
-
-        function handleCreateMasterTable(e) {
-            e.preventDefault();
-            const name = document.getElementById('inputMasterTableName').value.trim();
-            masterTables.push({ id: 'table_' + Date.now(), tableName: name, rows: [], expanded: true });
-            syncToDb('master_tables', masterTables);
-            logAuditActivity('CREATE', '-', `Membuat Tabel Master baru: ${name}`);
-            closeModal('modalAddMasterTable');
-        }
-
-        function deleteMasterTable(tableId) {
-            deleteRecordWithAudit({
-                confirmMsg: 'Hapus seluruh tabel master ini?',
-                getArray: () => masterTables,
-                setArray: (next) => { masterTables = next; },
-                matchFn: (t) => t.id === tableId,
-                dbPath: 'master_tables',
-                auditType: 'DELETE',
-                getAuditDetail: (t) => `Menghapus Tabel Master: ${t.tableName}`
-            });
-        }
-
-        function openModalAddMasterRow(tableId) {
-            document.getElementById('activeMasterTableId').value = tableId;
-            document.getElementById('rowItemNumber').value = '';
-            document.getElementById('rowDesc').value = '';
-            document.getElementById('rowToolLife').value = '500 Pcs';
-            document.getElementById('rowNote').value = '';
-            document.getElementById('modalAddMasterRow').classList.remove('hidden');
-        }
-
-        function handleSaveMasterRow(e) {
-            e.preventDefault();
-            const tableId = document.getElementById('activeMasterTableId').value;
-            const itemNum = document.getElementById('rowItemNumber').value.trim();
-            const newRow = {
-                id: 'r_' + Date.now(),
-                itemNumber: itemNum,
-                desc: document.getElementById('rowDesc').value.trim(),
-                toolLife: document.getElementById('rowToolLife').value.trim(),
-                note: document.getElementById('rowNote').value.trim()
-            };
-            appendRowToCategory(masterTables, tableId, 'master_tables', newRow, (table) => {
-                logAuditActivity('CREATE', itemNum, `Menambah baris ke master ${table.tableName}`);
-                closeModal('modalAddMasterRow');
-            });
-        }
-
-        function deleteMasterRow(tableId, rowId) {
-            const table = masterTables.find(t => t.id === tableId);
-            if(!table) return;
-            deleteRecordWithAudit({
-                confirmMsg: 'Hapus baris dari tabel master ini?',
-                getArray: () => table.rows || [],
-                setArray: (next) => { table.rows = next; },
-                matchFn: (r) => r.id === rowId,
-                dbPath: 'master_tables',
-                auditType: 'DELETE',
-                getItemNumber: (r) => r.itemNumber,
-                getAuditDetail: (r) => `Menghapus baris ${r.itemNumber} (${r.desc}) dari ${table.tableName}`,
-                onAfterDelete: () => renderMasterTablesContainer()
-            });
-        }
-
         function downloadTableTemplate(tableName) {
             let wb = XLSX.utils.book_new();
-            let templateData = [{ "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide", "Tool Life": "500 Pcs", "Keterangan": "Stok Utama" }];
+            let templateData = [{ "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10", "Tool Life (Pcs)": "500 Pcs", "Keterangan": "Stok Gudang Utama" }];
             let ws = XLSX.utils.json_to_sheet(templateData);
             XLSX.utils.book_append_sheet(wb, ws, "Template_Master");
             XLSX.writeFile(wb, `Template_${String(tableName || 'Master').replace(/\s+/g, '_')}.xlsx`);
@@ -3659,39 +3776,166 @@
             const file = e.target.files[0];
             if(!file) return;
             readExcelRows(file, (json) => {
-                const table = masterTables.find(t => t.id === tableId);
-                if(table) {
-                    if(!table.rows) table.rows = [];
-                    json.forEach((row, idx) => {
-                        table.rows.push({
-                            id: 'imp_' + Date.now() + '_' + idx,
-                            itemNumber: row["Item Number"] || "WKS-NEW",
-                            desc: row["Deskripsi Tool"] || "Tool Baru",
-                            toolLife: row["Tool Life"] || "500 Pcs",
-                            note: row["Keterangan"] || "-"
-                        });
-                    });
-                    syncToDb('master_tables', masterTables);
-                    logAuditActivity('IMPORT_MASTER', '-', `Import ${json.length} baris ke tabel master ${table.tableName}`);
-                    showToast('Berhasil', 'Data master di-import!', 'success');
+                const tableIdx = masterTables.findIndex(t => t && String(t.id) === String(tableId));
+                if(tableIdx >= 0) {
+                    const currentRows = Array.isArray(masterTables[tableIdx].rows)
+                        ? masterTables[tableIdx].rows.filter(Boolean)
+                        : [];
+                    const addedRows = json.map((row, i) => ({
+                        id: 'imp_' + Date.now() + '_' + i,
+                        itemNumber: row["Item Number"] || row["Item_Number"] || row["Kode"] || "WKS-NEW",
+                        desc: row["Deskripsi Tool"] || row["Deskripsi"] || row["Nama Barang"] || "Tool Baru",
+                        toolLife: row["Tool Life (Pcs)"] || row["Tool Life"] || row["Life"] || "500 Pcs",
+                        note: row["Keterangan"] || row["Note"] || "-"
+                    }));
+                    const nextRows = [...currentRows, ...addedRows];
+                    masterTables[tableIdx] = { ...masterTables[tableIdx], rows: nextRows };
+
+                    if (window.db && window.dbRef && window.dbSet) {
+                        window.dbSet(window.dbRef(window.db, `master_tables/${tableIdx}/rows`), nextRows);
+                    }
+
+                    logAuditActivity('IMPORT_MASTER', '-', `Import ${addedRows.length} baris ke Tabel Master "${masterTables[tableIdx].tableName}"`);
+                    renderMasterTablesContainer();
+                    showToast('Berhasil', `${addedRows.length} baris di-import ke tabel master.`, 'success');
                 }
                 e.target.value = '';
             });
         }
 
-        function switchMainView(view) {
-            if (isOperatorRestrictedView(view)) {
-                showToast('Akses Terkunci', 'Halaman ini masih dikunci untuk akun karyawan.', 'error');
+        function handleLogin(e) {
+            e.preventDefault();
+            const userInput = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPass').value.trim();
+
+            if (!userInput || !passInput) return;
+
+            if (userInput.toUpperCase() === 'USER') {
+                if (passInput === (authCredentials.USER || "USER")) {
+                    currentUser = "USER";
+                    currentRole = "ADMIN_USER";
+                    currentNpk = null;
+                    sessionStorage.setItem('wks_current_user', currentUser);
+                    sessionStorage.setItem('wks_current_role', currentRole);
+                    sessionStorage.removeItem('wks_current_npk');
+
+                    logAuditActivity('LOGIN', '-', 'USER berhasil login ke sistem', 'USER');
+                    finishLoginSuccess();
+                } else {
+                    alert("Password login USER salah!");
+                }
                 return;
             }
-            currentMainView = view;
-            const viewIds = ['viewProgress', 'viewCostReduction', 'viewTrial', 'viewMaster', 'viewStock', 'viewKnowledgeCycle', 'viewAuditTrail'];
-            viewIds.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
+
+            const matchedAccount = registeredAccounts.find(acc => {
+                if (!acc) return false;
+                const sameName = String(acc.fullName || '').trim().toLowerCase() === userInput.toLowerCase();
+                const sameNpk = String(acc.npk || '').trim() === passInput;
+                return sameName && sameNpk;
             });
 
-            const mapView = {
+            if (!matchedAccount) {
+                alert("Akun belum terdaftar atau Nama / NPK/NIK tidak sesuai. Silakan klik Create Account atau hubungi USER.");
+                return;
+            }
+
+            const isApproved = matchedAccount.status === 'APPROVED' || matchedAccount.approved === true;
+            if (!isApproved) {
+                alert("Akun Anda masih berstatus PENDING. Silakan tunggu konfirmasi persetujuan dari USER terlebih dahulu.");
+                return;
+            }
+
+            currentUser = matchedAccount.fullName;
+            currentRole = "OPERATOR";
+            currentNpk = matchedAccount.npk;
+            sessionStorage.setItem('wks_current_user', currentUser);
+            sessionStorage.setItem('wks_current_role', currentRole);
+            sessionStorage.setItem('wks_current_npk', currentNpk);
+
+            logAuditActivity('LOGIN', matchedAccount.npk, `Karyawan ${matchedAccount.fullName} (NPK: ${matchedAccount.npk}) berhasil login`);
+            finishLoginSuccess();
+        }
+
+        function finishLoginSuccess() {
+            togglePopup(false);
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            setupUIRoles();
+            initMonthlyChart();
+            renderTables();
+            renderSpecialRepairTable();
+            renderMasterTablesContainer();
+            renderStockAndScrap();
+            renderCRDatabase();
+            populateCRSelect();
+            renderYearlyTable();
+            renderKnowledgeCategoriesContainer();
+            renderCycleTimeCategoriesContainer();
+            renderTrialProsesContainer();
+            showToast('Selamat Datang', `Login sebagai ${getActorLabel()}`, 'success');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('wks_current_user');
+            sessionStorage.removeItem('wks_current_role');
+            sessionStorage.removeItem('wks_current_npk');
+            location.reload();
+        }
+
+        function setupUIRoles() {
+            const isAdmin = currentRole === 'ADMIN_USER';
+            document.getElementById('navAccountName').innerText = currentUser || '-';
+            document.getElementById('navUserRole').innerText = isAdmin ? 'USER (ADMIN)' : `KARYAWAN${currentNpk ? ' • NPK ' + currentNpk : ''}`;
+            document.getElementById('btnBuilder').classList.toggle('hidden', !isAdmin);
+
+            const menuAccessMap = [
+                { view: 'costReduction', btnId: 'btnNavCR' },
+                { view: 'trial', btnId: 'btnNavTrial' },
+                { view: 'master', btnId: 'btnNavMaster' },
+                { view: 'knowledgeCycle', btnId: 'btnNavKnowledgeCycle' },
+                { view: 'auditTrail', btnId: 'btnNavLog' }
+            ];
+
+            menuAccessMap.forEach(({ view, btnId }) => {
+                const btn = document.getElementById(btnId);
+                if (!btn) return;
+                const unlocked = isViewUnlockedForOperator(view);
+                btn.classList.toggle('opacity-50', !unlocked);
+
+                let lockIcon = btn.querySelector('.access-lock-badge');
+                if (!unlocked) {
+                    if (!lockIcon) {
+                        lockIcon = document.createElement('span');
+                        lockIcon.className = 'access-lock-badge ml-auto text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-amber-300 font-bold';
+                        lockIcon.innerHTML = '<i class="fa-solid fa-lock"></i>';
+                        btn.appendChild(lockIcon);
+                    }
+                } else if (lockIcon) {
+                    lockIcon.remove();
+                }
+            });
+
+            const btnHeaderCR = document.getElementById('btnHeaderCR');
+            if (btnHeaderCR) {
+                const crUnlocked = isViewUnlockedForOperator('costReduction');
+                btnHeaderCR.classList.toggle('opacity-50', !crUnlocked);
+            }
+
+            updateAccessControlBadgesUI();
+        }
+
+        function switchMainView(view) {
+            if (isOperatorRestrictedView(view)) {
+                showToast('Akses Terkunci', 'Halaman ini masih dikunci oleh USER.', 'error');
+                view = 'progress';
+            }
+
+            currentMainView = view;
+            ['viewProgress', 'viewCostReduction', 'viewTrial', 'viewMaster', 'viewStock', 'viewKnowledgeCycle', 'viewAuditTrail'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const activeMap = {
                 'progress': 'viewProgress',
                 'costReduction': 'viewCostReduction',
                 'trial': 'viewTrial',
@@ -3700,526 +3944,154 @@
                 'knowledgeCycle': 'viewKnowledgeCycle',
                 'auditTrail': 'viewAuditTrail'
             };
+            const targetView = document.getElementById(activeMap[view] || 'viewProgress');
+            if (targetView) targetView.classList.remove('hidden');
 
-            const targetId = mapView[view];
-            if(targetId && document.getElementById(targetId)) {
-                document.getElementById(targetId).classList.remove('hidden');
-            }
-
-            if(view === 'progress') renderTables();
-            else if(view === 'costReduction') { renderCRDatabase(); populateCRSelect(); updateMonthlyChart(); renderYearlyTable(); }
-            else if(view === 'trial') renderTrialProsesContainer();
-            else if(view === 'master') renderMasterTablesContainer();
-            else if(view === 'stock') renderStockAndScrap();
-            else if(view === 'knowledgeCycle') { renderKnowledgeCategoriesContainer(); renderCycleTimeCategoriesContainer(); }
-            else if(view === 'auditTrail') renderAuditTrailTable();
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('loginUser').value.trim();
-            const p = document.getElementById('loginPass').value.trim();
-
-            if (!u || !p) {
-                showToast('Login Gagal', 'Username/Nama dan Password/NPK wajib diisi.', 'error');
-                return;
-            }
-
-            if (u.toUpperCase() === 'USER') {
-                const expectedPwd = authCredentials.USER || 'USER';
-                if (p === expectedPwd) {
-                    currentUser = 'USER';
-                    currentRole = 'ADMIN_USER';
-                    currentNpk = null;
-                    sessionStorage.setItem('wks_current_user', currentUser);
-                    sessionStorage.setItem('wks_current_role', currentRole);
-                    sessionStorage.removeItem('wks_current_npk');
-
-                    togglePopup(false);
-                    document.getElementById('loginScreen').classList.add('hidden');
-                    document.getElementById('mainApp').classList.remove('hidden');
-                    setupUIRoles();
-                    initMonthlyChart();
-                    logAuditActivity('LOGIN', '-', 'Login berhasil sebagai USER (Akses Penuh)');
-                    showToast('Selamat Datang', 'Login berhasil sebagai USER (Akses Penuh).', 'success');
-                } else {
-                    showToast('Login Gagal', 'Password untuk USER salah.', 'error');
-                }
-                return;
-            }
-
-            const matchedAccount = registeredAccounts.find(acc => {
-                if (!acc) return false;
-                const nameMatch = String(acc.fullName || '').trim().toLowerCase() === u.toLowerCase();
-                const npkMatch = String(acc.npk || '').trim() === p;
-                return nameMatch && npkMatch;
-            });
-
-            if (matchedAccount) {
-                const isApproved = matchedAccount.status === 'APPROVED' || matchedAccount.approved === true;
-                if (!isApproved) {
-                    showToast('Akun Belum Disetujui', 'Akun karyawan Anda masih berstatus PENDING. Menunggu konfirmasi dari USER.', 'error');
-                    return;
-                }
-
-                currentUser = matchedAccount.fullName;
-                currentRole = 'OPERATOR';
-                currentNpk = matchedAccount.npk;
-                sessionStorage.setItem('wks_current_user', currentUser);
-                sessionStorage.setItem('wks_current_role', currentRole);
-                sessionStorage.setItem('wks_current_npk', currentNpk);
-
-                togglePopup(false);
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                setupUIRoles();
-                initMonthlyChart();
-                logAuditActivity('LOGIN', matchedAccount.npk, `Login berhasil sebagai Karyawan: ${matchedAccount.fullName} (NPK/NIK: ${matchedAccount.npk})`);
-                showToast('Selamat Datang', `Login berhasil sebagai ${matchedAccount.fullName}.`, 'success');
-            } else {
-                showToast('Login Gagal', 'Akun tidak ditemukan atau kombinasi Nama Lengkap & NPK/NIK tidak cocok.', 'error');
-            }
-        }
-
-        function logout() {
-            logAuditActivity('LOGOUT', '-', 'Keluar dari sistem');
-            sessionStorage.removeItem('wks_current_user');
-            sessionStorage.removeItem('wks_current_role');
-            sessionStorage.removeItem('wks_current_npk');
-            currentUser = null;
-            currentRole = null;
-            currentNpk = null;
-            document.getElementById('mainApp').classList.add('hidden');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('loginForm').reset();
-            togglePopup(false);
-        }
-
-        function setupUIRoles() {
-            const nameEl = document.getElementById('navAccountName');
-            const roleEl = document.getElementById('navUserRole');
-            const btnBuilder = document.getElementById('btnBuilder');
-            const btnPassWeb = document.getElementById('btnChangePassWeb');
-            const btnPassLog = document.getElementById('btnChangePassLog');
-
-            if (nameEl) {
-                nameEl.innerText = currentUser || 'USER';
-            }
-            if (roleEl) {
-                roleEl.innerText = currentRole === 'ADMIN_USER'
-                    ? 'USER (FULL ACCESS)'
-                    : `KARYAWAN${currentNpk ? ` • NPK ${currentNpk}` : ''}`;
-            }
-
-            updateAccessControlBadgesUI();
-
-            if(currentRole === 'ADMIN_USER') {
-                if(btnBuilder) btnBuilder.classList.remove('hidden');
-                if(btnPassWeb) btnPassWeb.classList.remove('hidden');
-                if(btnPassLog) btnPassLog.classList.remove('hidden');
-            } else {
-                if(btnBuilder) btnBuilder.classList.add('hidden');
-                if(btnPassWeb) btnPassWeb.classList.add('hidden');
-                if(btnPassLog) btnPassLog.classList.add('hidden');
-                if(builderModeActive) toggleBuilderMode();
-            }
-
-            const applyMenuAccess = (btnId, viewKey) => {
-                const btn = document.getElementById(btnId);
-                if (!btn) return;
-                const unlocked = isViewUnlockedForOperator(viewKey);
-                btn.classList.toggle('opacity-50', !unlocked);
-                btn.title = unlocked
-                    ? 'Akses Terbuka'
-                    : 'Terkunci — Minta USER membuka di Kelola Akses';
-            };
-
-            applyMenuAccess('btnNavMaster', 'master');
-            applyMenuAccess('btnNavCR', 'costReduction');
-            applyMenuAccess('btnNavTrial', 'trial');
-            applyMenuAccess('btnNavKnowledgeCycle', 'knowledgeCycle');
-            applyMenuAccess('btnNavLog', 'auditTrail');
-
-            if (isOperatorRestrictedView(currentMainView)) {
-                switchMainView('progress');
-            }
-
-            renderTables();
-            renderSpecialRepairTable();
-            renderStockAndScrap();
-        }
-
-        function openModalChangePassWeb() {
-            if(currentRole !== 'ADMIN_USER') { showToast('Akses Ditolak', 'Hanya login USER yang dapat mengubah password web.', 'error'); return; }
-            document.getElementById('newPasswordWebInput').value = '';
-            document.getElementById('modalChangePassWeb').classList.remove('hidden');
-        }
-
-        function handlePasswordWebChange(e) {
-            e.preventDefault();
-            if(currentRole !== 'ADMIN_USER') return;
-            const val = document.getElementById('newPasswordWebInput').value.trim();
-            if(val.length < 2) { alert('Password minimal 2 karakter'); return; }
-            authCredentials.USER = val;
-            syncToDb('auth', authCredentials);
-            logAuditActivity('EDIT', '-', 'Mengubah password login web USER');
-            closeModal('modalChangePassWeb');
-            showToast('Berhasil', 'Password login web diperbarui.', 'success');
-        }
-
-        function openModalChangePassLog() {
-            if(currentRole !== 'ADMIN_USER') { showToast('Akses Ditolak', 'Hanya login USER yang dapat mengubah password log riwayat.', 'error'); return; }
-            document.getElementById('newPasswordLogInput').value = '';
-            document.getElementById('modalChangePassLog').classList.remove('hidden');
-        }
-
-        function handlePasswordLogChange(e) {
-            e.preventDefault();
-            if(currentRole !== 'ADMIN_USER') return;
-            const val = document.getElementById('newPasswordLogInput').value.trim();
-            if(val.length < 2) { alert('Password minimal 2 karakter'); return; }
-            authCredentials.LOG_PWD = val;
-            syncToDb('auth', authCredentials);
-            logAuditActivity('EDIT', '-', 'Mengubah password Menu Log Riwayat');
-            closeModal('modalChangePassLog');
-            showToast('Berhasil', 'Password Menu Log Riwayat diperbarui.', 'success');
-        }
-
-        function toggleBuilderMode() {
-            if(currentRole !== 'ADMIN_USER') { alert('Hanya login USER yang dapat mengaktifkan Mode Builder.'); return; }
-            builderModeActive = !builderModeActive;
-            const btn = document.getElementById('btnBuilder');
-            const editables = document.querySelectorAll('.editable-text');
-            if(builderModeActive) {
-                btn.innerHTML = `<svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg><span>Mode Builder (ON)</span>`;
-                btn.classList.replace('text-slate-300', 'bg-amber-600');
-                btn.classList.add('text-white');
-                editables.forEach(el => {
-                    el.setAttribute('contenteditable', 'true');
-                    el.classList.add('ring-2', 'ring-amber-400', 'rounded', 'px-1', 'bg-amber-400/10');
-                    el.addEventListener('blur', saveEditableText);
-                });
-                showToast('Mode Builder Aktif', 'Klik teks yang berbingkai kuning untuk mengeditnya secara langsung.', 'info');
-            } else {
-                btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg><span>Mode Builder (Off)</span>`;
-                btn.classList.remove('bg-amber-600', 'text-white');
-                btn.classList.add('text-slate-300');
-                editables.forEach(el => {
-                    el.setAttribute('contenteditable', 'false');
-                    el.classList.remove('ring-2', 'ring-amber-400', 'rounded', 'px-1', 'bg-amber-400/10');
-                    el.removeEventListener('blur', saveEditableText);
-                });
-            }
-        }
-
-        function saveEditableText(e) {
-            const key = e.target.getAttribute('data-key');
-            const newText = e.target.innerText.trim();
-            if(key && newText) {
-                customTexts[key] = newText;
-                syncToDb('custom_texts', customTexts);
-                showToast('Tersimpan', `Teks "${key}" diperbarui secara global.`, 'success');
-            }
-        }
-
-        function applyCustomTexts() {
-            const editables = document.querySelectorAll('.editable-text');
-            editables.forEach(el => {
-                const key = el.getAttribute('data-key');
-                if(key && customTexts[key]) el.innerText = customTexts[key];
-            });
+            if(view === 'costReduction') { renderCRDatabase(); populateCRSelect(); updateDailyUIState(); updateMonthlyChart(); renderYearlyTable(); }
+            if(view === 'master') renderMasterTablesContainer();
+            if(view === 'stock') renderStockAndScrap();
+            if(view === 'knowledgeCycle') { renderKnowledgeCategoriesContainer(); renderCycleTimeCategoriesContainer(); }
+            if(view === 'auditTrail') renderAuditTrailTable();
+            if(view === 'trial') renderTrialProsesContainer();
         }
 
         function switchTab(tab) {
             currentTab = tab;
-            const btnActive = document.getElementById('tabActiveBtn');
-            const btnCompleted = document.getElementById('tabCompletedBtn');
-            const secActive = document.getElementById('sectionActive');
-            const secCompleted = document.getElementById('sectionCompleted');
-
-            if(tab === 'active') {
-                btnActive.className = "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer";
-                btnCompleted.className = "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition cursor-pointer";
-                secActive.classList.remove('hidden');
-                secCompleted.classList.add('hidden');
-            } else {
-                btnCompleted.className = "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer";
-                btnActive.className = "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition cursor-pointer";
-                secCompleted.classList.remove('hidden');
-                secActive.classList.add('hidden');
-            }
+            document.getElementById('sectionActive').classList.toggle('hidden', tab !== 'active');
+            document.getElementById('sectionCompleted').classList.toggle('hidden', tab !== 'completed');
+            document.getElementById('tabActiveBtn').className = tab === 'active' ? "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer" : "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition cursor-pointer";
+            document.getElementById('tabCompletedBtn').className = tab === 'completed' ? "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer" : "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition cursor-pointer";
             renderTables();
-        }
-
-        function renderSpecialRepairTable() {
-            const tbody = document.getElementById('repairSpecialTableBody');
-            const badge = document.getElementById('repairCountBadge');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            const count = repairSpecialItems.length;
-            if(badge) badge.innerText = `${count} Item`;
-
-            if(count === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Tidak ada item repair.</td></tr>`;
-                return;
-            }
-
-            repairSpecialItems.forEach(rItem => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-amber-50/40 transition border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-amber-800">${escapeHtmlText(rItem.item_number)}</td>
-                    <td class="p-4 font-medium text-slate-900">${escapeHtmlText(rItem.item_name)}</td>
-                    <td class="p-4 font-bold text-slate-800">${Number(rItem.qty) || 1} Pcs</td>
-                    <td class="p-4 text-xs font-bold text-amber-700">Repair Dari Hasil Selesai</td>
-                    <td class="p-4 text-center"><button type="button" onclick="deleteSpecialRepair('${escapeJsSingleQuote(rItem.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function deleteSpecialRepair(id) {
-            deleteRecordWithAudit({
-                confirmMsg: 'Hapus item dari daftar tool repair?',
-                getArray: () => repairSpecialItems,
-                setArray: (next) => { repairSpecialItems = next; },
-                matchFn: (r) => r.id === id,
-                dbPath: 'repair_special_items',
-                auditType: 'DELETE',
-                getItemNumber: (r) => r.item_number,
-                getAuditDetail: (r) => `Menghapus item dari daftar Tool Repair: ${r.item_number} (${r.item_name})`
-            });
         }
 
         function renderTables() {
-            const activeTbody = document.getElementById('activeTableBody');
-            const activeMobileCards = document.getElementById('activeMobileCards');
-            const completedTbody = document.getElementById('completedTableBody');
-            const completedMobileCards = document.getElementById('completedMobileCards');
-            if(!activeTbody) return;
+            const tbodyActive = document.getElementById('activeTableBody');
+            const mobileActive = document.getElementById('activeMobileCards');
+            const tbodyCompleted = document.getElementById('completedTableBody');
+            const mobileCompleted = document.getElementById('completedMobileCards');
+            if(!tbodyActive || !tbodyCompleted) return;
 
             const searchVal = (document.getElementById('searchBox')?.value || '').toLowerCase();
-            const filterTypeVal = document.getElementById('filterType')?.value || 'all';
+            const typeFilter = document.getElementById('filterType')?.value || 'all';
 
-            let activeCount = 0, newCount = 0, regrindCount = 0, completedCount = 0;
+            tbodyActive.innerHTML = ''; mobileActive.innerHTML = '';
+            tbodyCompleted.innerHTML = ''; mobileCompleted.innerHTML = '';
 
-            activeTbody.innerHTML = '';
-            activeMobileCards.innerHTML = '';
-            completedTbody.innerHTML = '';
-            completedMobileCards.innerHTML = '';
+            let countNew = 0, countRegrind = 0, countDone = 0, countTotalActive = 0;
 
             items.forEach(item => {
+                if(!item) return;
                 const stages = stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"];
-                const maxStageIdx = stages.length - 1;
-                const isCompleted = item.current_stage_index >= maxStageIdx;
-                const itemQty = Number(item.qty) || 1;
+                const isCompleted = item.current_stage_index >= stages.length - 1;
 
                 if(!isCompleted) {
-                    activeCount += itemQty;
-                    if(item.type_grinding === 'New Grinding') newCount += itemQty;
-                    else if(item.type_grinding === 'Re Grinding') regrindCount += itemQty;
-                } else {
-                    completedCount += itemQty;
-                }
+                    countTotalActive++;
+                    if(item.type_grinding === 'New Grinding') countNew++;
+                    else if(item.type_grinding === 'Re Grinding') countRegrind++;
+                } else { countDone++; }
 
-                const matchesSearch = String(item.item_number || '').toLowerCase().includes(searchVal) || String(item.item_name || '').toLowerCase().includes(searchVal);
-                const matchesType = filterTypeVal === 'all' || item.type_grinding === filterTypeVal;
-                if(!matchesSearch || !matchesType) return;
-
-                const currentStageName = stages[Math.min(item.current_stage_index, maxStageIdx)] || stages[0];
-                const isUrgent = item.priority === 'Urgent';
-
-                const priorityBadgeHTML = `<button type="button" onclick="openQuickPriorityModal('${escapeJsSingleQuote(item.id)}')" title="Klik untuk ubah prioritas (Reguler / Urgent)" class="${isUrgent ? 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-200' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'} px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer inline-flex items-center space-x-1"><span>${escapeHtmlText(item.priority || 'Reguler')}</span><i class="fa-solid fa-pen text-[9px] opacity-60"></i></button>`;
-                const typeBadgeHTML = item.type_grinding === 'New Grinding' ? `<span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full text-xs font-bold">New Grinding</span>` : `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold">Re Grinding</span>`;
+                const matchSearch = (item.item_number && String(item.item_number).toLowerCase().includes(searchVal)) || (item.item_name && String(item.item_name).toLowerCase().includes(searchVal));
+                const matchType = (typeFilter === 'all' || item.type_grinding === typeFilter);
+                if(!matchSearch || !matchType) return;
 
                 if(!isCompleted) {
+                    const currentStageName = stages[item.current_stage_index] || stages[0];
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    const priorityBadgeClass = item.priority === 'Urgent'
+                        ? 'bg-red-100 text-red-700 hover:bg-red-200 ring-1 ring-red-300'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 ring-1 ring-slate-300';
                     tr.innerHTML = `
                         <td class="p-4 font-mono font-bold text-brandBlue">${escapeHtmlText(item.item_number)}</td>
                         <td class="p-4 font-medium text-slate-900">${escapeHtmlText(item.item_name)}</td>
-                        <td class="p-4 font-bold text-slate-800">${itemQty} Pcs</td>
-                        <td class="p-4">${typeBadgeHTML}</td>
-                        <td class="p-4"><span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold">${escapeHtmlText(currentStageName)}</span></td>
-                        <td class="p-4 text-center">
-                            <div class="inline-flex items-center space-x-1.5">
-                                <button type="button" onclick="openUpdateProgress('${escapeJsSingleQuote(item.id)}')" class="bg-brandBlue hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">Update Tahapan</button>
-                                ${currentRole === 'ADMIN_USER' ? `<button type="button" onclick="deleteItem('${escapeJsSingleQuote(item.id)}')" class="p-1.5 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer" title="Hapus"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                        </td>
-                        <td class="p-4 text-center">${priorityBadgeHTML}</td>
-                        <td class="p-4 text-center text-xs text-slate-500 font-medium">${escapeHtmlText(item.last_updated_by || '-')}</td>
+                        <td class="p-4 font-bold text-slate-800">${Number(item.qty) || 1} Pcs</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-800'}">${escapeHtmlText(item.type_grinding)}</span></td>
+                        <td class="p-4"><span class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 inline-block">${escapeHtmlText(currentStageName)}</span></td>
+                        <td class="p-4 text-center"><button type="button" onclick="openModalUpdateProgress('${escapeJsSingleQuote(item.id)}')" class="px-3.5 py-1.5 bg-brandBlue hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Update</button></td>
+                        <td class="p-4 text-center"><button type="button" onclick="openQuickPriorityModal('${escapeJsSingleQuote(item.id)}')" title="Klik untuk ubah prioritas Reguler / Urgent" class="px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer inline-flex items-center space-x-1 ${priorityBadgeClass}"><span>${escapeHtmlText(item.priority || 'Reguler')}</span><i class="fa-solid fa-chevron-down text-[9px] opacity-75"></i></button></td>
+                        <td class="p-4 text-center text-xs text-slate-500">${escapeHtmlText(item.last_updated_by || '-')}</td>
                     `;
-                    activeTbody.appendChild(tr);
+                    tbodyActive.appendChild(tr);
 
                     const card = document.createElement('div');
-                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3";
+                    card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 space-y-2.5";
                     card.innerHTML = `
-                        <div class="flex justify-between items-start gap-2">
-                            <div>
-                                <span class="font-mono font-bold text-brandBlue text-sm block">${escapeHtmlText(item.item_number)}</span>
-                                <h4 class="font-bold text-slate-900 text-base">${escapeHtmlText(item.item_name)} <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold ml-1">${itemQty} Pcs</span></h4>
-                            </div>
-                            ${priorityBadgeHTML}
-                        </div>
-                        <div class="flex items-center space-x-2">${typeBadgeHTML}<span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold">${escapeHtmlText(currentStageName)}</span></div>
-                        <div class="flex justify-between items-center pt-3 border-t border-slate-100 text-xs">
-                            <span class="text-slate-500">Update: <strong class="text-slate-700">${escapeHtmlText(item.last_updated_by || '-')}</strong></span>
-                            <div class="flex items-center space-x-1.5">
-                                <button type="button" onclick="openUpdateProgress('${escapeJsSingleQuote(item.id)}')" class="bg-brandBlue hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg font-bold shadow-sm transition cursor-pointer">Update</button>
-                                ${currentRole === 'ADMIN_USER' ? `<button type="button" onclick="deleteItem('${escapeJsSingleQuote(item.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                        </div>
+                        <div class="flex justify-between items-start"><span class="font-mono font-bold text-brandBlue text-sm">${escapeHtmlText(item.item_number)}</span><button type="button" onclick="openQuickPriorityModal('${escapeJsSingleQuote(item.id)}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold transition cursor-pointer inline-flex items-center space-x-1 ${priorityBadgeClass}"><span>${escapeHtmlText(item.priority || 'Reguler')}</span><i class="fa-solid fa-chevron-down text-[9px] opacity-75"></i></button></div>
+                        <p class="font-bold text-slate-900">${escapeHtmlText(item.item_name)} (${Number(item.qty) || 1} Pcs)</p>
+                        <div class="text-xs text-indigo-700 font-bold bg-indigo-50 p-2 rounded-lg">${escapeHtmlText(currentStageName)}</div>
+                        <div class="flex justify-between items-center pt-1"><span class="text-[11px] text-slate-400">Oleh: ${escapeHtmlText(item.last_updated_by || '-')}</span><button type="button" onclick="openModalUpdateProgress('${escapeJsSingleQuote(item.id)}')" class="px-4 py-1.5 bg-brandBlue text-white rounded-xl text-xs font-bold cursor-pointer">Update</button></div>
                     `;
-                    activeMobileCards.appendChild(card);
+                    mobileActive.appendChild(card);
                 } else {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                    tr.innerHTML = `
-                        <td class="p-4 font-mono font-bold text-emerald-700">${escapeHtmlText(item.item_number)}</td>
+                    const trComp = document.createElement('tr');
+                    trComp.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    trComp.innerHTML = `
+                        <td class="p-4 font-mono font-bold text-brandBlue">${escapeHtmlText(item.item_number)}</td>
                         <td class="p-4 font-medium text-slate-900">${escapeHtmlText(item.item_name)}</td>
-                        <td class="p-4 font-bold text-emerald-800">${itemQty} Pcs</td>
-                        <td class="p-4">${typeBadgeHTML}</td>
-                        <td class="p-4 text-center"><span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold">FINISHED</span> <span class="text-xs text-slate-400 block mt-0.5">${escapeHtmlText(item.completed_at || '')}</span></td>
-                        <td class="p-4 text-center">
-                            <div class="inline-flex items-center space-x-1.5">
-                                <button type="button" onclick="openRepairModal('${escapeJsSingleQuote(item.id)}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">Repair</button>
-                                ${currentRole === 'ADMIN_USER' ? `<button type="button" onclick="deleteItem('${escapeJsSingleQuote(item.id)}')" class="p-1.5 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                        </td>
+                        <td class="p-4 font-bold text-emerald-700 text-base">${Number(item.qty) || 1} Pcs</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-800'}">${escapeHtmlText(item.type_grinding)}</span></td>
+                        <td class="p-4 text-center text-xs"><span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">FINISHED</span><div class="text-[11px] text-slate-400 mt-1">${escapeHtmlText(item.completed_at || '-')} (${escapeHtmlText(item.completed_by || '-')})</div></td>
+                        <td class="p-4 text-center"><button type="button" onclick="openModalRepair('${escapeJsSingleQuote(item.id)}')" class="px-3 py-1.5 bg-amber-100 hover:bg-amber-600 hover:text-white text-amber-800 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Repair</button></td>
                     `;
-                    completedTbody.appendChild(tr);
+                    tbodyCompleted.appendChild(trComp);
 
-                    const card = document.createElement('div');
-                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3";
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div><span class="font-mono font-bold text-emerald-700 text-sm block">${escapeHtmlText(item.item_number)}</span><h4 class="font-bold text-slate-900 text-base">${escapeHtmlText(item.item_name)} (${itemQty} Pcs)</h4></div>
-                            <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-bold">FINISHED</span>
-                        </div>
-                        <div class="flex justify-between items-center pt-3 border-t border-slate-100 text-xs">
-                            <span class="text-slate-400">Selesai: ${escapeHtmlText(item.completed_at || '-')}</span>
-                            <div class="flex items-center space-x-1.5">
-                                <button type="button" onclick="openRepairModal('${escapeJsSingleQuote(item.id)}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 rounded-lg font-bold transition cursor-pointer">Repair</button>
-                                ${currentRole === 'ADMIN_USER' ? `<button type="button" onclick="deleteItem('${escapeJsSingleQuote(item.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            </div>
-                        </div>
+                    const cardComp = document.createElement('div');
+                    cardComp.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 space-y-2";
+                    cardComp.innerHTML = `
+                        <div class="flex justify-between items-start"><span class="font-mono font-bold text-brandBlue text-sm">${escapeHtmlText(item.item_number)}</span><span class="text-xs font-bold text-emerald-700">${Number(item.qty) || 1} Pcs</span></div>
+                        <p class="font-bold text-slate-900 text-sm">${escapeHtmlText(item.item_name)}</p>
+                        <div class="flex justify-between items-center pt-1"><span class="text-[11px] text-slate-400">${escapeHtmlText(item.completed_at || '-')}</span><button type="button" onclick="openModalRepair('${escapeJsSingleQuote(item.id)}')" class="px-3 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-bold cursor-pointer">Repair</button></div>
                     `;
-                    completedMobileCards.appendChild(card);
+                    mobileCompleted.appendChild(cardComp);
                 }
             });
 
-            document.getElementById('statTotal').innerText = activeCount;
-            document.getElementById('statNew').innerText = newCount;
-            document.getElementById('statRegrind').innerText = regrindCount;
-            document.getElementById('statDone').innerText = completedCount;
-        }
+            document.getElementById('statTotal').innerText = countTotalActive;
+            document.getElementById('statNew').innerText = countNew;
+            document.getElementById('statRegrind').innerText = countRegrind;
+            document.getElementById('statDone').innerText = countDone;
 
-        function openQuickPriorityModal(id) {
-            const item = items.find(i => i.id === id);
-            if (!item) return;
-            const currentPrio = item.priority === 'Urgent' ? 'Urgent' : 'Reguler';
-            document.getElementById('quickPriorityItemId').value = item.id;
-            document.getElementById('quickPriorityItemInfo').innerText = `${item.item_number} — ${item.item_name}`;
-
-            const btnReg = document.getElementById('btnChooseReguler');
-            const btnUrg = document.getElementById('btnChooseUrgent');
-
-            btnReg.className = currentPrio === 'Reguler'
-                ? 'py-3 px-3 rounded-xl border-2 border-slate-700 bg-slate-800 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-sm'
-                : 'py-3 px-3 rounded-xl border-2 border-slate-200 bg-slate-50 hover:border-slate-400 text-slate-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
-
-            btnUrg.className = currentPrio === 'Urgent'
-                ? 'py-3 px-3 rounded-xl border-2 border-red-600 bg-red-600 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-sm'
-                : 'py-3 px-3 rounded-xl border-2 border-red-200 bg-red-50/60 hover:border-red-400 text-red-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
-
-            document.getElementById('modalQuickPriority').classList.remove('hidden');
-        }
-
-        function applyQuickPriority(newPrio) {
-            const id = document.getElementById('quickPriorityItemId').value;
-            const item = items.find(i => i.id === id);
-            if (!item) return;
-            const oldPrio = item.priority || 'Reguler';
-            if (oldPrio === newPrio) {
-                closeModal('modalQuickPriority');
-                return;
-            }
-            item.priority = newPrio;
-            item.last_updated_by = getActorLabel();
-            syncToDb('tool_items', items);
-            logAuditActivity('PRIORITY_CHANGE', item.item_number, `Ubah prioritas ${item.item_number}: ${oldPrio} ➔ ${newPrio}`);
-            closeModal('modalQuickPriority');
-            renderTables();
-            showToast('Prioritas Diperbarui', `${item.item_number} diatur ke ${newPrio}.`, 'success');
+            if(tbodyActive.innerHTML === '') tbodyActive.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400">Tidak ada item aktif.</td></tr>`;
+            if(tbodyCompleted.innerHTML === '') tbodyCompleted.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada item selesai.</td></tr>`;
         }
 
         function openModalAddItem() {
-            document.getElementById('newItemNumber').value = '';
-            document.getElementById('newItemName').value = '';
+            ['newItemNumber', 'newItemName', 'modalMasterSearch'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
             document.getElementById('newItemQty').value = '1';
-            document.getElementById('newItemType').value = 'New Grinding';
-            document.getElementById('newItemPriority').value = 'Reguler';
-            document.getElementById('modalMasterSearch').value = '';
-            document.getElementById('masterSuggestionsList').classList.add('hidden');
             document.getElementById('modalAddItem').classList.remove('hidden');
-        }
-
-        function filterMasterSuggestions(val) {
-            const listContainer = document.getElementById('masterSuggestionsList');
-            renderMasterDropdown(listContainer, val, (m) => {
-                document.getElementById('newItemNumber').value = m.itemNumber;
-                document.getElementById('newItemName').value = m.desc;
-                document.getElementById('modalMasterSearch').value = `${m.itemNumber} - ${m.desc}`;
-            });
-        }
-
-        function filterMasterSuggestionsGeneric(val, prefix) {
-            const listMap = {
-                'cr': { listId: 'crSuggestionsList', numId: 'crItemNumber', descId: 'crDesc', searchId: 'modalCrMasterSearch' },
-                'buffer': { listId: 'bufferSuggestionsList', numId: 'bufferItemNumber', descId: 'bufferDesc', searchId: 'modalBufferMasterSearch' },
-                'knowledge': { listId: 'knowledgeSuggestionsList', numId: 'knowledgeItemNumber', descId: 'knowledgeDesc', searchId: 'modalKnowledgeMasterSearch' },
-                'ct': { listId: 'ctSuggestionsList', numId: 'ctItemNumber', descId: 'ctDesc', searchId: 'modalCtMasterSearch' }
-            };
-            const cfg = listMap[prefix];
-            if (!cfg) return;
-            const listContainer = document.getElementById(cfg.listId);
-            renderMasterDropdown(listContainer, val, (m) => {
-                document.getElementById(cfg.numId).value = m.itemNumber;
-                document.getElementById(cfg.descId).value = m.desc;
-                document.getElementById(cfg.searchId).value = `${m.itemNumber} - ${m.desc}`;
-            });
         }
 
         function handleAddItem(e) {
             e.preventDefault();
-            const itemNum = document.getElementById('newItemNumber').value.trim();
-            const itemName = document.getElementById('newItemName').value.trim();
-            const qty = parseInt(document.getElementById('newItemQty').value) || 1;
-            const type = document.getElementById('newItemType').value;
-            const prio = document.getElementById('newItemPriority').value;
-
             const newItem = {
-                id: 'item_' + Date.now(), item_number: itemNum, item_name: itemName, qty: qty,
-                type_grinding: type, current_stage_index: 0, priority: prio, supplier_access: false,
-                last_updated_by: getActorLabel()
+                id: 'item_' + Date.now(),
+                item_number: document.getElementById('newItemNumber').value.trim(),
+                item_name: document.getElementById('newItemName').value.trim(),
+                qty: parseInt(document.getElementById('newItemQty').value) || 1,
+                type_grinding: document.getElementById('newItemType').value,
+                priority: document.getElementById('newItemPriority').value,
+                current_stage_index: 0,
+                last_updated_by: getActorLabel(),
+                created_at: new Date().toLocaleDateString('id-ID')
             };
             items.unshift(newItem);
             syncToDb('tool_items', items);
-            logAuditActivity('CREATE', itemNum, `Input item baru (${qty} Pcs, ${type}, Prio: ${prio})`);
+            logAuditActivity('CREATE', newItem.item_number, `Input item baru ${newItem.item_name} (${newItem.qty} Pcs, ${newItem.type_grinding})`);
             closeModal('modalAddItem');
             renderTables();
-            showToast('Berhasil', `Item ${itemNum} (${qty} Pcs) ditambahkan.`, 'success');
+            showToast('Berhasil', 'Item baru ditambahkan.', 'success');
         }
 
-        function openUpdateProgress(id) {
-            const item = items.find(i => i.id === id);
+        function openModalUpdateProgress(itemId) {
+            const item = items.find(i => i.id === itemId);
             if(!item) return;
             document.getElementById('updateItemId').value = item.id;
-            document.getElementById('updateItemInfo').innerText = `${item.item_number} - ${item.item_name} (${item.qty || 1} Pcs)`;
-            const stages = stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"];
+            document.getElementById('updateItemInfo').innerText = `${item.item_number} — ${item.item_name} (${item.type_grinding})`;
             const select = document.getElementById('updateStageSelect');
             select.innerHTML = '';
+            const stages = stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"];
             stages.forEach((st, idx) => {
                 const opt = document.createElement('option');
                 opt.value = idx; opt.text = st;
@@ -4233,136 +4105,278 @@
         function handleUpdateProgress(e) {
             e.preventDefault();
             const id = document.getElementById('updateItemId').value;
-            const newStageIdx = parseInt(document.getElementById('updateStageSelect').value);
-            const newPrio = document.getElementById('updatePrioritySelect').value;
             const item = items.find(i => i.id === id);
             if(item) {
+                const newStageIdx = parseInt(document.getElementById('updateStageSelect').value);
+                const newPriority = document.getElementById('updatePrioritySelect').value;
                 const stages = stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"];
-                const oldStageIdx = item.current_stage_index;
-                const oldStageName = stages[Math.min(oldStageIdx, stages.length - 1)] || stages[0];
-                const newStageName = stages[Math.min(newStageIdx, stages.length - 1)] || stages[0];
-                const wasCompleted = oldStageIdx >= stages.length - 1;
-                const isNowCompleted = newStageIdx >= stages.length - 1;
+                const oldStageName = stages[item.current_stage_index] || stages[0];
+                const newStageName = stages[newStageIdx] || stages[0];
+                const oldPriority = item.priority || 'Reguler';
 
                 item.current_stage_index = newStageIdx;
-                item.priority = newPrio;
+                item.priority = newPriority;
                 item.last_updated_by = getActorLabel();
 
-                if(isNowCompleted && !wasCompleted) {
+                if(newStageIdx >= stages.length - 1) {
                     item.completed_at = new Date().toLocaleDateString('id-ID');
                     item.completed_by = getActorLabel();
                     checkAndProcessAutoSyncCR(item);
                 }
 
                 syncToDb('tool_items', items);
-                logAuditActivity('STAGE_UPDATE', item.item_number, `Tahapan: ${oldStageName} ➔ ${newStageName} (Prio: ${newPrio})`);
+                logAuditActivity('STAGE_UPDATE', item.item_number, `Tahapan: "${oldStageName}" -> "${newStageName}" | Prioritas: "${oldPriority}" -> "${newPriority}"`);
                 closeModal('modalUpdateProgress');
                 renderTables();
-                showToast('Diperbarui', 'Progress tahapan item diperbarui.', 'success');
+                showToast('Diperbarui', 'Status tahapan item berhasil diupdate.', 'success');
             }
         }
 
-        function openRepairModal(id) {
-            const item = items.find(i => i.id === id);
+        function openQuickPriorityModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+            const currentPrio = item.priority || 'Reguler';
+            document.getElementById('quickPriorityItemId').value = item.id;
+            document.getElementById('quickPriorityItemInfo').innerText = `${item.item_number} — ${item.item_name}`;
+
+            const btnReg = document.getElementById('btnChooseReguler');
+            const btnUrg = document.getElementById('btnChooseUrgent');
+
+            btnReg.className = currentPrio === 'Reguler'
+                ? 'py-3 px-3 rounded-xl border-2 border-slate-800 bg-slate-800 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-md'
+                : 'py-3 px-3 rounded-xl border-2 border-slate-200 bg-slate-50 hover:border-slate-400 text-slate-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
+
+            btnUrg.className = currentPrio === 'Urgent'
+                ? 'py-3 px-3 rounded-xl border-2 border-red-600 bg-red-600 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-md'
+                : 'py-3 px-3 rounded-xl border-2 border-red-200 bg-red-50/60 hover:border-red-400 text-red-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
+
+            document.getElementById('modalQuickPriority').classList.remove('hidden');
+        }
+
+        function applyQuickPriority(chosenPriority) {
+            const itemId = document.getElementById('quickPriorityItemId').value;
+            const item = items.find(i => i.id === itemId);
+            if (!item) {
+                closeModal('modalQuickPriority');
+                return;
+            }
+            const oldPrio = item.priority || 'Reguler';
+            item.priority = chosenPriority;
+            item.last_updated_by = getActorLabel();
+            syncToDb('tool_items', items);
+            logAuditActivity('PRIORITY_CHANGE', item.item_number, `Prioritas: "${oldPrio}" -> "${chosenPriority}"`);
+            closeModal('modalQuickPriority');
+            renderTables();
+            showToast('Prioritas Diubah', `${item.item_number} kini berstatus ${chosenPriority}.`, 'success');
+        }
+
+        function openModalRepair(itemId) {
+            const item = items.find(i => i.id === itemId);
             if(!item) return;
             document.getElementById('repairItemId').value = item.id;
-            document.getElementById('repairItemInfo').innerText = `${item.item_number} - ${item.item_name} (Tersedia: ${item.qty || 1} Pcs)`;
+            document.getElementById('repairItemInfo').innerText = `${item.item_number} — ${item.item_name} (Tersedia: ${item.qty || 1} Pcs)`;
             document.getElementById('repairQtyInput').max = item.qty || 1;
-            document.getElementById('repairQtyInput').value = 1;
+            document.getElementById('repairQtyInput').value = "1";
             document.getElementById('modalRepairItem').classList.remove('hidden');
         }
 
         function handleRepairCompletedItem(e) {
             e.preventDefault();
-            const id = document.getElementById('repairItemId').value;
-            const repairQty = parseInt(document.getElementById('repairQtyInput').value) || 1;
-            const item = items.find(i => i.id === id);
+            const itemId = document.getElementById('repairItemId').value;
+            const repairQty = parseInt(document.getElementById('repairQtyInput').value) || 0;
+            const item = items.find(i => i.id === itemId);
             if(!item) return;
-
-            const currentItemQty = item.qty || 1;
-            if(repairQty > currentItemQty) { alert('QTY repair tidak boleh melebihi QTY selesai yang tersedia!'); return; }
+            const currentQty = item.qty || 1;
+            if(repairQty <= 0 || repairQty > currentQty) { alert('Jumlah repair tidak valid.'); return; }
 
             const newRepairObj = {
-                id: 'rep_' + Date.now(), item_number: item.item_number, item_name: item.item_name,
-                qty: repairQty, type_grinding: item.type_grinding, migrated_at: new Date().toLocaleDateString('id-ID'),
-                migrated_by: getActorLabel()
+                id: 'rep_' + Date.now(),
+                item_number: item.item_number,
+                item_name: item.item_name,
+                qty: repairQty,
+                keterangan: `Dari Selesai (${new Date().toLocaleDateString('id-ID')})`,
+                recorded_by: getActorLabel()
             };
             repairSpecialItems.unshift(newRepairObj);
             syncToDb('repair_special_items', repairSpecialItems);
 
-            if(currentItemQty - repairQty <= 0) {
-                items = items.filter(i => i.id !== id);
-            } else {
-                item.qty = currentItemQty - repairQty;
-            }
+            if(repairQty === currentQty) items = items.filter(i => i.id !== itemId);
+            else item.qty = currentQty - repairQty;
+
             syncToDb('tool_items', items);
-            logAuditActivity('REPAIR_MIGRATE', item.item_number, `Pindah ${repairQty} Pcs hasil selesai ke daftar Tool Repair`);
+            logAuditActivity('REPAIR_MIGRATE', item.item_number, `Memindahkan ${repairQty} Pcs dari Selesai ke Tool Repair`);
             closeModal('modalRepairItem');
             renderTables();
             renderSpecialRepairTable();
-            showToast('Dipindah ke Repair', `${repairQty} Pcs dimasukkan ke daftar Tool Repair.`, 'info');
+            showToast('Berhasil', `${repairQty} Pcs dipindahkan ke Tool Repair.`, 'success');
         }
 
-        function deleteItem(id) {
+        function renderSpecialRepairTable() {
+            const tbody = document.getElementById('repairSpecialTableBody');
+            const badge = document.getElementById('repairCountBadge');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            if(badge) badge.innerText = `${repairSpecialItems.length} Item`;
+            if(repairSpecialItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Tidak ada item tool repair saat ini.</td></tr>`;
+                return;
+            }
+            repairSpecialItems.forEach(rep => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-amber-50/30 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-bold text-amber-800">${escapeHtmlText(rep.item_number)}</td>
+                    <td class="p-4 font-medium text-slate-900">${escapeHtmlText(rep.item_name)}</td>
+                    <td class="p-4 font-bold text-amber-700">${Number(rep.qty) || 1} Pcs</td>
+                    <td class="p-4 text-xs text-slate-600">${escapeHtmlText(rep.keterangan)}<br><span class="text-slate-400">oleh ${escapeHtmlText(rep.recorded_by || '-')}</span></td>
+                    <td class="p-4 text-center"><button type="button" onclick="deleteSpecialRepairItem('${escapeJsSingleQuote(rep.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm"><i class="fa-solid fa-trash"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteSpecialRepairItem(id) {
             deleteRecordWithAudit({
-                confirmMsg: 'Hapus item ini secara permanen?',
-                getArray: () => items,
-                setArray: (next) => { items = next; },
-                matchFn: (i) => i.id === id,
-                dbPath: 'tool_items',
+                confirmMsg: 'Hapus item dari daftar Tool Repair?',
+                getArray: () => repairSpecialItems,
+                setArray: (next) => { repairSpecialItems = next; },
+                matchFn: (r) => r.id === id,
+                dbPath: 'repair_special_items',
                 auditType: 'DELETE',
-                getItemNumber: (i) => i.item_number,
-                getAuditDetail: (i) => `Menghapus permanen item: ${i.item_number} (${i.item_name})`,
-                onAfterDelete: () => renderTables()
+                getItemNumber: (r) => r.item_number,
+                getAuditDetail: (r) => `Menghapus item Tool Repair: ${r.item_name} (${r.qty} Pcs)`
             });
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
+        function openModalChangePassWeb() {
+            document.getElementById('newPasswordWebInput').value = '';
+            document.getElementById('modalChangePassWeb').classList.remove('hidden');
         }
 
-        function startBarcodeScanner() {
-            const modal = document.getElementById('scannerModal');
-            modal.classList.remove('hidden');
-            html5QrCode = new Html5Qrcode("reader");
-            const config = { fps: 10, qrbox: { width: 220, height: 140 } };
-
-            html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
-                onScanSuccess(decodedText);
-            }).catch(() => {
-                html5QrCode.start({ facingMode: "user" }, config, (decodedText) => {
-                    onScanSuccess(decodedText);
-                }).catch(() => {
-                    alert("Gagal mengakses kamera. Pastikan izin kamera diberikan.");
-                    closeScannerModal();
-                });
-            });
-        }
-
-        function onScanSuccess(decodedText) {
-            closeScannerModal();
-            document.getElementById('modalMasterSearch').value = decodedText;
-            filterMasterSuggestions(decodedText);
-
-            const matches = getMasterMatches(decodedText);
-            if(matches.length > 0) {
-                document.getElementById('newItemNumber').value = matches[0].itemNumber;
-                document.getElementById('newItemName').value = matches[0].desc;
-                showToast('Scan Berhasil', `Ditemukan di Master: ${matches[0].itemNumber}`, 'success');
-            } else {
-                document.getElementById('newItemNumber').value = decodedText;
-                showToast('Scan Terdeteksi', `Kode barcode "${decodedText}" diisikan.`, 'info');
+        function handlePasswordWebChange(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('newPasswordWebInput').value.trim();
+            if(newPass) {
+                authCredentials.USER = newPass;
+                syncToDb('auth', authCredentials);
+                closeModal('modalChangePassWeb');
+                showToast('Berhasil', 'Password login web diperbarui.', 'success');
             }
         }
 
+        function openModalChangePassLog() {
+            document.getElementById('newPasswordLogInput').value = '';
+            document.getElementById('modalChangePassLog').classList.remove('hidden');
+        }
+
+        function handlePasswordLogChange(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('newPasswordLogInput').value.trim();
+            if(newPass) {
+                authCredentials.LOG_PWD = newPass;
+                syncToDb('auth', authCredentials);
+                closeModal('modalChangePassLog');
+                showToast('Berhasil', 'Password log riwayat diperbarui.', 'success');
+            }
+        }
+
+        function closeModal(modalId) {
+            const el = document.getElementById(modalId);
+            if(el) el.classList.add('hidden');
+        }
+
+        function toggleBuilderMode() {
+            builderModeActive = !builderModeActive;
+            const btn = document.getElementById('btnBuilder');
+            btn.innerHTML = builderModeActive ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg><span> Mode Builder (On)</span>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg><span> Mode Builder (Off)</span>';
+            btn.className = builderModeActive ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold bg-amber-600 text-white transition cursor-pointer' : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition cursor-pointer';
+
+            document.querySelectorAll('.editable-text').forEach(el => {
+                if(builderModeActive) {
+                    el.classList.add('border-2', 'border-dashed', 'border-amber-400', 'cursor-pointer', 'px-1.5', 'py-0.5', 'rounded');
+                    el.onclick = (e) => {
+                        e.stopPropagation();
+                        const key = el.getAttribute('data-key');
+                        const newVal = prompt("Edit teks:", el.innerText);
+                        if(newVal !== null && newVal.trim() !== "") {
+                            customTexts[key] = newVal.trim();
+                            syncToDb('custom_texts', customTexts);
+                            el.innerText = newVal.trim();
+                            showToast('Teks Diperbarui', 'Perubahan tersimpan.', 'success');
+                        }
+                    };
+                } else {
+                    el.classList.remove('border-2', 'border-dashed', 'border-amber-400', 'cursor-pointer', 'px-1.5', 'py-0.5', 'rounded');
+                    el.onclick = null;
+                }
+            });
+            showToast('Mode Builder', builderModeActive ? 'Aktif (Klik teks bergaris putus untuk mengedit)' : 'Dimatikan', 'info');
+        }
+
+        function applyCustomTexts() {
+            document.querySelectorAll('.editable-text').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if(key && customTexts[key]) el.innerText = customTexts[key];
+            });
+        }
+
+        function filterMasterSuggestions(val) {
+            const list = document.getElementById('masterSuggestionsList');
+            renderMasterDropdown(list, val, (m) => {
+                document.getElementById('newItemNumber').value = m.itemNumber;
+                document.getElementById('newItemName').value = m.desc;
+            });
+        }
+
+        function filterMasterSuggestionsGeneric(val, prefix) {
+            const list = document.getElementById(`${prefix}SuggestionsList`);
+            renderMasterDropdown(list, val, (m) => {
+                if (prefix === 'cr') {
+                    document.getElementById('crItemNumber').value = m.itemNumber;
+                    document.getElementById('crDesc').value = m.desc;
+                } else if (prefix === 'buffer') {
+                    document.getElementById('bufferItemNumber').value = m.itemNumber;
+                    document.getElementById('bufferDesc').value = m.desc;
+                } else if (prefix === 'knowledge') {
+                    document.getElementById('knowledgeItemNumber').value = m.itemNumber;
+                    document.getElementById('knowledgeDesc').value = m.desc;
+                } else if (prefix === 'ct') {
+                    document.getElementById('ctItemNumber').value = m.itemNumber;
+                    document.getElementById('ctDesc').value = m.desc;
+                }
+            });
+        }
+
+        function startBarcodeScanner() {
+            document.getElementById('scannerModal').classList.remove('hidden');
+            html5QrCode = new Html5Qrcode("reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+            html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
+                document.getElementById('modalMasterSearch').value = decodedText;
+                document.getElementById('newItemNumber').value = decodedText;
+
+                let foundDesc = "";
+                masterTables.forEach(table => {
+                    if(table.rows) {
+                        const row = table.rows.find(r => r && String(r.itemNumber || '').trim().toLowerCase() === decodedText.trim().toLowerCase());
+                        if(row) foundDesc = row.desc;
+                    }
+                });
+                if(foundDesc) document.getElementById('newItemName').value = foundDesc;
+
+                closeScannerModal();
+                showToast('Scan Berhasil', `Barcode ${decodedText} terbaca.`, 'success');
+            }, () => {}).catch(() => {});
+        }
+
         function closeScannerModal() {
-            const modal = document.getElementById('scannerModal');
-            if(html5QrCode && html5QrCode.isScanning) {
+            if(html5QrCode) {
                 html5QrCode.stop().then(() => {
                     html5QrCode.clear();
-                    modal.classList.add('hidden');
-                }).catch(() => { modal.classList.add('hidden'); });
-            } else { modal.classList.add('hidden'); }
+                    document.getElementById('scannerModal').classList.add('hidden');
+                }).catch(() => { document.getElementById('scannerModal').classList.add('hidden'); });
+            } else { document.getElementById('scannerModal').classList.add('hidden'); }
         }
     </script>
 </body>
