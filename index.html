@@ -161,6 +161,7 @@
                     <h2 class="font-bold text-sm text-slate-300 hidden lg:block border-l border-slate-700 pl-3 editable-text" data-key="navbar_title">Grinding &amp; Regrind Tracker</h2>
                 </div>
                 <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                    <!-- Tombol Kelola Akses Per Halaman & Konfirmasi Akun khusus login USER -->
                     <button id="btnHeaderUnlockAccess" onclick="openAccessControlModal()" class="hidden relative items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-md cursor-pointer" title="Kelola Akses Halaman Per Menu & Konfirmasi Akun Karyawan">
                         <i id="headerUnlockIcon" class="fa-solid fa-sliders"></i>
                         <span id="headerUnlockText" class="hidden sm:inline">Kelola Akses</span>
@@ -193,6 +194,7 @@
                     </button>
                 </div>
 
+                <!-- Tombol Kelola Akses Per Halaman & Konfirmasi Akun khusus login USER di Sidebar -->
                 <button id="btnSidebarUnlockAccess" onclick="openAccessControlModal(); toggleSidebar();" class="w-full hidden items-center justify-between px-4 py-3 rounded-xl text-xs font-bold bg-indigo-600/25 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/40 transition cursor-pointer">
                     <span class="flex items-center space-x-2">
                         <i id="sidebarUnlockIcon" class="fa-solid fa-sliders"></i>
@@ -449,13 +451,12 @@
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Tambah QTY Manual (Pcs)</label>
                                 <div class="flex space-x-2">
-                                    <input type="number" id="dailyManualQtyInput" oninput="updateDailyManualCalculation()" min="1" value="1" class="w-full border border-slate-300 rounded-xl p-3 text-sm font-bold bg-white">
+                                    <input type="number" id="dailyManualQtyInput" min="1" value="1" class="w-full border border-slate-300 rounded-xl p-3 text-sm font-bold bg-white">
                                     <button onclick="addManualDailyCR()" class="bg-brandBlue hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer whitespace-nowrap">+ Tambah</button>
                                     <button onclick="resetDailyManualInput()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer" title="Hapus Pilihan">
                                         <i class="fa-solid fa-rotate-left"></i>
                                     </button>
                                 </div>
-                                <p id="dailyManualPreviewText" class="text-[11px] font-semibold text-emerald-700 mt-1"></p>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Status Sesi Harian</label>
@@ -1263,7 +1264,7 @@
         </div>
     </div>
 
-    <!-- MODAL: QUICK PRIORITY PICKER -->
+    <!-- MODAL: QUICK PRIORITY PICKER (KLIK LANGSUNG KOLOM REGULER / URGENT) -->
     <div id="modalQuickPriority" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-xs w-full p-5 modal-enter border border-slate-100 text-center relative">
             <button onclick="closeModal('modalQuickPriority')" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
@@ -1299,6 +1300,7 @@
                 </button>
             </div>
 
+            <!-- Bagian 1: Konfirmasi Akun Karyawan -->
             <div class="space-y-2.5">
                 <div class="flex justify-between items-center">
                     <h4 class="text-xs font-black uppercase tracking-wider text-slate-700"><i class="fa-solid fa-user-check text-emerald-600 mr-1"></i> Daftar Akun Karyawan (Create Account)</h4>
@@ -1307,6 +1309,7 @@
                 <div id="registeredAccountsList" class="border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-56 overflow-y-auto bg-slate-50/40"></div>
             </div>
 
+            <!-- Bagian 2: Buka / Kunci Menu Per Halaman -->
             <div class="space-y-2.5">
                 <h4 class="text-xs font-black uppercase tracking-wider text-slate-700"><i class="fa-solid fa-toggle-on text-indigo-600 mr-1"></i> Izin Akses Halaman Per Menu (Akun Karyawan)</h4>
                 <p class="text-[11px] text-slate-500">Menu <strong>Tracking Progress</strong> dan <strong>Buffer Stok &amp; Scrap</strong> selalu terbuka. Aktifkan halaman di bawah untuk membukanya ke akun karyawan:</p>
@@ -1374,8 +1377,7 @@
             </form>
         </div>
     </div>
-
-    <!-- FIREBASE SDKs -->
+    <!-- FIREBASE SDKs & JAVASCRIPT LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -1404,7 +1406,8 @@
             window.initFirebaseSync();
         }
     </script>
-    <script>
+
+        <script>
         const stagesDefinition = {
             "New Grinding": [
                 "1. PREPARE MANUAL",
@@ -1432,129 +1435,6 @@
             { key: 'auditTrail', label: 'Menu Log Riwayat', icon: 'fa-clock-rotate-left' }
         ];
 
-        function createEmpty12Months() {
-            return Array.from({ length: 12 }, () => ({ qty: 0, rupiah: 0 }));
-        }
-
-        function normalize12Months(raw) {
-            const base = createEmpty12Months();
-            if (!raw || typeof raw !== 'object') return base;
-            for (let i = 0; i < 12; i++) {
-                const entry = Array.isArray(raw) ? raw[i] : raw[String(i)];
-                if (entry && typeof entry === 'object') {
-                    base[i] = {
-                        qty: Number(entry.qty) || 0,
-                        rupiah: Number(entry.rupiah) || 0
-                    };
-                }
-            }
-            return base;
-        }
-
-        function escapeHtmlText(str) {
-            return String(str ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        function escapeJsSingleQuote(str) {
-            return String(str ?? '')
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'");
-        }
-
-        // --- NORMALISASI KHUSUS DATA MASTER ---
-        function normalizeMasterRow(rawRow, idx = 0) {
-            if (!rawRow || typeof rawRow !== 'object') return null;
-            const itemNumber = String(
-                rawRow.itemNumber ?? rawRow.item_number ?? rawRow.code ?? rawRow.kode ?? ''
-            ).trim();
-            const desc = String(
-                rawRow.desc ?? rawRow.deskripsi ?? rawRow.description ?? rawRow.item_name ?? rawRow.name ?? ''
-            ).trim();
-            const toolLife = String(
-                rawRow.toolLife ?? rawRow.tool_life ?? rawRow.life ?? '500 Pcs'
-            ).trim();
-            const note = String(
-                rawRow.note ?? rawRow.keterangan ?? rawRow.catatan ?? rawRow.remark ?? '-'
-            ).trim();
-
-            if (!itemNumber && !desc && !rawRow.id) return null;
-
-            return {
-                ...rawRow,
-                id: String(rawRow.id ?? `r_${Date.now()}_${idx}`),
-                itemNumber: itemNumber || '-',
-                desc: desc || '-',
-                toolLife: toolLife || '500 Pcs',
-                note: note || '-'
-            };
-        }
-
-        function normalizeMasterTableEntry(rawTable, idx = 0) {
-            if (!rawTable || typeof rawTable !== 'object') return null;
-
-            const rawTitle =
-                rawTable.tableName ??
-                rawTable.categoryName ??
-                rawTable.name ??
-                rawTable.title ??
-                rawTable.label ??
-                '';
-            const cleanTitle = String(rawTitle ?? '').trim();
-            const tableName =
-                !cleanTitle ||
-                cleanTitle.toLowerCase() === 'undefined' ||
-                cleanTitle.toLowerCase() === 'null'
-                    ? `Tabel Master ${idx + 1}`
-                    : cleanTitle;
-
-            const rawRows = rawTable.rows ?? rawTable.items ?? rawTable.data ?? [];
-            const rowList = Array.isArray(rawRows)
-                ? rawRows
-                : (rawRows && typeof rawRows === 'object' ? Object.values(rawRows) : []);
-
-            const normalizedRows = rowList
-                .map((r, rIdx) => normalizeMasterRow(r, rIdx))
-                .filter(Boolean);
-
-            return {
-                ...rawTable,
-                id: String(rawTable.id ?? `table_${idx + 1}`),
-                tableName,
-                rows: normalizedRows,
-                expanded: rawTable.expanded !== undefined ? Boolean(rawTable.expanded) : true
-            };
-        }
-
-        function attachMasterTablesListener() {
-            if (!window.db || !window.dbRef || !window.dbOnValue) return;
-
-            window.dbOnValue(window.dbRef(window.db, 'master_tables'), (snapshot) => {
-                if (snapshot.exists()) {
-                    const val = snapshot.val();
-                    const rawTables = Array.isArray(val) ? val : Object.values(val || {});
-                    masterTables = rawTables
-                        .map((t, idx) => normalizeMasterTableEntry(t, idx))
-                        .filter(Boolean);
-                } else {
-                    const defaultMasters = [
-                        {
-                            id: "table_1",
-                            tableName: "Katalog Endmill Standard",
-                            expanded: true,
-                            rows: [{ id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }]
-                        }
-                    ];
-                    syncToDb('master_tables', defaultMasters);
-                    masterTables = defaultMasters;
-                }
-                if (currentUser) renderMasterTablesContainer();
-            });
-        }
-
         let authCredentials = { USER: "USER", LOG_PWD: "USER" };
         let registeredAccounts = [];
         let operatorUnlockedViews = {
@@ -1578,8 +1458,8 @@
         let dailyActive = false;
         let dailyQty = 0;
         let dailyRupiah = 0;
-        let monthlyData = createEmpty12Months();
-        let yearlyData = createEmpty12Months();
+        let monthlyData = Array(12).fill({ qty: 0, rupiah: 0 });
+        let yearlyData = Array(12).fill({ qty: 0, rupiah: 0 });
         let monthlyChartInstance = null;
 
         let knowledgeCategories = [];
@@ -1595,6 +1475,7 @@
         let currentMainView = 'progress'; 
         let builderModeActive = false;
 
+        // --- HELPER PUSAT (FIREBASE, HITUNG CR, PENCARIAN MASTER, HAPUS + AUDIT, FILE & KATEGORI) ---
         function syncToDb(path, payload) {
             if (window.db && window.dbRef && window.dbSet) {
                 window.dbSet(window.dbRef(window.db, path), payload);
@@ -1611,16 +1492,15 @@
             const q = keyword.toLowerCase().trim();
             const matches = [];
             masterTables.forEach(table => {
-                if (table && Array.isArray(table.rows)) {
+                if (table.rows && Array.isArray(table.rows)) {
                     table.rows.forEach(row => {
-                        if (!row) return;
-                        const itemNum = String(row.itemNumber || '');
-                        const desc = String(row.desc || '');
-                        if (itemNum.toLowerCase().includes(q) || desc.toLowerCase().includes(q)) {
+                        const matchNum = row.itemNumber && row.itemNumber.toLowerCase().includes(q);
+                        const matchDesc = row.desc && row.desc.toLowerCase().includes(q);
+                        if (matchNum || matchDesc) {
                             matches.push({
-                                itemNumber: itemNum,
-                                desc: desc,
-                                tableName: String(table.tableName || 'Master')
+                                itemNumber: row.itemNumber,
+                                desc: row.desc,
+                                tableName: table.tableName
                             });
                         }
                     });
@@ -1647,10 +1527,10 @@
                 div.className = "p-3 hover:bg-indigo-50 cursor-pointer transition flex flex-col";
                 div.innerHTML = `
                     <div class="flex justify-between items-center">
-                        <span class="font-mono font-bold text-brandBlue text-xs">${escapeHtmlText(m.itemNumber)}</span>
-                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">${escapeHtmlText(m.tableName)}</span>
+                        <span class="font-mono font-bold text-brandBlue text-xs">${m.itemNumber}</span>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">${m.tableName}</span>
                     </div>
-                    <span class="text-xs font-semibold text-slate-800 mt-0.5">${escapeHtmlText(m.desc)}</span>
+                    <span class="text-xs font-semibold text-slate-800 mt-0.5">${m.desc}</span>
                 `;
                 div.onclick = () => {
                     onSelect(m);
@@ -1675,7 +1555,7 @@
             onAfterDelete
         }) {
             if (!confirm(confirmMsg)) return;
-            const currentArr = Array.isArray(getArray()) ? getArray() : [];
+            const currentArr = getArray() || [];
             const target = currentArr.find(matchFn);
             const nextArr = currentArr.filter(item => !matchFn(item));
             setArray(nextArr);
@@ -1719,7 +1599,7 @@
         function appendRowToCategory(categories, catId, dbPath, newRow, onSaved) {
             const cat = (categories || []).find(c => c.id === catId);
             if (!cat) return null;
-            if (!Array.isArray(cat.rows)) cat.rows = [];
+            if (!cat.rows) cat.rows = [];
             cat.rows.push(newRow);
             if (dbPath) syncToDb(dbPath, categories);
             if (typeof onSaved === 'function') onSaved(cat, newRow);
@@ -1747,27 +1627,26 @@
         }) {
             if (!container) return;
             container.innerHTML = '';
-            const safeCategories = Array.isArray(categories) ? categories.filter(Boolean) : [];
-            if (safeCategories.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200 text-xs">${escapeHtmlText(emptyText)}</div>`;
+            if (!categories || categories.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-2xl shadow-sm text-center text-slate-400 border border-slate-200 text-xs">${emptyText}</div>`;
                 return;
             }
 
-            safeCategories.forEach(cat => {
+            categories.forEach(cat => {
                 const isExpanded = cat.expanded !== undefined ? cat.expanded : true;
                 const countLabel = typeof getCountText === 'function'
                     ? getCountText(cat)
-                    : `(${Array.isArray(cat.rows) ? cat.rows.length : 0} Item)`;
+                    : `(${cat.rows ? cat.rows.length : 0} Item)`;
                 const actionsHTML = typeof getHeaderActionsHTML === 'function' ? getHeaderActionsHTML(cat) : '';
                 const rowsHTML = typeof renderRowsHTML === 'function' ? renderRowsHTML(cat) : '';
 
                 const div = document.createElement('div');
                 div.className = "bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden";
                 div.innerHTML = `
-                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="${onToggleId}('${escapeJsSingleQuote(cat.id)}')">
+                    <div class="bg-darkSlate text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 cursor-pointer select-none" onclick="${onToggleId}('${cat.id}')">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid ${isExpanded ? `fa-chevron-down ${chevronColorClass}` : 'fa-chevron-right text-slate-400'} text-sm transition-transform"></i>
-                            <h4 class="font-bold text-sm tracking-wide">${escapeHtmlText(cat.categoryName || cat.tableName || 'Kategori')} <span class="text-xs text-slate-400 font-normal ml-2">${escapeHtmlText(countLabel)}</span></h4>
+                            <h4 class="font-bold text-sm tracking-wide">${cat.categoryName || cat.tableName} <span class="text-xs text-slate-400 font-normal ml-2">${countLabel}</span></h4>
                         </div>
                         <div class="flex flex-wrap items-center gap-2" onclick="event.stopPropagation()">
                             ${actionsHTML}
@@ -1784,13 +1663,12 @@
             });
         }
 
-        function getActorLabel(overrideName = null) {
-            const actor = overrideName || currentUser;
-            if (!actor) return 'SYSTEM';
-            if (!overrideName && currentRole === 'OPERATOR' && currentNpk) {
-                return `${actor} (NPK: ${currentNpk})`;
+        function getActorLabel() {
+            if (!currentUser) return 'SYSTEM';
+            if (currentRole === 'OPERATOR' && currentNpk) {
+                return `${currentUser} (NPK: ${currentNpk})`;
             }
-            return actor;
+            return currentUser;
         }
 
         function normalizeUnlockedViews(raw) {
@@ -1836,7 +1714,7 @@
         }
 
         function getPendingAccountsCount() {
-            return registeredAccounts.filter(acc => acc && (acc.status === 'PENDING' || acc.approved === false)).length;
+            return registeredAccounts.filter(acc => acc.status === 'PENDING' || acc.approved === false).length;
         }
 
         function updateAccessControlBadgesUI() {
@@ -1904,19 +1782,19 @@
                             <div class="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white">
                                 <div>
                                     <div class="flex items-center space-x-2">
-                                        <span class="text-xs font-bold text-slate-900">${escapeHtmlText(acc.fullName || '-')}</span>
-                                        <span class="text-[11px] font-mono font-bold text-brandBlue">NPK/NIK: ${escapeHtmlText(acc.npk || '-')}</span>
+                                        <span class="text-xs font-bold text-slate-900">${acc.fullName}</span>
+                                        <span class="text-[11px] font-mono font-bold text-brandBlue">NPK/NIK: ${acc.npk}</span>
                                         ${statusBadge}
                                     </div>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">Terdaftar: ${acc.createdAt ? escapeHtmlText(new Date(acc.createdAt).toLocaleString('id-ID')) : '-'}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Terdaftar: ${acc.createdAt ? new Date(acc.createdAt).toLocaleString('id-ID') : '-'}</p>
                                 </div>
                                 <div class="flex items-center space-x-1.5 shrink-0">
                                     ${isPending ? `
-                                        <button type="button" onclick="approveEmployeeAccount('${escapeJsSingleQuote(acc.id)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer">
+                                        <button type="button" onclick="approveEmployeeAccount('${acc.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer">
                                             <i class="fa-solid fa-check mr-1"></i>Setujui
                                         </button>
                                     ` : ''}
-                                    <button type="button" onclick="rejectOrDeleteAccount('${escapeJsSingleQuote(acc.id)}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer">
+                                    <button type="button" onclick="rejectOrDeleteAccount('${acc.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition cursor-pointer">
                                         <i class="fa-solid fa-trash mr-1"></i>${isPending ? 'Tolak' : 'Hapus'}
                                     </button>
                                 </div>
@@ -1930,10 +1808,10 @@
                 pagesContainer.innerHTML = controllablePageDefs.map(pg => {
                     const unlocked = Boolean(operatorUnlockedViews[pg.key]);
                     return `
-                        <button type="button" onclick="toggleSinglePageAccess('${escapeJsSingleQuote(pg.key)}')" class="flex items-center justify-between p-3 rounded-xl border text-left transition cursor-pointer ${unlocked ? 'bg-emerald-50/70 border-emerald-300 text-slate-900' : 'bg-slate-50 border-slate-200 text-slate-600'}">
+                        <button type="button" onclick="toggleSinglePageAccess('${pg.key}')" class="flex items-center justify-between p-3 rounded-xl border text-left transition cursor-pointer ${unlocked ? 'bg-emerald-50/70 border-emerald-300 text-slate-900' : 'bg-slate-50 border-slate-200 text-slate-600'}">
                             <span class="flex items-center space-x-2.5 text-xs font-bold">
                                 <i class="fa-solid ${pg.icon} ${unlocked ? 'text-emerald-600' : 'text-slate-400'}"></i>
-                                <span>${escapeHtmlText(pg.label)}</span>
+                                <span>${pg.label}</span>
                             </span>
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-black ${unlocked ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}">
                                 ${unlocked ? 'TERBUKA' : 'TERKUNCI'}
@@ -2052,7 +1930,11 @@
             else registeredAccounts.push(accountRecord);
 
             syncToDb('registered_accounts', registeredAccounts);
-            logAuditActivity('CREATE_ACCOUNT', npk, `Pengajuan akun baru (PENDING): ${fullName} (NPK/NIK: ${npk})`, fullName);
+
+            const prevUser = currentUser;
+            currentUser = fullName;
+            logAuditActivity('CREATE_ACCOUNT', npk, `Pengajuan akun baru (PENDING): ${fullName} (NPK/NIK: ${npk})`);
+            currentUser = prevUser;
 
             closeCreateAccountModal();
             document.getElementById('loginUser').value = fullName;
@@ -2062,7 +1944,7 @@
 
         function exportJSONBackup() {
             const backupData = {
-                version: "1.3",
+                version: "1.2",
                 backupDate: new Date().toISOString(),
                 auth: authCredentials,
                 registered_accounts: registeredAccounts,
@@ -2073,8 +1955,8 @@
                 buffer_stock: bufferStockItems,
                 scrap_items: scrapItems,
                 cost_reduction_db: crDatabase,
-                cost_reduction_monthly: normalize12Months(monthlyData),
-                cost_reduction_yearly: normalize12Months(yearlyData),
+                cost_reduction_monthly: monthlyData,
+                cost_reduction_yearly: yearlyData,
                 knowledge_categories: knowledgeCategories,
                 cycle_time_categories: cycleTimeCategories,
                 audit_trail_logs: auditTrailLogs,
@@ -2124,8 +2006,8 @@
                         buffer_stock: imported.buffer_stock,
                         scrap_items: imported.scrap_items,
                         cost_reduction_db: imported.cost_reduction_db,
-                        cost_reduction_monthly: imported.cost_reduction_monthly ? normalize12Months(imported.cost_reduction_monthly) : undefined,
-                        cost_reduction_yearly: imported.cost_reduction_yearly ? normalize12Months(imported.cost_reduction_yearly) : undefined,
+                        cost_reduction_monthly: imported.cost_reduction_monthly,
+                        cost_reduction_yearly: imported.cost_reduction_yearly,
                         knowledge_categories: imported.knowledge_categories,
                         cycle_time_categories: imported.cycle_time_categories,
                         audit_trail_logs: imported.audit_trail_logs,
@@ -2180,7 +2062,7 @@
                 if(snapshot.exists()) {
                     const val = snapshot.val();
                     const rawList = Array.isArray(val) ? val : Object.values(val);
-                    registeredAccounts = rawList.filter(Boolean).map(acc => ({
+                    registeredAccounts = rawList.map(acc => ({
                         ...acc,
                         status: acc.status || (acc.approved === false ? 'PENDING' : 'APPROVED'),
                         approved: acc.approved !== undefined ? Boolean(acc.approved) : (acc.status !== 'PENDING')
@@ -2207,7 +2089,7 @@
             window.dbOnValue(window.dbRef(window.db, 'tool_items'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    items = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
+                    items = Array.isArray(val) ? val : Object.values(val);
                 } else {
                     const defaultItems = [
                         { id: "1", item_number: "WKS-2026-001", item_name: "Endmill 4-Flute Carbide", qty: 5, type_grinding: "New Grinding", current_stage_index: 1, priority: "Reguler", supplier_access: false, last_updated_by: "USER" }
@@ -2223,18 +2105,34 @@
             window.dbOnValue(window.dbRef(window.db, 'repair_special_items'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    repairSpecialItems = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
+                    repairSpecialItems = Array.isArray(val) ? val : Object.values(val);
                 } else { repairSpecialItems = []; }
                 if(currentUser) renderSpecialRepairTable();
             });
 
-            // Listener Data Master ternormalisasi
-            attachMasterTablesListener();
+            window.dbOnValue(window.dbRef(window.db, 'master_tables'), (snapshot) => {
+                if(snapshot.exists()) {
+                    const val = snapshot.val();
+                    masterTables = Array.isArray(val) ? val : Object.values(val);
+                    masterTables.forEach(t => { if(!t.rows) t.rows = []; else if(!Array.isArray(t.rows)) t.rows = Object.values(t.rows); });
+                } else {
+                    const defaultMasters = [
+                        {
+                            id: "table_1",
+                            tableName: "Katalog Endmill Standard",
+                            rows: [{ id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }]
+                        }
+                    ];
+                    syncToDb('master_tables', defaultMasters);
+                    masterTables = defaultMasters;
+                }
+                if(currentUser) renderMasterTablesContainer();
+            });
 
             window.dbOnValue(window.dbRef(window.db, 'buffer_stock'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    bufferStockItems = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
+                    bufferStockItems = Array.isArray(val) ? val : Object.values(val);
                 } else {
                     const defaultBuffer = [
                         { id: "b1", itemNumber: "BUF-2026-001", desc: "Endmill Carbide D10", currentStock: 4, minStock: 2 }
@@ -2248,7 +2146,7 @@
             window.dbOnValue(window.dbRef(window.db, 'scrap_items'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    scrapItems = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
+                    scrapItems = Array.isArray(val) ? val : Object.values(val);
                 } else { scrapItems = []; }
                 if(currentUser) renderStockAndScrap();
             });
@@ -2256,7 +2154,7 @@
             window.dbOnValue(window.dbRef(window.db, 'cost_reduction_db'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    crDatabase = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
+                    crDatabase = Array.isArray(val) ? val : Object.values(val);
                 } else {
                     crDatabase = [
                         { id: "cr1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", outHouse: 150000, inHouse: 90000 }
@@ -2269,32 +2167,28 @@
             window.dbOnValue(window.dbRef(window.db, 'cost_reduction_daily_state'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    dailyActive = Boolean(val.dailyActive);
-                    dailyQty = Number(val.dailyQty) || 0;
-                    dailyRupiah = Number(val.dailyRupiah) || 0;
+                    dailyActive = val.dailyActive || false;
+                    dailyQty = val.dailyQty || 0;
+                    dailyRupiah = val.dailyRupiah || 0;
                     updateDailyUIState();
                 }
             });
 
             window.dbOnValue(window.dbRef(window.db, 'cost_reduction_monthly'), (snapshot) => {
-                monthlyData = snapshot.exists() ? normalize12Months(snapshot.val()) : createEmpty12Months();
+                monthlyData = snapshot.exists() ? snapshot.val() : Array(12).fill({ qty: 0, rupiah: 0 });
                 if(currentUser) updateMonthlyChart();
             });
 
             window.dbOnValue(window.dbRef(window.db, 'cost_reduction_yearly'), (snapshot) => {
-                yearlyData = snapshot.exists() ? normalize12Months(snapshot.val()) : createEmpty12Months();
+                yearlyData = snapshot.exists() ? snapshot.val() : Array(12).fill({ qty: 0, rupiah: 0 });
                 if(currentUser) renderYearlyTable();
             });
 
             window.dbOnValue(window.dbRef(window.db, 'knowledge_categories'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    knowledgeCategories = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
-                    knowledgeCategories.forEach(c => {
-                        if(!c.rows) c.rows = [];
-                        else if(!Array.isArray(c.rows)) c.rows = Object.values(c.rows);
-                        c.rows = c.rows.filter(Boolean);
-                    });
+                    knowledgeCategories = Array.isArray(val) ? val : Object.values(val);
+                    knowledgeCategories.forEach(c => { if(!c.rows) c.rows = []; else if(!Array.isArray(c.rows)) c.rows = Object.values(c.rows); });
                 } else {
                     const defaultKnowledgeCat = [
                         {
@@ -2313,12 +2207,8 @@
             window.dbOnValue(window.dbRef(window.db, 'cycle_time_categories'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    cycleTimeCategories = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
-                    cycleTimeCategories.forEach(c => {
-                        if(!c.rows) c.rows = [];
-                        else if(!Array.isArray(c.rows)) c.rows = Object.values(c.rows);
-                        c.rows = c.rows.filter(Boolean);
-                    });
+                    cycleTimeCategories = Array.isArray(val) ? val : Object.values(val);
+                    cycleTimeCategories.forEach(c => { if(!c.rows) c.rows = []; else if(!Array.isArray(c.rows)) c.rows = Object.values(c.rows); });
                 } else {
                     const defaultCycleCat = [
                         {
@@ -2337,7 +2227,7 @@
             window.dbOnValue(window.dbRef(window.db, 'audit_trail_logs'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    auditTrailLogs = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
+                    auditTrailLogs = Array.isArray(val) ? val : Object.values(val);
                 } else { auditTrailLogs = []; }
                 if(currentUser) renderAuditTrailTable();
             });
@@ -2345,12 +2235,8 @@
             window.dbOnValue(window.dbRef(window.db, 'trial_proses_list'), (snapshot) => {
                 if(snapshot.exists()) {
                     const val = snapshot.val();
-                    trialProsesList = (Array.isArray(val) ? val : Object.values(val)).filter(Boolean);
-                    trialProsesList.forEach(t => {
-                        if(!t.historyLogs) t.historyLogs = [];
-                        else if(!Array.isArray(t.historyLogs)) t.historyLogs = Object.values(t.historyLogs);
-                        t.historyLogs = t.historyLogs.filter(Boolean);
-                    });
+                    trialProsesList = Array.isArray(val) ? val : Object.values(val);
+                    trialProsesList.forEach(t => { if(!t.historyLogs) t.historyLogs = []; else if(!Array.isArray(t.historyLogs)) t.historyLogs = Object.values(t.historyLogs); });
                 } else { trialProsesList = []; }
                 if(currentUser) renderTrialProsesContainer();
             });
@@ -2433,13 +2319,13 @@
             overlay.classList.toggle('hidden');
         }
 
-        function logAuditActivity(activityType, itemNumber, details, overrideActor = null) {
+        function logAuditActivity(activityType, itemNumber, details) {
             const now = new Date();
             const timestamp = now.toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             const logEntry = {
                 id: 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                 timestamp: timestamp,
-                user: getActorLabel(overrideActor),
+                user: getActorLabel(),
                 activityType: activityType,
                 itemNumber: itemNumber || '-',
                 details: details || '-'
@@ -2479,11 +2365,11 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 tr.innerHTML = `
-                    <td class="p-4 font-mono text-xs text-slate-600">${escapeHtmlText(log.timestamp)}</td>
-                    <td class="p-4 font-bold text-slate-800">${escapeHtmlText(log.user)}</td>
-                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${escapeHtmlText(log.activityType)}</span></td>
-                    <td class="p-4 font-mono font-bold text-brandBlue">${escapeHtmlText(log.itemNumber)}</td>
-                    <td class="p-4 text-xs font-medium text-slate-700">${escapeHtmlText(log.details)}</td>
+                    <td class="p-4 font-mono text-xs text-slate-600">${log.timestamp}</td>
+                    <td class="p-4 font-bold text-slate-800">${log.user}</td>
+                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${log.activityType}</span></td>
+                    <td class="p-4 font-mono font-bold text-brandBlue">${log.itemNumber}</td>
+                    <td class="p-4 text-xs font-medium text-slate-700">${log.details}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -2527,7 +2413,6 @@
                     doc: document.getElementById('trialDoc').value.trim() || '-',
                     drawingImage: imgBase64 || '',
                     statusFinal: 'RUNNING',
-                    conclusion: '',
                     historyLogs: []
                 };
                 trialProsesList.unshift(newTrial);
@@ -2562,11 +2447,11 @@
                     trl.historyLogs.forEach(lg => {
                         logsHTML += `
                             <tr class="border-b border-slate-100 hover:bg-slate-50">
-                                <td class="p-2.5 font-mono text-xs text-slate-600">${escapeHtmlText(lg.date)}</td>
-                                <td class="p-2.5 font-bold text-slate-800">${escapeHtmlText(lg.hours)}</td>
-                                <td class="p-2.5 font-bold text-blue-600">${Number(lg.qty) || 0} Pcs</td>
-                                <td class="p-2.5 text-slate-700">${escapeHtmlText(lg.condition)}</td>
-                                <td class="p-2.5 text-slate-600">${escapeHtmlText(lg.issue || '-')}</td>
+                                <td class="p-2.5 font-mono text-xs text-slate-600">${lg.date}</td>
+                                <td class="p-2.5 font-bold text-slate-800">${lg.hours}</td>
+                                <td class="p-2.5 font-bold text-blue-600">${lg.qty} Pcs</td>
+                                <td class="p-2.5 text-slate-700">${lg.condition}</td>
+                                <td class="p-2.5 text-slate-600">${lg.issue || '-'}</td>
                             </tr>
                         `;
                     });
@@ -2578,30 +2463,29 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-4 gap-3">
                         <div>
                             <div class="flex items-center space-x-2">
-                                <span class="font-mono font-bold text-brandBlue text-sm">${escapeHtmlText(trl.idDoc)}</span>
+                                <span class="font-mono font-bold text-brandBlue text-sm">${trl.idDoc}</span>
                                 ${statusBadge}
                             </div>
-                            <h4 class="text-base font-black text-slate-900 mt-1">${escapeHtmlText(trl.project)}</h4>
-                            <p class="text-xs text-slate-500">Item: <strong class="text-slate-800">${escapeHtmlText(trl.itemNumber)}</strong> (${escapeHtmlText(trl.descTool)}) | PIC: <strong class="text-slate-800">${escapeHtmlText(trl.pic)}</strong> | Mulai: ${escapeHtmlText(trl.startDate)}</p>
-                            ${trl.conclusion ? `<p class="text-xs text-indigo-700 font-semibold mt-1">Catatan Akhir: ${escapeHtmlText(trl.conclusion)}</p>` : ''}
+                            <h4 class="text-base font-black text-slate-900 mt-1">${trl.project}</h4>
+                            <p class="text-xs text-slate-500">Item: <strong class="text-slate-800">${trl.itemNumber}</strong> (${trl.descTool}) | PIC: <strong class="text-slate-800">${trl.pic}</strong> | Mulai: ${trl.startDate}</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="openModalUpdateTrial('${escapeJsSingleQuote(trl.id)}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Log &amp; Evaluasi</button>
-                            <button onclick="exportTrialPDF('${escapeJsSingleQuote(trl.id)}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"><i class="fa-solid fa-file-pdf mr-1"></i> Cetak PDF</button>
-                            ${currentRole === 'ADMIN_USER' ? `<button onclick="deleteTrial('${escapeJsSingleQuote(trl.id)}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 p-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            <button onclick="openModalUpdateTrial('${trl.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Log &amp; Evaluasi</button>
+                            <button onclick="exportTrialPDF('${trl.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"><i class="fa-solid fa-file-pdf mr-1"></i> Cetak PDF</button>
+                            ${currentRole === 'ADMIN_USER' ? `<button onclick="deleteTrial('${trl.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 p-2 rounded-xl text-xs transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : ''}
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
-                        <div><span class="text-slate-500 block">Mesin CNC:</span> <strong class="text-slate-800">${escapeHtmlText(trl.machine)}</strong></div>
-                        <div><span class="text-slate-500 block">Material:</span> <strong class="text-slate-800">${escapeHtmlText(trl.material)}</strong></div>
-                        <div><span class="text-slate-500 block">RPM:</span> <strong class="text-slate-800">${escapeHtmlText(trl.rpm)}</strong></div>
-                        <div><span class="text-slate-500 block">Vc:</span> <strong class="text-slate-800">${escapeHtmlText(trl.vc)}</strong></div>
-                        <div><span class="text-slate-500 block">Feed (F):</span> <strong class="text-slate-800">${escapeHtmlText(trl.feed)}</strong></div>
-                        <div><span class="text-slate-500 block">DOC:</span> <strong class="text-slate-800">${escapeHtmlText(trl.doc)}</strong></div>
+                        <div><span class="text-slate-500 block">Mesin CNC:</span> <strong class="text-slate-800">${trl.machine}</strong></div>
+                        <div><span class="text-slate-500 block">Material:</span> <strong class="text-slate-800">${trl.material}</strong></div>
+                        <div><span class="text-slate-500 block">RPM:</span> <strong class="text-slate-800">${trl.rpm}</strong></div>
+                        <div><span class="text-slate-500 block">Vc:</span> <strong class="text-slate-800">${trl.vc}</strong></div>
+                        <div><span class="text-slate-500 block">Feed (F):</span> <strong class="text-slate-800">${trl.feed}</strong></div>
+                        <div><span class="text-slate-500 block">DOC:</span> <strong class="text-slate-800">${trl.doc}</strong></div>
                     </div>
 
-                    ${trl.drawingImage ? `<div class="flex items-center space-x-2"><button type="button" onclick="openImageDataUrl('${escapeJsSingleQuote(trl.drawingImage)}', '${escapeJsSingleQuote(trl.idDoc)}', '${escapeJsSingleQuote(trl.project)}')" class="text-xs text-indigo-600 font-bold hover:underline flex items-center space-x-1 cursor-pointer"><i class="fa-solid fa-image"></i><span>Lihat Lampiran Drawing / Foto Part</span></button></div>` : ''}
+                    ${trl.drawingImage ? `<div class="flex items-center space-x-2"><a href="${trl.drawingImage}" target="_blank" class="text-xs text-indigo-600 font-bold hover:underline flex items-center space-x-1"><i class="fa-solid fa-image"></i><span>Lihat Lampiran Drawing / Foto Part</span></a></div>` : ''}
 
                     <div class="space-y-2">
                         <p class="text-xs font-bold text-slate-700 uppercase">History Trail (Log Harian / Tahapan)</p>
@@ -2691,15 +2575,14 @@
                 filename: `Trial_${trl.idDoc}_WKS.pdf`
             });
         }
-
-        // --- BARCODE & MASTER TABLES (TERPERBAIKI) ---
+        // --- BARCODE & MASTER TABLES ---
         function generateBarcodeLabel(itemNumber, desc) {
             document.getElementById('labelItemNumber').innerText = itemNumber;
             document.getElementById('labelDesc').innerText = desc;
             document.getElementById('modalBarcodeLabel').classList.remove('hidden');
             setTimeout(() => {
                 try {
-                    JsBarcode("#barcodeSvg", String(itemNumber || 'WKS-000'), {
+                    JsBarcode("#barcodeSvg", itemNumber, {
                         format: "CODE128", lineColor: "#0b1329", width: 2, height: 50, displayValue: true, fontSize: 14, font: "Poppins"
                     });
                 } catch(e) { console.error(e); }
@@ -2734,38 +2617,35 @@
         }
 
         function getFilteredMasterRows(table, globalSearchVal) {
-            const rows = Array.isArray(table?.rows) ? table.rows.filter(Boolean) : [];
-            const q = String(globalSearchVal || '').trim().toLowerCase();
-            if (!q) return rows;
-            return rows.filter(row =>
-                String(row.itemNumber || '').toLowerCase().includes(q) ||
-                String(row.desc || '').toLowerCase().includes(q) ||
-                String(row.toolLife || '').toLowerCase().includes(q) ||
-                String(row.note || '').toLowerCase().includes(q)
-            );
+            let filteredRows = table.rows || [];
+            if (globalSearchVal) {
+                filteredRows = filteredRows.filter(row =>
+                    (row.itemNumber && row.itemNumber.toLowerCase().includes(globalSearchVal)) ||
+                    (row.desc && row.desc.toLowerCase().includes(globalSearchVal)) ||
+                    (row.note && row.note.toLowerCase().includes(globalSearchVal))
+                );
+            }
+            return filteredRows;
         }
 
         function renderMasterTablesContainer() {
             const container = document.getElementById('masterTablesContainer');
             if(!container) return;
-            const globalSearchVal = document.getElementById('searchMasterGlobalBox')?.value || '';
-            const safeTables = Array.isArray(masterTables)
-                ? masterTables.map((t, i) => normalizeMasterTableEntry(t, i)).filter(Boolean)
-                : [];
+            const globalSearchVal = (document.getElementById('searchMasterGlobalBox')?.value || '').toLowerCase();
 
             renderAccordionSection({
                 container,
-                categories: safeTables,
+                categories: masterTables,
                 emptyText: 'Belum ada tabel master.',
                 onToggleId: 'toggleMasterAccordion',
                 chevronColorClass: 'text-brandBlue',
                 getCountText: (table) => `(${getFilteredMasterRows(table, globalSearchVal).length} Item)`,
                 getHeaderActionsHTML: (table) => currentRole === 'ADMIN_USER' ? `
-                    <button type="button" onclick="openModalAddMasterRow('${escapeJsSingleQuote(table.id)}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Baris</button>
-                    <button type="button" onclick="downloadTableTemplate('${escapeJsSingleQuote(table.tableName)}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Template</button>
-                    <button type="button" onclick="exportMasterTablePDF('${escapeJsSingleQuote(table.id)}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Export PDF</button>
-                    <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Import <input type="file" accept=".xlsx, .xls, .csv" onchange="importSingleTable(event, '${escapeJsSingleQuote(table.id)}')" class="hidden"></label>
-                    <button type="button" onclick="deleteMasterTable('${escapeJsSingleQuote(table.id)}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>
+                    <button onclick="openModalAddMasterRow('${table.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Baris</button>
+                    <button onclick="downloadTableTemplate('${table.tableName}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Template</button>
+                    <button onclick="exportMasterTablePDF('${table.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Export PDF</button>
+                    <label class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Import <input type="file" accept=".xlsx, .xls, .csv" onchange="importSingleTable(event, '${table.id}')" class="hidden"></label>
+                    <button onclick="deleteMasterTable('${table.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>
                 ` : '',
                 tableHeadHTML: `
                     <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm text-sm">
@@ -2786,13 +2666,13 @@
                     return filteredRows.map(row => `
                         <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-sm">
                             <td class="p-4 font-mono font-bold text-brandBlue flex items-center space-x-2">
-                                <span>${escapeHtmlText(row.itemNumber || '-')}</span>
-                                <button type="button" onclick="generateBarcodeLabel('${escapeJsSingleQuote(row.itemNumber || '')}', '${escapeJsSingleQuote(row.desc || '')}')" class="p-1 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-lg text-xs transition cursor-pointer" title="Cetak Label"><i class="fa-solid fa-barcode"></i></button>
+                                <span>${row.itemNumber}</span>
+                                <button onclick="generateBarcodeLabel('${row.itemNumber}', '${row.desc}')" class="p-1 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-lg text-xs transition cursor-pointer" title="Cetak Label"><i class="fa-solid fa-barcode"></i></button>
                             </td>
-                            <td class="p-4 font-medium text-slate-900">${escapeHtmlText(row.desc || '-')}</td>
-                            <td class="p-4"><span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-lg font-bold">${escapeHtmlText(row.toolLife || '-')}</span></td>
-                            <td class="p-4 text-slate-600">${escapeHtmlText(row.note || '-')}</td>
-                            ${currentRole === 'ADMIN_USER' ? `<td class="p-4 text-center"><button type="button" onclick="deleteMasterRow('${escapeJsSingleQuote(table.id)}', '${escapeJsSingleQuote(row.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>` : ''}
+                            <td class="p-4 font-medium text-slate-900">${row.desc}</td>
+                            <td class="p-4"><span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-lg font-bold">${row.toolLife || '-'}</span></td>
+                            <td class="p-4 text-slate-600">${row.note || '-'}</td>
+                            ${currentRole === 'ADMIN_USER' ? `<td class="p-4 text-center"><button onclick="deleteMasterRow('${table.id}', '${row.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition shadow-sm cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>` : ''}
                         </tr>
                     `).join('');
                 }
@@ -2801,112 +2681,6 @@
 
         function toggleMasterAccordion(tableId) {
             toggleCategoryAccordion(masterTables, tableId, renderMasterTablesContainer);
-        }
-
-        function openModalAddMasterTable() {
-            document.getElementById('inputMasterTableName').value = '';
-            document.getElementById('modalAddMasterTable').classList.remove('hidden');
-        }
-
-        function handleCreateMasterTable(e) {
-            e.preventDefault();
-            const name = document.getElementById('inputMasterTableName').value.trim();
-            if (!name) return;
-            masterTables.push({ id: 'table_' + Date.now(), tableName: name, rows: [], expanded: true });
-            syncToDb('master_tables', masterTables);
-            logAuditActivity('CREATE', '-', `Membuat Tabel Master baru: ${name}`);
-            closeModal('modalAddMasterTable');
-            renderMasterTablesContainer();
-            showToast('Berhasil', `Tabel master "${name}" dibuat.`, 'success');
-        }
-
-        function deleteMasterTable(tableId) {
-            deleteRecordWithAudit({
-                confirmMsg: 'Hapus seluruh tabel master ini?',
-                getArray: () => masterTables,
-                setArray: (next) => { masterTables = next; },
-                matchFn: (t) => String(t.id) === String(tableId),
-                dbPath: 'master_tables',
-                auditType: 'DELETE',
-                getAuditDetail: (t) => `Menghapus Tabel Master: ${t.tableName}`,
-                onAfterDelete: () => renderMasterTablesContainer()
-            });
-        }
-
-        function openModalAddMasterRow(tableId) {
-            document.getElementById('activeMasterTableId').value = tableId;
-            document.getElementById('rowItemNumber').value = '';
-            document.getElementById('rowDesc').value = '';
-            document.getElementById('rowToolLife').value = '500 Pcs';
-            document.getElementById('rowNote').value = '';
-            document.getElementById('modalAddMasterRow').classList.remove('hidden');
-        }
-
-        function handleSaveMasterRow(e) {
-            e.preventDefault();
-            const tableId = document.getElementById('activeMasterTableId').value;
-            const tableIdx = masterTables.findIndex(t => t && String(t.id) === String(tableId));
-            if (tableIdx < 0) return;
-
-            const itemNum = document.getElementById('rowItemNumber').value.trim();
-            const newRow = {
-                id: 'r_' + Date.now(),
-                itemNumber: itemNum,
-                desc: document.getElementById('rowDesc').value.trim(),
-                toolLife: document.getElementById('rowToolLife').value.trim() || '500 Pcs',
-                note: document.getElementById('rowNote').value.trim() || '-'
-            };
-
-            const currentRows = Array.isArray(masterTables[tableIdx].rows)
-                ? masterTables[tableIdx].rows.filter(Boolean)
-                : Object.values(masterTables[tableIdx].rows || {}).filter(Boolean);
-            const nextRows = [...currentRows, newRow];
-            masterTables[tableIdx] = { ...masterTables[tableIdx], rows: nextRows };
-
-            if (window.db && window.dbRef && window.dbSet) {
-                window.dbSet(window.dbRef(window.db, `master_tables/${tableIdx}/rows`), nextRows);
-            }
-
-            logAuditActivity('CREATE', itemNum, `Menambah baris ke master ${masterTables[tableIdx].tableName}`);
-            closeModal('modalAddMasterRow');
-            renderMasterTablesContainer();
-            showToast('Berhasil', `Baris ${itemNum} ditambahkan ke tabel master.`, 'success');
-        }
-
-        function deleteMasterRow(tableId, rowId) {
-            const tableIdx = masterTables.findIndex(t => t && String(t.id) === String(tableId));
-            if (tableIdx < 0) return;
-
-            const table = masterTables[tableIdx];
-            const currentRows = Array.isArray(table.rows)
-                ? table.rows.filter(Boolean)
-                : Object.values(table.rows || {}).filter(Boolean);
-
-            const targetRow = currentRows.find(r => r && String(r.id) === String(rowId));
-            if (!targetRow) return;
-
-            if (!confirm(`Hapus baris "${targetRow.itemNumber || '-'} - ${targetRow.desc || '-'}" dari tabel master ini?`)) {
-                return;
-            }
-
-            const nextRows = currentRows.filter(r => r && String(r.id) !== String(rowId));
-            masterTables[tableIdx] = {
-                ...table,
-                rows: nextRows
-            };
-
-            if (window.db && window.dbRef && window.dbSet) {
-                window.dbSet(window.dbRef(window.db, `master_tables/${tableIdx}/rows`), nextRows);
-            }
-
-            logAuditActivity(
-                'DELETE',
-                targetRow.itemNumber || '-',
-                `Menghapus baris ${targetRow.itemNumber || '-'} (${targetRow.desc || '-'}) dari ${table.tableName}`
-            );
-
-            renderMasterTablesContainer();
-            showToast('Baris Dihapus', `${targetRow.itemNumber || 'Item'} berhasil dihapus dari tabel master.`, 'info');
         }
 
         // --- KNOWLEDGE & CYCLE TIME CATEGORIES ---
@@ -2997,8 +2771,8 @@
                 onToggleId: 'toggleKnowledgeAccordion',
                 chevronColorClass: 'text-brandBlue',
                 getHeaderActionsHTML: (cat) => currentRole === 'ADMIN_USER' ? `
-                    <button onclick="openModalAddKnowledgeRow('${escapeJsSingleQuote(cat.id)}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Drawing</button>
-                    <button onclick="deleteKnowledgeCategory('${escapeJsSingleQuote(cat.id)}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
+                    <button onclick="openModalAddKnowledgeRow('${cat.id}')" class="bg-brandBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Drawing</button>
+                    <button onclick="deleteKnowledgeCategory('${cat.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
                 ` : '',
                 tableHeadHTML: `
                     <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm">
@@ -3016,29 +2790,29 @@
                         return `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada data drawing dalam kategori ini.</td></tr>`;
                     }
                     return cat.rows.map(item => {
-                        const hasDrawing = item.drawing && String(item.drawing).trim() !== "";
+                        const hasDrawing = item.drawing && item.drawing.trim() !== "";
                         const drawingCellHTML = hasDrawing
                             ? `<div class="flex items-center space-x-2">
-                                   <button type="button" onclick="viewDrawing('${escapeJsSingleQuote(cat.id)}', '${escapeJsSingleQuote(item.id)}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-eye text-[11px]"></i><span>View</span></button>
-                                   <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Ganti <input type="file" accept="image/*" onchange="uploadDrawingCat(event, '${escapeJsSingleQuote(cat.id)}', '${escapeJsSingleQuote(item.id)}')" class="hidden"></label>
+                                   <button onclick="viewDrawing('${cat.id}', '${item.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-eye text-[11px]"></i><span>View</span></button>
+                                   <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Ganti <input type="file" accept="image/*" onchange="uploadDrawingCat(event, '${cat.id}', '${item.id}')" class="hidden"></label>
                                </div>`
                             : `<label class="bg-brandBlue hover:bg-blue-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1.5">
                                    <i class="fa-solid fa-upload text-[11px]"></i><span>Import Gambar</span>
-                                   <input type="file" accept="image/*" onchange="uploadDrawingCat(event, '${escapeJsSingleQuote(cat.id)}', '${escapeJsSingleQuote(item.id)}')" class="hidden">
+                                   <input type="file" accept="image/*" onchange="uploadDrawingCat(event, '${cat.id}', '${item.id}')" class="hidden">
                                </label>`;
 
                         return `
                             <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-sm">
-                                <td class="p-4 font-mono font-bold text-brandBlue">${escapeHtmlText(item.itemNumber || '-')}</td>
-                                <td class="p-4 font-medium text-slate-900">${escapeHtmlText(item.desc || '-')}</td>
+                                <td class="p-4 font-mono font-bold text-brandBlue">${item.itemNumber || '-'}</td>
+                                <td class="p-4 font-medium text-slate-900">${item.desc || '-'}</td>
                                 <td class="p-4">${drawingCellHTML}</td>
                                 <td class="p-4 text-center">
-                                    <button type="button" onclick="printKnowledgePDF('${escapeJsSingleQuote(cat.id)}', '${escapeJsSingleQuote(item.id)}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1">
+                                    <button onclick="printKnowledgePDF('${cat.id}', '${item.id}')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer inline-flex items-center space-x-1">
                                         <i class="fa-solid fa-file-pdf text-[11px]"></i><span>Print PDF</span>
                                     </button>
                                 </td>
                                 <td class="p-4 text-center">
-                                    <button type="button" onclick="deleteKnowledgeRow('${escapeJsSingleQuote(cat.id)}', '${escapeJsSingleQuote(item.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
+                                    <button onclick="deleteKnowledgeRow('${cat.id}', '${item.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </td>
@@ -3065,28 +2839,20 @@
             });
         }
 
-        function openImageDataUrl(dataUrl, titleText, descText) {
-            if (!dataUrl) return;
-            const newWindow = window.open('', '_blank');
-            if (!newWindow) {
-                showToast('Pop-up Diblokir', 'Izinkan pop-up browser untuk membuka gambar.', 'error');
-                return;
-            }
-            newWindow.document.write(`
-                <html><head><title>${escapeHtmlText(titleText || 'Preview')}</title></head>
-                <body style="margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; color:white; font-family:sans-serif;">
-                    <h2 style="margin-bottom:10px;">${escapeHtmlText(titleText || '')}${descText ? ' — ' + escapeHtmlText(descText) : ''}</h2>
-                    <img src="${dataUrl}" style="max-width:90%; max-height:80vh; border:2px solid #334155; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
-                </body></html>
-            `);
-            newWindow.document.close();
-        }
-
         function viewDrawing(catId, rowId) {
             const cat = knowledgeCategories.find(c => c.id === catId);
-            const item = cat?.rows?.find(r => r.id === rowId);
-            if (item && item.drawing) {
-                openImageDataUrl(item.drawing, `Drawing - ${item.itemNumber || ''}`, item.desc || '');
+            if(cat && cat.rows) {
+                const item = cat.rows.find(r => r.id === rowId);
+                if(item && item.drawing) {
+                    const newWindow = window.open();
+                    newWindow.document.write(`
+                        <html><head><title>Drawing - ${item.itemNumber}</title></head>
+                        <body style="margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; color:white; font-family:sans-serif;">
+                            <h2 style="margin-bottom:10px;">${item.itemNumber} — ${item.desc}</h2>
+                            <img src="${item.drawing}" style="max-width:90%; max-height:80vh; border:2px solid #334155; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
+                        </body></html>
+                    `);
+                }
             }
         }
 
@@ -3105,7 +2871,7 @@
             doc.autoTable({
                 startY: 32,
                 head: [["Item Number", "Deskripsi Tool", "Status Drawing"]],
-                body: [[item.itemNumber || '-', item.desc || '-', item.drawing ? "Tersedia" : "Tidak Ada"]],
+                body: [[item.itemNumber, item.desc, item.drawing ? "Tersedia" : "Tidak Ada"]],
                 theme: 'grid', headStyles: { fillColor: [15, 23, 42] }
             });
             if(item.drawing) {
@@ -3113,10 +2879,10 @@
                     const finalY = doc.lastAutoTable.finalY + 10;
                     doc.setFont("helvetica", "bold");
                     doc.text("Lampiran Gambar Drawing:", 14, finalY);
-                    doc.addImage(item.drawing, undefined, 14, finalY + 5, 100, 100);
+                    doc.addImage(item.drawing, 'JPEG', 14, finalY + 5, 100, 100);
                 } catch(err) { console.error(err); }
             }
-            doc.save(`Knowledge_${item.itemNumber || 'Drawing'}_WKS.pdf`);
+            doc.save(`Knowledge_${item.itemNumber}_WKS.pdf`);
         }
 
         // --- CYCLE TIME CATEGORIES ---
@@ -3207,8 +2973,8 @@
                 onToggleId: 'toggleCycleTimeAccordion',
                 chevronColorClass: 'text-amber-500',
                 getHeaderActionsHTML: (cat) => currentRole === 'ADMIN_USER' ? `
-                    <button onclick="openModalAddCycleTimeRow('${escapeJsSingleQuote(cat.id)}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Cycle Time</button>
-                    <button onclick="deleteCycleTimeCategory('${escapeJsSingleQuote(cat.id)}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
+                    <button onclick="openModalAddCycleTimeRow('${cat.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah Cycle Time</button>
+                    <button onclick="deleteCycleTimeCategory('${cat.id}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus Kategori</button>
                 ` : '',
                 tableHeadHTML: `
                     <thead class="sticky top-0 bg-slate-100 z-10 shadow-sm text-slate-700 uppercase tracking-wider border-b border-slate-200 text-center font-bold text-xs">
@@ -3234,15 +3000,15 @@
                     return cat.rows.map(ct => {
                         let procCells = '';
                         for (let i = 1; i <= 8; i++) {
-                            procCells += `<td class="p-3"><div class="font-medium text-slate-800">${escapeHtmlText(ct[`p${i}`] || '-')}</div><div class="text-[11px] text-indigo-600 font-bold">${escapeHtmlText(ct[`t${i}`] || '0')} s</div></td>`;
+                            procCells += `<td class="p-3"><div class="font-medium text-slate-800">${ct[`p${i}`] || '-'}</div><div class="text-[11px] text-indigo-600 font-bold">${ct[`t${i}`] || '0'} s</div></td>`;
                         }
                         return `
                             <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-center text-xs">
-                                <td class="p-3 text-left font-mono font-bold text-brandBlue">${escapeHtmlText(ct.itemNumber || '-')}</td>
-                                <td class="p-3 text-left font-medium text-slate-900">${escapeHtmlText(ct.deskripsiTool || '-')}</td>
+                                <td class="p-3 text-left font-mono font-bold text-brandBlue">${ct.itemNumber || '-'}</td>
+                                <td class="p-3 text-left font-medium text-slate-900">${ct.deskripsiTool || '-'}</td>
                                 ${procCells}
                                 <td class="p-3">
-                                    <button type="button" onclick="deleteCycleTimeRow('${escapeJsSingleQuote(cat.id)}', '${escapeJsSingleQuote(ct.id)}')" class="p-1.5 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer shadow-sm">
+                                    <button onclick="deleteCycleTimeRow('${cat.id}', '${ct.id}')" class="p-1.5 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg text-red-600 transition cursor-pointer shadow-sm">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </td>
@@ -3267,13 +3033,13 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-brandBlue">${escapeHtmlText(item.itemNumber)}</td>
-                    <td class="p-4 font-medium text-slate-900">${escapeHtmlText(item.desc)}</td>
+                    <td class="p-4 font-mono font-bold text-brandBlue">${item.itemNumber}</td>
+                    <td class="p-4 font-medium text-slate-900">${item.desc}</td>
                     <td class="p-4 text-right font-bold text-slate-700">Rp ${Number(item.outHouse || 0).toLocaleString('id-ID')}</td>
                     <td class="p-4 text-right font-bold text-slate-700">Rp ${Number(item.inHouse || 0).toLocaleString('id-ID')}</td>
                     <td class="p-4 text-right font-black text-emerald-600">Rp ${Number(crVal).toLocaleString('id-ID')}</td>
                     <td class="p-4 text-center">
-                        <button type="button" onclick="deleteCRItem('${escapeJsSingleQuote(item.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
+                        <button onclick="deleteCRItem('${item.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </td>
@@ -3321,7 +3087,6 @@
         function populateCRSelect() {
             const select = document.getElementById('dailyItemSelect');
             if(!select) return;
-            const prevVal = select.value;
             select.innerHTML = '';
             const defaultOpt = document.createElement('option');
             defaultOpt.value = ""; defaultOpt.text = "-- Pilih Item Number --"; defaultOpt.selected = true; defaultOpt.disabled = true;
@@ -3330,30 +3095,13 @@
                 const opt = document.createElement('option');
                 opt.value = item.id;
                 opt.text = `${item.itemNumber} - ${item.desc}`;
-                if (item.id === prevVal) opt.selected = true;
                 select.appendChild(opt);
             });
-            updateDailyManualCalculation();
-        }
-
-        function updateDailyManualCalculation() {
-            const previewEl = document.getElementById('dailyManualPreviewText');
-            const selectedId = document.getElementById('dailyItemSelect')?.value || '';
-            const qty = parseInt(document.getElementById('dailyManualQtyInput')?.value, 10) || 0;
-            const item = crDatabase.find(i => i.id === selectedId);
-            if (!previewEl) return;
-            if (!item || qty <= 0) {
-                previewEl.textContent = '';
-                return;
-            }
-            const estRp = calculateUnitCR(item) * qty;
-            previewEl.textContent = `Estimasi CR: Rp ${Number(estRp).toLocaleString('id-ID')} (${qty} Pcs)`;
         }
 
         function resetDailyManualInput() {
             document.getElementById('dailyItemSelect').selectedIndex = 0;
             document.getElementById('dailyManualQtyInput').value = "1";
-            updateDailyManualCalculation();
         }
 
         function saveDailyStateAndRefresh() {
@@ -3371,7 +3119,6 @@
         function finishDailyCR() {
             if (!dailyActive) return;
             const currentMonth = new Date().getMonth();
-            monthlyData = normalize12Months(monthlyData);
             monthlyData[currentMonth] = {
                 qty: (monthlyData[currentMonth]?.qty || 0) + dailyQty,
                 rupiah: (monthlyData[currentMonth]?.rupiah || 0) + dailyRupiah
@@ -3418,7 +3165,7 @@
 
         function checkAndProcessAutoSyncCR(item) {
             if(!dailyActive) return;
-            const matchedCR = crDatabase.find(cr => String(cr.itemNumber || '').trim().toUpperCase() === String(item.item_number || '').trim().toUpperCase());
+            const matchedCR = crDatabase.find(cr => cr.itemNumber.trim().toUpperCase() === item.item_number.trim().toUpperCase());
             if(matchedCR) {
                 const itemQty = item.qty || 1;
                 dailyQty += itemQty;
@@ -3431,15 +3178,14 @@
         function initMonthlyChart() {
             const canvas = document.getElementById('monthlyChart');
             if(!canvas) return;
-            const safeMonthly = normalize12Months(monthlyData);
             const ctx = canvas.getContext('2d');
             monthlyChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: monthNames,
                     datasets: [
-                        { label: 'Quantity (Pcs)', data: safeMonthly.map(d => d.qty), borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', yAxisID: 'yQty', tension: 0.3, fill: true },
-                        { label: 'Nilai Rupiah (Rp)', data: safeMonthly.map(d => d.rupiah), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', yAxisID: 'yRp', tension: 0.3, fill: true }
+                        { label: 'Quantity (Pcs)', data: monthlyData.map(d => d.qty), borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', yAxisID: 'yQty', tension: 0.3, fill: true },
+                        { label: 'Nilai Rupiah (Rp)', data: monthlyData.map(d => d.rupiah), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', yAxisID: 'yRp', tension: 0.3, fill: true }
                     ]
                 },
                 options: {
@@ -3453,7 +3199,6 @@
         }
 
         function updateMonthlyChart() {
-            monthlyData = normalize12Months(monthlyData);
             if(!monthlyChartInstance) return;
             monthlyChartInstance.data.datasets[0].data = monthlyData.map(d => d.qty);
             monthlyChartInstance.data.datasets[1].data = monthlyData.map(d => d.rupiah);
@@ -3462,8 +3207,6 @@
 
         function finishMonthlyCR() {
             if(confirm('Pindahkan data CR Bulanan ke Tahunan dan reset bulanan?')) {
-                monthlyData = normalize12Months(monthlyData);
-                yearlyData = normalize12Months(yearlyData);
                 for(let i=0; i<12; i++) {
                     yearlyData[i] = {
                         qty: (yearlyData[i]?.qty || 0) + (monthlyData[i]?.qty || 0),
@@ -3471,7 +3214,7 @@
                     };
                 }
                 syncToDb('cost_reduction_yearly', yearlyData);
-                monthlyData = createEmpty12Months();
+                monthlyData = Array(12).fill({ qty: 0, rupiah: 0 });
                 syncToDb('cost_reduction_monthly', monthlyData);
                 updateMonthlyChart();
                 renderYearlyTable();
@@ -3483,14 +3226,13 @@
         function renderYearlyTable() {
             const tbody = document.getElementById('yearlyTableBody');
             if(!tbody) return;
-            yearlyData = normalize12Months(yearlyData);
             tbody.innerHTML = '';
             let totalQty = 0, totalRp = 0;
             yearlyData.forEach((d, idx) => {
                 totalQty += (d.qty || 0); totalRp += (d.rupiah || 0);
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                tr.innerHTML = `<td class="p-3.5 font-bold text-slate-800">${escapeHtmlText(monthNames[idx])}</td><td class="p-3.5 text-center font-bold text-blue-600">${d.qty || 0} Pcs</td><td class="p-3.5 text-right font-black text-emerald-600">Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}</td>`;
+                tr.innerHTML = `<td class="p-3.5 font-bold text-slate-800">${monthNames[idx]}</td><td class="p-3.5 text-center font-bold text-blue-600">${d.qty || 0} Pcs</td><td class="p-3.5 text-right font-black text-emerald-600">Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}</td>`;
                 tbody.appendChild(tr);
             });
             const trTotal = document.createElement('tr');
@@ -3501,7 +3243,7 @@
 
         function resetYearlyCR() {
             if(confirm('Reset manual data CR Tahunan?')) {
-                yearlyData = createEmpty12Months();
+                yearlyData = Array(12).fill({ qty: 0, rupiah: 0 });
                 syncToDb('cost_reduction_yearly', yearlyData);
                 renderYearlyTable();
                 logAuditActivity('CR_YEARLY_RESET', '-', 'Reset manual data CR Tahunan');
@@ -3538,27 +3280,25 @@
         }
 
         function downloadMonthlyPDF() {
-            const safeMonthly = normalize12Months(monthlyData);
             exportWksPdf({
                 title: "Laporan Cost Reduction Bulanan",
                 head: ["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"],
-                body: safeMonthly.map((d, i) => [monthNames[i], `${d.qty || 0} Pcs`, `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`]),
+                body: monthlyData.map((d, i) => [monthNames[i], `${d.qty || 0} Pcs`, `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`]),
                 filename: `CR_Bulanan_${new Date().toISOString().split('T')[0]}.pdf`
             });
         }
 
         function downloadYearlyPDF() {
-            const safeYearly = normalize12Months(yearlyData);
             exportWksPdf({
                 title: "Laporan Cost Reduction Tahunan",
                 head: ["Bulan", "Quantity (Pcs)", "Nilai Cost Reduction (Rp)"],
-                body: safeYearly.map((d, i) => [monthNames[i], `${d.qty || 0} Pcs`, `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`]),
+                body: yearlyData.map((d, i) => [monthNames[i], `${d.qty || 0} Pcs`, `Rp ${Number(d.rupiah || 0).toLocaleString('id-ID')}`]),
                 filename: `CR_Tahunan_${new Date().toISOString().split('T')[0]}.pdf`
             });
         }
 
         function exportCompletedExcel() {
-            const completedItems = items.filter(item => item.current_stage_index >= (stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"]).length - 1);
+            const completedItems = items.filter(item => item.current_stage_index >= stagesDefinition[item.type_grinding].length - 1);
             if(completedItems.length === 0) { alert('Tidak ada item selesai.'); return; }
             let wb = XLSX.utils.book_new();
             let dataToExport = completedItems.map(item => ({
@@ -3572,7 +3312,7 @@
         }
 
         function exportCompletedPDF() {
-            const completedItems = items.filter(item => item.current_stage_index >= (stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"]).length - 1);
+            const completedItems = items.filter(item => item.current_stage_index >= stagesDefinition[item.type_grinding].length - 1);
             if(completedItems.length === 0) { alert('Tidak ada item selesai.'); return; }
             exportWksPdf({
                 title: "Laporan Item Selesai (Completed)",
@@ -3583,13 +3323,13 @@
         }
 
         function exportMasterTablePDF(tableId) {
-            const table = masterTables.find(t => String(t.id) === String(tableId));
+            const table = masterTables.find(t => t.id === tableId);
             if(!table || !table.rows || table.rows.length === 0) { alert('Tabel master kosong.'); return; }
             exportWksPdf({
                 title: table.tableName,
                 head: ["Item Number", "Deskripsi Tool", "Tool Life (Pcs)", "Keterangan"],
                 body: table.rows.map(r => [r.itemNumber, r.desc, r.toolLife || '-', r.note || '-']),
-                filename: `Master_${String(table.tableName || 'Master').replace(/\s+/g, '_')}_WKS.pdf`
+                filename: `Master_${table.tableName.replace(/\s+/g, '_')}_WKS.pdf`
             });
         }
 
@@ -3635,16 +3375,16 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                     tr.innerHTML = `
-                        <td class="p-4 font-mono font-bold text-brandBlue">${escapeHtmlText(b.itemNumber)}</td>
-                        <td class="p-4 font-medium text-slate-900">${escapeHtmlText(b.desc)}</td>
-                        <td class="p-4 text-center font-bold text-slate-800 text-base">${Number(b.currentStock) || 0} Pcs</td>
-                        <td class="p-4 text-center text-slate-600">${Number(b.minStock) || 0} Pcs</td>
+                        <td class="p-4 font-mono font-bold text-brandBlue">${b.itemNumber}</td>
+                        <td class="p-4 font-medium text-slate-900">${b.desc}</td>
+                        <td class="p-4 text-center font-bold text-slate-800 text-base">${b.currentStock} Pcs</td>
+                        <td class="p-4 text-center text-slate-600">${b.minStock} Pcs</td>
                         <td class="p-4 text-center">${statusBadge}</td>
                         <td class="p-4 text-center">
                             <div class="inline-flex items-center space-x-1.5">
-                                <button type="button" onclick="adjustBufferStock('${escapeJsSingleQuote(b.id)}', 1)" class="px-3 py-1.5 bg-blue-50 text-brandBlue hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah</button>
-                                <button type="button" onclick="adjustBufferStock('${escapeJsSingleQuote(b.id)}', -1)" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">- Kurang</button>
-                                ${currentRole === 'ADMIN_USER' ? `<button type="button" onclick="deleteBufferStock('${escapeJsSingleQuote(b.id)}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : ''}
+                                <button onclick="adjustBufferStock('${b.id}', 1)" class="px-3 py-1.5 bg-blue-50 text-brandBlue hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">+ Tambah</button>
+                                <button onclick="adjustBufferStock('${b.id}', -1)" class="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">- Kurang</button>
+                                ${currentRole === 'ADMIN_USER' ? `<button onclick="deleteBufferStock('${b.id}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : ''}
                             </div>
                         </td>
                     `;
@@ -3662,16 +3402,12 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                     tr.innerHTML = `
-                        <td class="p-4 font-mono font-bold text-red-600">${escapeHtmlText(s.itemNumber)}</td>
-                        <td class="p-4 font-medium text-slate-900">${escapeHtmlText(s.desc)}</td>
-                        <td class="p-4 text-center"><span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-lg font-bold">${escapeHtmlText(s.regrindCount)}</span></td>
-                        <td class="p-4 text-slate-700 font-medium">${escapeHtmlText(s.reason)}</td>
-                        <td class="p-4 text-center text-xs text-slate-600">${escapeHtmlText(s.date)}<br><span class="text-slate-400">oleh ${escapeHtmlText(s.recordedBy || '-')}</span></td>
-                        <td class="p-4 text-center">
-                            <button type="button" onclick="deleteScrap('${escapeJsSingleQuote(s.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
+                        <td class="p-4 font-mono font-bold text-red-600">${s.itemNumber}</td>
+                        <td class="p-4 font-medium text-slate-900">${s.desc}</td>
+                        <td class="p-4 text-center"><span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-lg font-bold">${s.regrindCount}</span></td>
+                        <td class="p-4 text-slate-700 font-medium">${s.reason}</td>
+                        <td class="p-4 text-center text-xs text-slate-500">${s.date} (${s.recordedBy})</td>
+                        <td class="p-4 text-center">${currentRole === 'ADMIN_USER' ? `<button onclick="deleteScrap('${s.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer">Hapus</button>` : '-'}</td>
                     `;
                     scrapTbody.appendChild(tr);
                 });
@@ -3679,28 +3415,38 @@
         }
 
         function openModalAddBufferStock() {
-            ['bufferItemNumber', 'bufferDesc', 'modalBufferMasterSearch'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
+            document.getElementById('bufferItemNumber').value = '';
+            document.getElementById('bufferDesc').value = '';
             document.getElementById('bufferCurrentStock').value = '5';
             document.getElementById('bufferMinStock').value = '2';
+            document.getElementById('modalBufferMasterSearch').value = '';
             document.getElementById('modalAddBufferStock').classList.remove('hidden');
         }
 
         function handleSaveBufferStock(e) {
             e.preventDefault();
-            const newBuf = {
-                id: 'b_' + Date.now(),
+            const newItem = {
+                id: 'buf_' + Date.now(),
                 itemNumber: document.getElementById('bufferItemNumber').value.trim(),
                 desc: document.getElementById('bufferDesc').value.trim(),
                 currentStock: parseInt(document.getElementById('bufferCurrentStock').value) || 0,
                 minStock: parseInt(document.getElementById('bufferMinStock').value) || 0
             };
-            bufferStockItems.push(newBuf);
+            bufferStockItems.unshift(newItem);
             syncToDb('buffer_stock', bufferStockItems);
-            logAuditActivity('CREATE', newBuf.itemNumber, `Menambah Buffer Stok mandiri: ${newBuf.desc} (Stok: ${newBuf.currentStock} Pcs)`);
+            logAuditActivity('CREATE', newItem.itemNumber, `Menambah Buffer Stok baru: ${newItem.itemNumber} (${newItem.desc}, Stok: ${newItem.currentStock} Pcs)`);
             closeModal('modalAddBufferStock');
-            showToast('Berhasil', 'Item buffer stok ditambahkan.', 'success');
+            showToast('Berhasil', 'Buffer stok berhasil ditambahkan.', 'success');
+        }
+
+        function adjustBufferStock(id, amount) {
+            const item = bufferStockItems.find(b => b.id === id);
+            if(item) {
+                const oldStock = item.currentStock;
+                item.currentStock = Math.max(0, item.currentStock + amount);
+                syncToDb('buffer_stock', bufferStockItems);
+                logAuditActivity('EDIT', item.itemNumber, `Update Buffer Stok: ${oldStock} Pcs ➔ ${item.currentStock} Pcs`);
+            }
         }
 
         function deleteBufferStock(id) {
@@ -3716,16 +3462,6 @@
             });
         }
 
-        function adjustBufferStock(id, delta) {
-            const b = bufferStockItems.find(item => item.id === id);
-            if(!b) return;
-            const prev = b.currentStock;
-            b.currentStock = Math.max(0, (b.currentStock || 0) + delta);
-            syncToDb('buffer_stock', bufferStockItems);
-            logAuditActivity('EDIT', b.itemNumber, `Update Buffer Stok ${b.desc} (${prev} Pcs -> ${b.currentStock} Pcs)`);
-            renderStockAndScrap();
-        }
-
         function openModalAddScrap() {
             document.getElementById('scrapItemNumber').value = '';
             document.getElementById('scrapDesc').value = '';
@@ -3735,25 +3471,24 @@
 
         function handleSaveScrap(e) {
             e.preventDefault();
-            const newScrap = {
-                id: 's_' + Date.now(),
+            const newItem = {
+                id: 'scrap_' + Date.now(),
                 itemNumber: document.getElementById('scrapItemNumber').value.trim(),
                 desc: document.getElementById('scrapDesc').value.trim(),
                 regrindCount: document.getElementById('scrapRegrindCount').value.trim(),
                 reason: document.getElementById('scrapReason').value,
-                date: new Date().toLocaleDateString('id-ID'),
+                date: new Date().toISOString().split('T')[0],
                 recordedBy: getActorLabel()
             };
-            scrapItems.unshift(newScrap);
+            scrapItems.unshift(newItem);
             syncToDb('scrap_items', scrapItems);
-            logAuditActivity('CREATE', newScrap.itemNumber, `Mencatat Tool Scrap: ${newScrap.desc} (${newScrap.reason})`);
+            logAuditActivity('CREATE', newItem.itemNumber, `Mencatat Tool Scrap: ${newItem.itemNumber} (${newItem.reason})`);
             closeModal('modalAddScrap');
-            showToast('Dicatat', 'Tool scrap ditambahkan ke daftar.', 'info');
         }
 
         function deleteScrap(id) {
             deleteRecordWithAudit({
-                confirmMsg: 'Hapus catatan tool scrap ini?',
+                confirmMsg: 'Hapus catatan scrap ini?',
                 getArray: () => scrapItems,
                 setArray: (next) => { scrapItems = next; },
                 matchFn: (s) => s.id === id,
@@ -3764,487 +3499,158 @@
             });
         }
 
+        function openModalAddMasterTable() {
+            document.getElementById('inputMasterTableName').value = '';
+            document.getElementById('modalAddMasterTable').classList.remove('hidden');
+        }
+
+        function handleCreateMasterTable(e) {
+            e.preventDefault();
+            const name = document.getElementById('inputMasterTableName').value.trim();
+            masterTables.push({ id: 'table_' + Date.now(), tableName: name, rows: [], expanded: true });
+            syncToDb('master_tables', masterTables);
+            logAuditActivity('CREATE', '-', `Membuat Tabel Master baru: ${name}`);
+            closeModal('modalAddMasterTable');
+        }
+
+        function deleteMasterTable(tableId) {
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus seluruh tabel master ini?',
+                getArray: () => masterTables,
+                setArray: (next) => { masterTables = next; },
+                matchFn: (t) => t.id === tableId,
+                dbPath: 'master_tables',
+                auditType: 'DELETE',
+                getAuditDetail: (t) => `Menghapus Tabel Master: ${t.tableName}`
+            });
+        }
+
+        function openModalAddMasterRow(tableId) {
+            document.getElementById('activeMasterTableId').value = tableId;
+            document.getElementById('rowItemNumber').value = '';
+            document.getElementById('rowDesc').value = '';
+            document.getElementById('rowToolLife').value = '500 Pcs';
+            document.getElementById('rowNote').value = '';
+            document.getElementById('modalAddMasterRow').classList.remove('hidden');
+        }
+
+        function handleSaveMasterRow(e) {
+            e.preventDefault();
+            const tableId = document.getElementById('activeMasterTableId').value;
+            const itemNum = document.getElementById('rowItemNumber').value.trim();
+            const newRow = {
+                id: 'r_' + Date.now(),
+                itemNumber: itemNum,
+                desc: document.getElementById('rowDesc').value.trim(),
+                toolLife: document.getElementById('rowToolLife').value.trim(),
+                note: document.getElementById('rowNote').value.trim()
+            };
+            appendRowToCategory(masterTables, tableId, 'master_tables', newRow, (table) => {
+                logAuditActivity('CREATE', itemNum, `Menambah baris ke master ${table.tableName}`);
+                closeModal('modalAddMasterRow');
+            });
+        }
+
+        function deleteMasterRow(tableId, rowId) {
+            const table = masterTables.find(t => t.id === tableId);
+            if(!table) return;
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus baris dari tabel master ini?',
+                getArray: () => table.rows || [],
+                setArray: (next) => { table.rows = next; },
+                matchFn: (r) => r.id === rowId,
+                dbPath: 'master_tables',
+                auditType: 'DELETE',
+                getItemNumber: (r) => r.itemNumber,
+                getAuditDetail: (r) => `Menghapus baris dari master ${table.tableName}`,
+                onAfterDelete: () => renderMasterTablesContainer()
+            });
+        }
+
         function downloadTableTemplate(tableName) {
             let wb = XLSX.utils.book_new();
-            let templateData = [{ "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10", "Tool Life (Pcs)": "500 Pcs", "Keterangan": "Stok Gudang Utama" }];
+            let templateData = [{ "Item Number": "WKS-2026-001", "Deskripsi Tool": "Endmill 4-Flute Carbide D10", "Tool Life": "500 Pcs", "Keterangan": "Stok Utama" }];
             let ws = XLSX.utils.json_to_sheet(templateData);
-            XLSX.utils.book_append_sheet(wb, ws, "Template_Master");
-            XLSX.writeFile(wb, `Template_${String(tableName || 'Master').replace(/\s+/g, '_')}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, "Template_WKS");
+            XLSX.writeFile(wb, `Template_WKS_${tableName.replace(/\s+/g, '_')}.xlsx`);
         }
 
         function importSingleTable(e, tableId) {
             const file = e.target.files[0];
             if(!file) return;
             readExcelRows(file, (json) => {
-                const tableIdx = masterTables.findIndex(t => t && String(t.id) === String(tableId));
-                if(tableIdx >= 0) {
-                    const currentRows = Array.isArray(masterTables[tableIdx].rows)
-                        ? masterTables[tableIdx].rows.filter(Boolean)
-                        : [];
-                    const addedRows = json.map((row, i) => ({
-                        id: 'imp_' + Date.now() + '_' + i,
-                        itemNumber: row["Item Number"] || row["Item_Number"] || row["Kode"] || "WKS-NEW",
-                        desc: row["Deskripsi Tool"] || row["Deskripsi"] || row["Nama Barang"] || "Tool Baru",
-                        toolLife: row["Tool Life (Pcs)"] || row["Tool Life"] || row["Life"] || "500 Pcs",
-                        note: row["Keterangan"] || row["Note"] || "-"
-                    }));
-                    const nextRows = [...currentRows, ...addedRows];
-                    masterTables[tableIdx] = { ...masterTables[tableIdx], rows: nextRows };
-
-                    if (window.db && window.dbRef && window.dbSet) {
-                        window.dbSet(window.dbRef(window.db, `master_tables/${tableIdx}/rows`), nextRows);
-                    }
-
-                    logAuditActivity('IMPORT_MASTER', '-', `Import ${addedRows.length} baris ke Tabel Master "${masterTables[tableIdx].tableName}"`);
-                    renderMasterTablesContainer();
-                    showToast('Berhasil', `${addedRows.length} baris di-import ke tabel master.`, 'success');
+                const table = masterTables.find(t => t.id === tableId);
+                if(table) {
+                    if(!table.rows) table.rows = [];
+                    json.forEach((row, idx) => {
+                        table.rows.push({
+                            id: 'imp_' + Date.now() + '_' + idx,
+                            itemNumber: row["Item Number"] || "-",
+                            desc: row["Deskripsi Tool"] || "-",
+                            toolLife: row["Tool Life"] || "-",
+                            note: row["Keterangan"] || ""
+                        });
+                    });
+                    syncToDb('master_tables', masterTables);
+                    logAuditActivity('IMPORT_MASTER', '-', `Import ${json.length} baris ke tabel master ${table.tableName}`);
+                    alert('Berhasil import data!');
                 }
                 e.target.value = '';
             });
         }
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const userInput = document.getElementById('loginUser').value.trim();
-            const passInput = document.getElementById('loginPass').value.trim();
-
-            if (!userInput || !passInput) return;
-
-            if (userInput.toUpperCase() === 'USER') {
-                if (passInput === (authCredentials.USER || "USER")) {
-                    currentUser = "USER";
-                    currentRole = "ADMIN_USER";
-                    currentNpk = null;
-                    sessionStorage.setItem('wks_current_user', currentUser);
-                    sessionStorage.setItem('wks_current_role', currentRole);
-                    sessionStorage.removeItem('wks_current_npk');
-
-                    logAuditActivity('LOGIN', '-', 'USER berhasil login ke sistem', 'USER');
-                    finishLoginSuccess();
-                } else {
-                    alert("Password login USER salah!");
-                }
-                return;
-            }
-
-            const matchedAccount = registeredAccounts.find(acc => {
-                if (!acc) return false;
-                const sameName = String(acc.fullName || '').trim().toLowerCase() === userInput.toLowerCase();
-                const sameNpk = String(acc.npk || '').trim() === passInput;
-                return sameName && sameNpk;
-            });
-
-            if (!matchedAccount) {
-                alert("Akun belum terdaftar atau Nama / NPK/NIK tidak sesuai. Silakan klik Create Account atau hubungi USER.");
-                return;
-            }
-
-            const isApproved = matchedAccount.status === 'APPROVED' || matchedAccount.approved === true;
-            if (!isApproved) {
-                alert("Akun Anda masih berstatus PENDING. Silakan tunggu konfirmasi persetujuan dari USER terlebih dahulu.");
-                return;
-            }
-
-            currentUser = matchedAccount.fullName;
-            currentRole = "OPERATOR";
-            currentNpk = matchedAccount.npk;
-            sessionStorage.setItem('wks_current_user', currentUser);
-            sessionStorage.setItem('wks_current_role', currentRole);
-            sessionStorage.setItem('wks_current_npk', currentNpk);
-
-            logAuditActivity('LOGIN', matchedAccount.npk, `Karyawan ${matchedAccount.fullName} (NPK: ${matchedAccount.npk}) berhasil login`);
-            finishLoginSuccess();
-        }
-
-        function finishLoginSuccess() {
-            togglePopup(false);
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            setupUIRoles();
-            initMonthlyChart();
-            renderTables();
-            renderSpecialRepairTable();
-            renderMasterTablesContainer();
-            renderStockAndScrap();
-            renderCRDatabase();
-            populateCRSelect();
-            renderYearlyTable();
-            renderKnowledgeCategoriesContainer();
-            renderCycleTimeCategoriesContainer();
-            renderTrialProsesContainer();
-            showToast('Selamat Datang', `Login sebagai ${getActorLabel()}`, 'success');
-        }
-
-        function logout() {
-            sessionStorage.removeItem('wks_current_user');
-            sessionStorage.removeItem('wks_current_role');
-            sessionStorage.removeItem('wks_current_npk');
-            location.reload();
-        }
-
-        function setupUIRoles() {
-            const isAdmin = currentRole === 'ADMIN_USER';
-            document.getElementById('navAccountName').innerText = currentUser || '-';
-            document.getElementById('navUserRole').innerText = isAdmin ? 'USER (ADMIN)' : `KARYAWAN${currentNpk ? ' • NPK ' + currentNpk : ''}`;
-            document.getElementById('btnBuilder').classList.toggle('hidden', !isAdmin);
-
-            const menuAccessMap = [
-                { view: 'costReduction', btnId: 'btnNavCR' },
-                { view: 'trial', btnId: 'btnNavTrial' },
-                { view: 'master', btnId: 'btnNavMaster' },
-                { view: 'knowledgeCycle', btnId: 'btnNavKnowledgeCycle' },
-                { view: 'auditTrail', btnId: 'btnNavLog' }
-            ];
-
-            menuAccessMap.forEach(({ view, btnId }) => {
-                const btn = document.getElementById(btnId);
-                if (!btn) return;
-                const unlocked = isViewUnlockedForOperator(view);
-                btn.classList.toggle('opacity-50', !unlocked);
-
-                let lockIcon = btn.querySelector('.access-lock-badge');
-                if (!unlocked) {
-                    if (!lockIcon) {
-                        lockIcon = document.createElement('span');
-                        lockIcon.className = 'access-lock-badge ml-auto text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-amber-300 font-bold';
-                        lockIcon.innerHTML = '<i class="fa-solid fa-lock"></i>';
-                        btn.appendChild(lockIcon);
-                    }
-                } else if (lockIcon) {
-                    lockIcon.remove();
-                }
-            });
-
-            const btnHeaderCR = document.getElementById('btnHeaderCR');
-            if (btnHeaderCR) {
-                const crUnlocked = isViewUnlockedForOperator('costReduction');
-                btnHeaderCR.classList.toggle('opacity-50', !crUnlocked);
-            }
-
-            updateAccessControlBadgesUI();
-        }
-
-        function switchMainView(view) {
-            if (isOperatorRestrictedView(view)) {
-                showToast('Akses Terkunci', 'Halaman ini masih dikunci oleh USER.', 'error');
-                view = 'progress';
-            }
-
-            currentMainView = view;
-            ['viewProgress', 'viewCostReduction', 'viewTrial', 'viewMaster', 'viewStock', 'viewKnowledgeCycle', 'viewAuditTrail'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
-            const activeMap = {
-                'progress': 'viewProgress',
-                'costReduction': 'viewCostReduction',
-                'trial': 'viewTrial',
-                'master': 'viewMaster',
-                'stock': 'viewStock',
-                'knowledgeCycle': 'viewKnowledgeCycle',
-                'auditTrail': 'viewAuditTrail'
-            };
-            const targetView = document.getElementById(activeMap[view] || 'viewProgress');
-            if (targetView) targetView.classList.remove('hidden');
-
-            if(view === 'costReduction') { renderCRDatabase(); populateCRSelect(); updateDailyUIState(); updateMonthlyChart(); renderYearlyTable(); }
-            if(view === 'master') renderMasterTablesContainer();
-            if(view === 'stock') renderStockAndScrap();
-            if(view === 'knowledgeCycle') { renderKnowledgeCategoriesContainer(); renderCycleTimeCategoriesContainer(); }
-            if(view === 'auditTrail') renderAuditTrailTable();
-            if(view === 'trial') renderTrialProsesContainer();
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('sectionActive').classList.toggle('hidden', tab !== 'active');
-            document.getElementById('sectionCompleted').classList.toggle('hidden', tab !== 'completed');
-            document.getElementById('tabActiveBtn').className = tab === 'active' ? "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer" : "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition cursor-pointer";
-            document.getElementById('tabCompletedBtn').className = tab === 'completed' ? "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer" : "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition cursor-pointer";
-            renderTables();
-        }
-
-        function renderTables() {
-            const tbodyActive = document.getElementById('activeTableBody');
-            const mobileActive = document.getElementById('activeMobileCards');
-            const tbodyCompleted = document.getElementById('completedTableBody');
-            const mobileCompleted = document.getElementById('completedMobileCards');
-            if(!tbodyActive || !tbodyCompleted) return;
-
-            const searchVal = (document.getElementById('searchBox')?.value || '').toLowerCase();
-            const typeFilter = document.getElementById('filterType')?.value || 'all';
-
-            tbodyActive.innerHTML = ''; mobileActive.innerHTML = '';
-            tbodyCompleted.innerHTML = ''; mobileCompleted.innerHTML = '';
-
-            let countNew = 0, countRegrind = 0, countDone = 0, countTotalActive = 0;
-
-            items.forEach(item => {
-                if(!item) return;
-                const stages = stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"];
-                const isCompleted = item.current_stage_index >= stages.length - 1;
-
-                if(!isCompleted) {
-                    countTotalActive++;
-                    if(item.type_grinding === 'New Grinding') countNew++;
-                    else if(item.type_grinding === 'Re Grinding') countRegrind++;
-                } else { countDone++; }
-
-                const matchSearch = (item.item_number && String(item.item_number).toLowerCase().includes(searchVal)) || (item.item_name && String(item.item_name).toLowerCase().includes(searchVal));
-                const matchType = (typeFilter === 'all' || item.type_grinding === typeFilter);
-                if(!matchSearch || !matchType) return;
-
-                if(!isCompleted) {
-                    const currentStageName = stages[item.current_stage_index] || stages[0];
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                    const priorityBadgeClass = item.priority === 'Urgent'
-                        ? 'bg-red-100 text-red-700 hover:bg-red-200 ring-1 ring-red-300'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 ring-1 ring-slate-300';
-                    tr.innerHTML = `
-                        <td class="p-4 font-mono font-bold text-brandBlue">${escapeHtmlText(item.item_number)}</td>
-                        <td class="p-4 font-medium text-slate-900">${escapeHtmlText(item.item_name)}</td>
-                        <td class="p-4 font-bold text-slate-800">${Number(item.qty) || 1} Pcs</td>
-                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-800'}">${escapeHtmlText(item.type_grinding)}</span></td>
-                        <td class="p-4"><span class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 inline-block">${escapeHtmlText(currentStageName)}</span></td>
-                        <td class="p-4 text-center"><button type="button" onclick="openModalUpdateProgress('${escapeJsSingleQuote(item.id)}')" class="px-3.5 py-1.5 bg-brandBlue hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Update</button></td>
-                        <td class="p-4 text-center"><button type="button" onclick="openQuickPriorityModal('${escapeJsSingleQuote(item.id)}')" title="Klik untuk ubah prioritas Reguler / Urgent" class="px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer inline-flex items-center space-x-1 ${priorityBadgeClass}"><span>${escapeHtmlText(item.priority || 'Reguler')}</span><i class="fa-solid fa-chevron-down text-[9px] opacity-75"></i></button></td>
-                        <td class="p-4 text-center text-xs text-slate-500">${escapeHtmlText(item.last_updated_by || '-')}</td>
-                    `;
-                    tbodyActive.appendChild(tr);
-
-                    const card = document.createElement('div');
-                    card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 space-y-2.5";
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start"><span class="font-mono font-bold text-brandBlue text-sm">${escapeHtmlText(item.item_number)}</span><button type="button" onclick="openQuickPriorityModal('${escapeJsSingleQuote(item.id)}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold transition cursor-pointer inline-flex items-center space-x-1 ${priorityBadgeClass}"><span>${escapeHtmlText(item.priority || 'Reguler')}</span><i class="fa-solid fa-chevron-down text-[9px] opacity-75"></i></button></div>
-                        <p class="font-bold text-slate-900">${escapeHtmlText(item.item_name)} (${Number(item.qty) || 1} Pcs)</p>
-                        <div class="text-xs text-indigo-700 font-bold bg-indigo-50 p-2 rounded-lg">${escapeHtmlText(currentStageName)}</div>
-                        <div class="flex justify-between items-center pt-1"><span class="text-[11px] text-slate-400">Oleh: ${escapeHtmlText(item.last_updated_by || '-')}</span><button type="button" onclick="openModalUpdateProgress('${escapeJsSingleQuote(item.id)}')" class="px-4 py-1.5 bg-brandBlue text-white rounded-xl text-xs font-bold cursor-pointer">Update</button></div>
-                    `;
-                    mobileActive.appendChild(card);
-                } else {
-                    const trComp = document.createElement('tr');
-                    trComp.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                    trComp.innerHTML = `
-                        <td class="p-4 font-mono font-bold text-brandBlue">${escapeHtmlText(item.item_number)}</td>
-                        <td class="p-4 font-medium text-slate-900">${escapeHtmlText(item.item_name)}</td>
-                        <td class="p-4 font-bold text-emerald-700 text-base">${Number(item.qty) || 1} Pcs</td>
-                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-800'}">${escapeHtmlText(item.type_grinding)}</span></td>
-                        <td class="p-4 text-center text-xs"><span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">FINISHED</span><div class="text-[11px] text-slate-400 mt-1">${escapeHtmlText(item.completed_at || '-')} (${escapeHtmlText(item.completed_by || '-')})</div></td>
-                        <td class="p-4 text-center"><button type="button" onclick="openModalRepair('${escapeJsSingleQuote(item.id)}')" class="px-3 py-1.5 bg-amber-100 hover:bg-amber-600 hover:text-white text-amber-800 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">Repair</button></td>
-                    `;
-                    tbodyCompleted.appendChild(trComp);
-
-                    const cardComp = document.createElement('div');
-                    cardComp.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 space-y-2";
-                    cardComp.innerHTML = `
-                        <div class="flex justify-between items-start"><span class="font-mono font-bold text-brandBlue text-sm">${escapeHtmlText(item.item_number)}</span><span class="text-xs font-bold text-emerald-700">${Number(item.qty) || 1} Pcs</span></div>
-                        <p class="font-bold text-slate-900 text-sm">${escapeHtmlText(item.item_name)}</p>
-                        <div class="flex justify-between items-center pt-1"><span class="text-[11px] text-slate-400">${escapeHtmlText(item.completed_at || '-')}</span><button type="button" onclick="openModalRepair('${escapeJsSingleQuote(item.id)}')" class="px-3 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-bold cursor-pointer">Repair</button></div>
-                    `;
-                    mobileCompleted.appendChild(cardComp);
-                }
-            });
-
-            document.getElementById('statTotal').innerText = countTotalActive;
-            document.getElementById('statNew').innerText = countNew;
-            document.getElementById('statRegrind').innerText = countRegrind;
-            document.getElementById('statDone').innerText = countDone;
-
-            if(tbodyActive.innerHTML === '') tbodyActive.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400">Tidak ada item aktif.</td></tr>`;
-            if(tbodyCompleted.innerHTML === '') tbodyCompleted.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada item selesai.</td></tr>`;
-        }
-
-        function openModalAddItem() {
-            ['newItemNumber', 'newItemName', 'modalMasterSearch'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-            document.getElementById('newItemQty').value = '1';
-            document.getElementById('modalAddItem').classList.remove('hidden');
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
         }
 
         function handleAddItem(e) {
             e.preventDefault();
+            const newItemNumber = document.getElementById('newItemNumber').value.trim();
             const newItem = {
-                id: 'item_' + Date.now(),
-                item_number: document.getElementById('newItemNumber').value.trim(),
+                id: Date.now().toString(),
+                item_number: newItemNumber,
                 item_name: document.getElementById('newItemName').value.trim(),
                 qty: parseInt(document.getElementById('newItemQty').value) || 1,
                 type_grinding: document.getElementById('newItemType').value,
                 priority: document.getElementById('newItemPriority').value,
                 current_stage_index: 0,
+                supplier_access: false,
                 last_updated_by: getActorLabel(),
-                created_at: new Date().toLocaleDateString('id-ID')
+                completed_at: null,
+                completed_by: null
             };
             items.unshift(newItem);
             syncToDb('tool_items', items);
-            logAuditActivity('CREATE', newItem.item_number, `Input item baru ${newItem.item_name} (${newItem.qty} Pcs, ${newItem.type_grinding})`);
+            logAuditActivity('CREATE', newItemNumber, `Membuat item tracking baru (${newItem.type_grinding}, Qty: ${newItem.qty})`);
             closeModal('modalAddItem');
-            renderTables();
-            showToast('Berhasil', 'Item baru ditambahkan.', 'success');
+            showToast('Berhasil', 'Item baru berhasil ditambahkan ke Tracking Progress.', 'success');
         }
 
-        function openModalUpdateProgress(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if(!item) return;
-            document.getElementById('updateItemId').value = item.id;
-            document.getElementById('updateItemInfo').innerText = `${item.item_number} — ${item.item_name} (${item.type_grinding})`;
-            const select = document.getElementById('updateStageSelect');
-            select.innerHTML = '';
-            const stages = stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"];
-            stages.forEach((st, idx) => {
-                const opt = document.createElement('option');
-                opt.value = idx; opt.text = st;
-                if(idx === item.current_stage_index) opt.selected = true;
-                select.appendChild(opt);
-            });
-            document.getElementById('updatePrioritySelect').value = item.priority || 'Reguler';
-            document.getElementById('modalUpdateProgress').classList.remove('hidden');
-        }
-
-        function handleUpdateProgress(e) {
-            e.preventDefault();
-            const id = document.getElementById('updateItemId').value;
-            const item = items.find(i => i.id === id);
-            if(item) {
-                const newStageIdx = parseInt(document.getElementById('updateStageSelect').value);
-                const newPriority = document.getElementById('updatePrioritySelect').value;
-                const stages = stagesDefinition[item.type_grinding] || stagesDefinition["New Grinding"];
-                const oldStageName = stages[item.current_stage_index] || stages[0];
-                const newStageName = stages[newStageIdx] || stages[0];
-                const oldPriority = item.priority || 'Reguler';
-
-                item.current_stage_index = newStageIdx;
-                item.priority = newPriority;
-                item.last_updated_by = getActorLabel();
-
-                if(newStageIdx >= stages.length - 1) {
-                    item.completed_at = new Date().toLocaleDateString('id-ID');
-                    item.completed_by = getActorLabel();
-                    checkAndProcessAutoSyncCR(item);
-                }
-
-                syncToDb('tool_items', items);
-                logAuditActivity('STAGE_UPDATE', item.item_number, `Tahapan: "${oldStageName}" -> "${newStageName}" | Prioritas: "${oldPriority}" -> "${newPriority}"`);
-                closeModal('modalUpdateProgress');
-                renderTables();
-                showToast('Diperbarui', 'Status tahapan item berhasil diupdate.', 'success');
+        function toggleBuilderMode() {
+            builderModeActive = !builderModeActive;
+            const btn = document.getElementById('btnBuilder');
+            const editables = document.querySelectorAll('.editable-text');
+            if(builderModeActive) {
+                btn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold bg-emerald-600 text-white transition cursor-pointer";
+                editables.forEach(el => { el.contentEditable = "true"; el.classList.add("border", "border-dashed", "border-amber-400", "px-1", "bg-amber-50/50"); el.addEventListener('blur', saveCustomText); });
+            } else {
+                btn.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition cursor-pointer";
+                editables.forEach(el => { el.contentEditable = "false"; el.classList.remove("border", "border-dashed", "border-amber-400", "px-1", "bg-amber-50/50"); });
             }
         }
 
-        function openQuickPriorityModal(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if (!item) return;
-            const currentPrio = item.priority || 'Reguler';
-            document.getElementById('quickPriorityItemId').value = item.id;
-            document.getElementById('quickPriorityItemInfo').innerText = `${item.item_number} — ${item.item_name}`;
-
-            const btnReg = document.getElementById('btnChooseReguler');
-            const btnUrg = document.getElementById('btnChooseUrgent');
-
-            btnReg.className = currentPrio === 'Reguler'
-                ? 'py-3 px-3 rounded-xl border-2 border-slate-800 bg-slate-800 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-md'
-                : 'py-3 px-3 rounded-xl border-2 border-slate-200 bg-slate-50 hover:border-slate-400 text-slate-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
-
-            btnUrg.className = currentPrio === 'Urgent'
-                ? 'py-3 px-3 rounded-xl border-2 border-red-600 bg-red-600 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-md'
-                : 'py-3 px-3 rounded-xl border-2 border-red-200 bg-red-50/60 hover:border-red-400 text-red-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
-
-            document.getElementById('modalQuickPriority').classList.remove('hidden');
-        }
-
-        function applyQuickPriority(chosenPriority) {
-            const itemId = document.getElementById('quickPriorityItemId').value;
-            const item = items.find(i => i.id === itemId);
-            if (!item) {
-                closeModal('modalQuickPriority');
-                return;
+        function saveCustomText(e) {
+            const key = e.target.getAttribute('data-key');
+            if(key) { 
+                customTexts[key] = e.target.innerText.trim(); 
+                syncToDb('custom_texts', customTexts);
             }
-            const oldPrio = item.priority || 'Reguler';
-            item.priority = chosenPriority;
-            item.last_updated_by = getActorLabel();
-            syncToDb('tool_items', items);
-            logAuditActivity('PRIORITY_CHANGE', item.item_number, `Prioritas: "${oldPrio}" -> "${chosenPriority}"`);
-            closeModal('modalQuickPriority');
-            renderTables();
-            showToast('Prioritas Diubah', `${item.item_number} kini berstatus ${chosenPriority}.`, 'success');
         }
 
-        function openModalRepair(itemId) {
-            const item = items.find(i => i.id === itemId);
-            if(!item) return;
-            document.getElementById('repairItemId').value = item.id;
-            document.getElementById('repairItemInfo').innerText = `${item.item_number} — ${item.item_name} (Tersedia: ${item.qty || 1} Pcs)`;
-            document.getElementById('repairQtyInput').max = item.qty || 1;
-            document.getElementById('repairQtyInput').value = "1";
-            document.getElementById('modalRepairItem').classList.remove('hidden');
-        }
-
-        function handleRepairCompletedItem(e) {
-            e.preventDefault();
-            const itemId = document.getElementById('repairItemId').value;
-            const repairQty = parseInt(document.getElementById('repairQtyInput').value) || 0;
-            const item = items.find(i => i.id === itemId);
-            if(!item) return;
-            const currentQty = item.qty || 1;
-            if(repairQty <= 0 || repairQty > currentQty) { alert('Jumlah repair tidak valid.'); return; }
-
-            const newRepairObj = {
-                id: 'rep_' + Date.now(),
-                item_number: item.item_number,
-                item_name: item.item_name,
-                qty: repairQty,
-                keterangan: `Dari Selesai (${new Date().toLocaleDateString('id-ID')})`,
-                recorded_by: getActorLabel()
-            };
-            repairSpecialItems.unshift(newRepairObj);
-            syncToDb('repair_special_items', repairSpecialItems);
-
-            if(repairQty === currentQty) items = items.filter(i => i.id !== itemId);
-            else item.qty = currentQty - repairQty;
-
-            syncToDb('tool_items', items);
-            logAuditActivity('REPAIR_MIGRATE', item.item_number, `Memindahkan ${repairQty} Pcs dari Selesai ke Tool Repair`);
-            closeModal('modalRepairItem');
-            renderTables();
-            renderSpecialRepairTable();
-            showToast('Berhasil', `${repairQty} Pcs dipindahkan ke Tool Repair.`, 'success');
-        }
-
-        function renderSpecialRepairTable() {
-            const tbody = document.getElementById('repairSpecialTableBody');
-            const badge = document.getElementById('repairCountBadge');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            if(badge) badge.innerText = `${repairSpecialItems.length} Item`;
-            if(repairSpecialItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Tidak ada item tool repair saat ini.</td></tr>`;
-                return;
-            }
-            repairSpecialItems.forEach(rep => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-amber-50/30 transition border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-amber-800">${escapeHtmlText(rep.item_number)}</td>
-                    <td class="p-4 font-medium text-slate-900">${escapeHtmlText(rep.item_name)}</td>
-                    <td class="p-4 font-bold text-amber-700">${Number(rep.qty) || 1} Pcs</td>
-                    <td class="p-4 text-xs text-slate-600">${escapeHtmlText(rep.keterangan)}<br><span class="text-slate-400">oleh ${escapeHtmlText(rep.recorded_by || '-')}</span></td>
-                    <td class="p-4 text-center"><button type="button" onclick="deleteSpecialRepairItem('${escapeJsSingleQuote(rep.id)}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm"><i class="fa-solid fa-trash"></i></button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function deleteSpecialRepairItem(id) {
-            deleteRecordWithAudit({
-                confirmMsg: 'Hapus item dari daftar Tool Repair?',
-                getArray: () => repairSpecialItems,
-                setArray: (next) => { repairSpecialItems = next; },
-                matchFn: (r) => r.id === id,
-                dbPath: 'repair_special_items',
-                auditType: 'DELETE',
-                getItemNumber: (r) => r.item_number,
-                getAuditDetail: (r) => `Menghapus item Tool Repair: ${r.item_name} (${r.qty} Pcs)`
+        function applyCustomTexts() {
+            document.querySelectorAll('.editable-text').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if(key && customTexts[key]) el.innerText = customTexts[key];
             });
         }
 
@@ -4259,8 +3665,9 @@
             if(newPass) {
                 authCredentials.USER = newPass;
                 syncToDb('auth', authCredentials);
+                logAuditActivity('CHANGE_PWD', '-', 'Mengubah Password Login Web USER');
+                showToast('Berhasil', 'Password Login Web berhasil diubah!', 'success');
                 closeModal('modalChangePassWeb');
-                showToast('Berhasil', 'Password login web diperbarui.', 'success');
             }
         }
 
@@ -4275,108 +3682,574 @@
             if(newPass) {
                 authCredentials.LOG_PWD = newPass;
                 syncToDb('auth', authCredentials);
+                logAuditActivity('CHANGE_PWD', '-', 'Mengubah Password Menu Log Riwayat');
+                showToast('Berhasil', 'Password Log Riwayat berhasil diubah!', 'success');
                 closeModal('modalChangePassLog');
-                showToast('Berhasil', 'Password log riwayat diperbarui.', 'success');
             }
         }
 
-        function closeModal(modalId) {
-            const el = document.getElementById(modalId);
-            if(el) el.classList.add('hidden');
+        function switchTab(tab) {
+            currentTab = tab;
+            if(tab === 'active') {
+                document.getElementById('tabActiveBtn').className = "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer";
+                document.getElementById('tabCompletedBtn').className = "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition cursor-pointer";
+                document.getElementById('sectionActive').classList.remove('hidden');
+                document.getElementById('sectionCompleted').classList.add('hidden');
+            } else {
+                document.getElementById('tabCompletedBtn').className = "pb-3 font-bold text-sm text-brandBlue border-b-2 border-brandBlue transition cursor-pointer";
+                document.getElementById('tabActiveBtn').className = "pb-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition cursor-pointer";
+                document.getElementById('sectionCompleted').classList.remove('hidden');
+                document.getElementById('sectionActive').classList.add('hidden');
+            }
+            renderTables();
         }
 
-        function toggleBuilderMode() {
-            builderModeActive = !builderModeActive;
-            const btn = document.getElementById('btnBuilder');
-            btn.innerHTML = builderModeActive ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg><span> Mode Builder (On)</span>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg><span> Mode Builder (Off)</span>';
-            btn.className = builderModeActive ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold bg-amber-600 text-white transition cursor-pointer' : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-300 hover:bg-amber-600 hover:text-white transition cursor-pointer';
+        function switchMainView(view) {
+            if (isOperatorRestrictedView(view)) {
+                view = 'progress';
+            }
+            currentMainView = view;
+            ['viewProgress', 'viewMaster', 'viewStock', 'viewCostReduction', 'viewKnowledgeCycle', 'viewAuditTrail', 'viewTrial'].forEach(vId => {
+                document.getElementById(vId).classList.add('hidden');
+            });
 
-            document.querySelectorAll('.editable-text').forEach(el => {
-                if(builderModeActive) {
-                    el.classList.add('border-2', 'border-dashed', 'border-amber-400', 'cursor-pointer', 'px-1.5', 'py-0.5', 'rounded');
-                    el.onclick = (e) => {
-                        e.stopPropagation();
-                        const key = el.getAttribute('data-key');
-                        const newVal = prompt("Edit teks:", el.innerText);
-                        if(newVal !== null && newVal.trim() !== "") {
-                            customTexts[key] = newVal.trim();
-                            syncToDb('custom_texts', customTexts);
-                            el.innerText = newVal.trim();
-                            showToast('Teks Diperbarui', 'Perubahan tersimpan.', 'success');
-                        }
-                    };
+            if(view === 'progress') {
+                document.getElementById('viewProgress').classList.remove('hidden');
+                renderTables();
+                renderSpecialRepairTable();
+            } else if(view === 'master') {
+                document.getElementById('viewMaster').classList.remove('hidden');
+                renderMasterTablesContainer();
+            } else if(view === 'stock') {
+                document.getElementById('viewStock').classList.remove('hidden');
+                renderStockAndScrap();
+            } else if(view === 'costReduction') {
+                document.getElementById('viewCostReduction').classList.remove('hidden');
+                renderCRDatabase();
+                populateCRSelect();
+                if(!monthlyChartInstance) initMonthlyChart();
+                else updateMonthlyChart();
+                renderYearlyTable();
+            } else if(view === 'knowledgeCycle') {
+                document.getElementById('viewKnowledgeCycle').classList.remove('hidden');
+                renderKnowledgeCategoriesContainer();
+                renderCycleTimeCategoriesContainer();
+            } else if(view === 'auditTrail') {
+                document.getElementById('viewAuditTrail').classList.remove('hidden');
+                renderAuditTrailTable();
+            } else if(view === 'trial') {
+                document.getElementById('viewTrial').classList.remove('hidden');
+                renderTrialProsesContainer();
+            }
+        }
+
+        function openQuickPriorityModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const currentPrio = item.priority === 'Urgent' ? 'Urgent' : 'Reguler';
+            document.getElementById('quickPriorityItemId').value = item.id;
+            document.getElementById('quickPriorityItemInfo').innerText = `${item.item_number} — ${item.item_name} (${currentPrio})`;
+
+            const btnReg = document.getElementById('btnChooseReguler');
+            const btnUrg = document.getElementById('btnChooseUrgent');
+
+            btnReg.className = currentPrio === 'Reguler'
+                ? 'py-3 px-3 rounded-xl border-2 border-slate-700 bg-slate-800 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-sm'
+                : 'py-3 px-3 rounded-xl border-2 border-slate-200 bg-slate-50 hover:border-slate-400 text-slate-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
+
+            btnUrg.className = currentPrio === 'Urgent'
+                ? 'py-3 px-3 rounded-xl border-2 border-red-600 bg-red-600 text-white font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1 shadow-sm'
+                : 'py-3 px-3 rounded-xl border-2 border-red-200 bg-red-50/60 hover:border-red-500 text-red-700 font-bold text-xs transition cursor-pointer flex flex-col items-center space-y-1';
+
+            document.getElementById('modalQuickPriority').classList.remove('hidden');
+        }
+
+        function applyQuickPriority(chosenPriority) {
+            const itemId = document.getElementById('quickPriorityItemId').value;
+            const item = items.find(i => i.id === itemId);
+            closeModal('modalQuickPriority');
+            if (!item) return;
+
+            const oldPriority = item.priority === 'Urgent' ? 'Urgent' : 'Reguler';
+            if (oldPriority === chosenPriority) return;
+
+            item.priority = chosenPriority;
+            item.last_updated_by = getActorLabel();
+
+            syncToDb('tool_items', items);
+            logAuditActivity('PRIORITY_CHANGE', item.item_number, `Ubah prioritas: ${oldPriority} ➔ ${chosenPriority}`);
+            renderTables();
+            showToast('Prioritas Diperbarui', `${item.item_number} diubah menjadi ${chosenPriority}.`, 'success');
+        }
+
+        function renderTables() {
+            const keyword = (document.getElementById('searchBox')?.value || '').toLowerCase();
+            const filterType = document.getElementById('filterType')?.value || 'all';
+            const activeTbody = document.getElementById('activeTableBody');
+            const completedTbody = document.getElementById('completedTableBody');
+            const activeCards = document.getElementById('activeMobileCards');
+            const completedCards = document.getElementById('completedMobileCards');
+            
+            if(!activeTbody) return;
+            activeTbody.innerHTML = ''; completedTbody.innerHTML = ''; activeCards.innerHTML = ''; completedCards.innerHTML = '';
+            let totalActive = 0, countNew = 0, countRegrind = 0, countDone = 0;
+
+            items.forEach(item => {
+                const stages = stagesDefinition[item.type_grinding];
+                if(item.current_stage_index >= stages.length - 1) countDone += (item.qty || 1);
+                else { totalActive += (item.qty || 1); if(item.type_grinding === 'New Grinding') countNew += (item.qty || 1); else countRegrind += (item.qty || 1); }
+            });
+
+            document.getElementById('statTotal').innerText = totalActive;
+            document.getElementById('statNew').innerText = countNew;
+            document.getElementById('statRegrind').innerText = countRegrind;
+            document.getElementById('statDone').innerText = countDone;
+
+            const filtered = items.filter(item => (item.item_number.toLowerCase().includes(keyword) || item.item_name.toLowerCase().includes(keyword)) && (filterType === 'all' || item.type_grinding === filterType));
+
+            filtered.forEach(item => {
+                const stages = stagesDefinition[item.type_grinding];
+                const isFinished = item.current_stage_index >= stages.length - 1;
+                const currentStageName = stages[item.current_stage_index] || stages[0];
+                const progressPercentage = Math.round(((item.current_stage_index + 1) / stages.length) * 100);
+                const prioLabel = item.priority === 'Urgent' ? 'Urgent' : 'Reguler';
+
+                if(!isFinished) {
+                    const updateButtonHTML = `<button onclick="openModalUpdate('${item.id}')" class="bg-slate-900 hover:bg-brandBlue text-white px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer">Update Status</button>`;
+                    const priorityBadgeHTML = `<button type="button" onclick="openQuickPriorityModal('${item.id}')" title="Klik untuk ubah Reguler / Urgent" class="px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer inline-flex items-center space-x-1 ${prioLabel === 'Urgent' ? 'bg-red-100 text-red-700 hover:bg-red-200 ring-1 ring-red-300' : 'bg-slate-100 text-slate-700 hover:bg-indigo-100 hover:text-indigo-700'}"><span>${prioLabel}</span><i class="fa-solid fa-chevron-down text-[9px] opacity-70"></i></button>`;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-4 font-mono font-bold text-brandBlue">${item.item_number}</td>
+                        <td class="p-4 font-medium text-slate-900">${item.item_name}</td>
+                        <td class="p-4"><span class="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
+                        <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">${item.type_grinding}</span></td>
+                        <td class="p-4">
+                            <div class="space-y-1">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700">${currentStageName}</span>
+                                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden"><div class="bg-brandBlue h-full" style="width: ${progressPercentage}%"></div></div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center">${updateButtonHTML}</td>
+                        <td class="p-4 text-center">${priorityBadgeHTML}</td>
+                        <td class="p-4 text-center"><span class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">${item.last_updated_by || 'SYSTEM'}</span></td>
+                    `;
+                    activeTbody.appendChild(tr);
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div><span class="font-mono font-bold text-brandBlue text-sm">${item.item_number}</span><h4 class="font-bold text-slate-900 text-base mt-0.5">${item.item_name}</h4></div>
+                            <span class="text-xs px-2.5 py-1 rounded-full font-bold ${item.type_grinding === 'New Grinding' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">${item.type_grinding}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl items-center">
+                            <div>QTY: <strong class="text-blue-700">${item.qty || 1} Pcs</strong></div>
+                            <div class="flex items-center space-x-1.5"><span>Prioritas:</span> ${priorityBadgeHTML}</div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs font-bold text-slate-700"><span>Progress: ${currentStageName}</span><span>${progressPercentage}%</span></div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-brandBlue h-full" style="width: ${progressPercentage}%"></div></div>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                            <span>Oleh: <strong>${item.last_updated_by || 'SYSTEM'}</strong></span>
+                            ${updateButtonHTML}
+                        </div>
+                    `;
+                    activeCards.appendChild(card);
+
                 } else {
-                    el.classList.remove('border-2', 'border-dashed', 'border-amber-400', 'cursor-pointer', 'px-1.5', 'py-0.5', 'rounded');
-                    el.onclick = null;
+                    const deleteButtonHTML = currentRole === 'ADMIN_USER' ? `<button onclick="deleteItem('${item.id}')" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Hapus</button>` : '-';
+                    const repairButtonHTML = `<button onclick="openModalRepair('${item.id}')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer flex items-center space-x-1"><i class="fa-solid fa-wrench text-[10px]"></i><span>Repair</span></button>`;
+                    const completedDateStr = item.completed_at || '-';
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-4 font-mono font-bold text-slate-600">${item.item_number}</td>
+                        <td class="p-4 font-medium text-slate-900">${item.item_name}</td>
+                        <td class="p-4"><span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-lg font-bold">${item.qty || 1} Pcs</span></td>
+                        <td class="p-4"><span class="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-700">${item.type_grinding}</span></td>
+                        <td class="p-4 text-center">
+                            <div class="flex flex-col items-center space-y-0.5">
+                                <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700">Finished</span>
+                                <span class="text-[11px] font-semibold text-slate-500">${completedDateStr} (${item.completed_by || '-'})</span>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center"><div class="inline-flex items-center space-x-2">${repairButtonHTML}${deleteButtonHTML}</div></td>
+                    `;
+                    completedTbody.appendChild(tr);
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 space-y-3";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div><span class="font-mono font-bold text-slate-600 text-sm">${item.item_number}</span><h4 class="font-bold text-slate-900 text-base mt-0.5">${item.item_name}</h4></div>
+                            <span class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700">Finished</span>
+                        </div>
+                        <div class="flex flex-col text-xs text-slate-600 bg-slate-50 p-3 rounded-xl space-y-1">
+                            <div class="flex justify-between"><span>QTY Selesai:</span> <strong class="text-emerald-700">${item.qty || 1} Pcs</strong></div>
+                            <div class="flex justify-between"><span>Tanggal:</span> <strong class="text-slate-800">${completedDateStr}</strong></div>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100">${repairButtonHTML}${deleteButtonHTML}</div>
+                    `;
+                    completedCards.appendChild(card);
                 }
             });
-            showToast('Mode Builder', builderModeActive ? 'Aktif (Klik teks bergaris putus untuk mengedit)' : 'Dimatikan', 'info');
         }
 
-        function applyCustomTexts() {
-            document.querySelectorAll('.editable-text').forEach(el => {
-                const key = el.getAttribute('data-key');
-                if(key && customTexts[key]) el.innerText = customTexts[key];
+        function renderSpecialRepairTable() {
+            const tbody = document.getElementById('repairSpecialTableBody');
+            const badge = document.getElementById('repairCountBadge');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            badge.innerText = `${repairSpecialItems.length} Item`;
+            if(repairSpecialItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">Belum ada tool repair.</td></tr>`;
+                return;
+            }
+            repairSpecialItems.forEach((rep) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-amber-50/30 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-bold text-amber-700">${rep.itemNumber}</td>
+                    <td class="p-4 font-medium text-slate-900">${rep.detailBarang}</td>
+                    <td class="p-4 font-bold text-slate-800">${rep.qty} Pcs</td>
+                    <td class="p-4"><input type="text" value="${rep.keterangan || ''}" onblur="updateRepairNote('${rep.id}', this.value)" placeholder="Keterangan..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"></td>
+                    <td class="p-4 text-center"><button onclick="deleteSpecialRepair('${rep.id}')" class="p-2 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 transition cursor-pointer shadow-sm"><i class="fa-solid fa-trash"></i></button></td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
-        function filterMasterSuggestions(val) {
-            const list = document.getElementById('masterSuggestionsList');
-            renderMasterDropdown(list, val, (m) => {
-                document.getElementById('newItemNumber').value = m.itemNumber;
-                document.getElementById('newItemName').value = m.desc;
+        function updateRepairNote(id, note) {
+            const item = repairSpecialItems.find(r => r.id === id);
+            if(item && item.keterangan !== note) {
+                item.keterangan = note;
+                syncToDb('repair_special_items', repairSpecialItems);
+                logAuditActivity('EDIT', item.itemNumber, `Update keterangan repair: "${note}"`);
+            }
+        }
+
+        function deleteSpecialRepair(id) {
+            deleteRecordWithAudit({
+                confirmMsg: 'Hapus item dari kolom khusus repair ini?',
+                getArray: () => repairSpecialItems,
+                setArray: (next) => { repairSpecialItems = next; },
+                matchFn: (r) => r.id === id,
+                dbPath: 'repair_special_items',
+                auditType: 'DELETE',
+                getItemNumber: (r) => r.itemNumber,
+                getAuditDetail: () => 'Menghapus item dari antrian Tool Repair'
             });
         }
 
-        function filterMasterSuggestionsGeneric(val, prefix) {
-            const list = document.getElementById(`${prefix}SuggestionsList`);
-            renderMasterDropdown(list, val, (m) => {
-                if (prefix === 'cr') {
-                    document.getElementById('crItemNumber').value = m.itemNumber;
-                    document.getElementById('crDesc').value = m.desc;
-                } else if (prefix === 'buffer') {
-                    document.getElementById('bufferItemNumber').value = m.itemNumber;
-                    document.getElementById('bufferDesc').value = m.desc;
-                } else if (prefix === 'knowledge') {
-                    document.getElementById('knowledgeItemNumber').value = m.itemNumber;
-                    document.getElementById('knowledgeDesc').value = m.desc;
-                } else if (prefix === 'ct') {
-                    document.getElementById('ctItemNumber').value = m.itemNumber;
-                    document.getElementById('ctDesc').value = m.desc;
+        function openModalUpdate(id) {
+            const item = items.find(i => i.id === id);
+            if(!item) return;
+            document.getElementById('updateItemId').value = item.id;
+            document.getElementById('updateItemInfo').innerText = `${item.item_number} — ${item.item_name} | QTY: ${item.qty || 1} Pcs`;
+            document.getElementById('updatePrioritySelect').value = item.priority;
+            const select = document.getElementById('updateStageSelect');
+            select.innerHTML = '';
+            stagesDefinition[item.type_grinding].forEach((stage, index) => {
+                const opt = document.createElement('option'); opt.value = index; opt.text = stage;
+                if(index === item.current_stage_index) opt.selected = true;
+                select.appendChild(opt);
+            });
+            document.getElementById('modalUpdateProgress').classList.remove('hidden');
+        }
+
+        function handleUpdateProgress(e) {
+            e.preventDefault();
+            const item = items.find(i => i.id === document.getElementById('updateItemId').value);
+            if(item) {
+                const oldStage = stagesDefinition[item.type_grinding][item.current_stage_index];
+                const newStageIndex = parseInt(document.getElementById('updateStageSelect').value);
+                const stages = stagesDefinition[item.type_grinding];
+                const wasFinished = item.current_stage_index >= stages.length - 1;
+                const isNowFinished = newStageIndex >= stages.length - 1;
+                const newStage = stages[newStageIndex];
+
+                item.current_stage_index = newStageIndex;
+                item.priority = document.getElementById('updatePrioritySelect').value;
+                item.last_updated_by = getActorLabel();
+
+                if(!wasFinished && isNowFinished) {
+                    const now = new Date();
+                    item.completed_at = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    item.completed_by = getActorLabel();
+                    checkAndProcessAutoSyncCR(item);
+                } else if(!isNowFinished) {
+                    item.completed_at = null; item.completed_by = null;
                 }
+                syncToDb('tool_items', items);
+                logAuditActivity('STAGE_UPDATE', item.item_number, `Update Tahapan: "${oldStage}" -> "${newStage}" (${item.priority})`);
+            }
+            closeModal('modalUpdateProgress');
+        }
+
+        function openModalRepair(id) {
+            const item = items.find(i => i.id === id);
+            if(!item) return;
+            document.getElementById('repairItemId').value = item.id;
+            document.getElementById('repairItemInfo').innerText = `${item.item_number} — ${item.item_name} | QTY Selesai: ${item.qty || 1} Pcs`;
+            document.getElementById('repairQtyInput').value = 1;
+            document.getElementById('repairQtyInput').max = item.qty || 1;
+            document.getElementById('modalRepairItem').classList.remove('hidden');
+        }
+
+        function handleRepairCompletedItem(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('repairItemId').value;
+            const repairQty = parseInt(document.getElementById('repairQtyInput').value) || 1;
+            const parentItem = items.find(i => i.id === itemId);
+            if(!parentItem) return;
+            if(repairQty > (parentItem.qty || 1)) { alert('Jumlah QTY repair tidak boleh melebihi QTY selesai!'); return; }
+
+            parentItem.qty = (parentItem.qty || 1) - repairQty;
+            parentItem.last_updated_by = getActorLabel();
+            repairSpecialItems.unshift({
+                id: 'rep_' + Date.now(),
+                itemNumber: parentItem.item_number,
+                detailBarang: `${parentItem.item_name}`,
+                qty: repairQty,
+                keterangan: ''
             });
+            syncToDb('tool_items', items);
+            syncToDb('repair_special_items', repairSpecialItems);
+            logAuditActivity('REPAIR_MIGRATE', parentItem.item_number, `Migrasi ${repairQty} Pcs ke Kolom Repair`);
+            closeModal('modalRepairItem');
+            showToast('Berhasil', `${repairQty} Pcs dipindahkan ke Kolom Khusus Repair!`, 'success');
+        }
+
+        function deleteItem(id) {
+            deleteRecordWithAudit({
+                confirmMsg: 'Apakah Anda yakin ingin menghapus item ini dari Tracking Progress?',
+                getArray: () => items,
+                setArray: (next) => { items = next; },
+                matchFn: (i) => i.id === id,
+                dbPath: 'tool_items',
+                auditType: 'DELETE',
+                getItemNumber: (i) => i.item_number,
+                getAuditDetail: (i) => `Menghapus item tracking: ${i.item_name}`,
+                toastTitle: 'Berhasil',
+                toastMsg: 'Item berhasil dihapus.',
+                onAfterDelete: () => renderTables()
+            });
+        }
+
+        function filterMasterSuggestionsGeneric(keyword, targetType) {
+            const listMap = { buffer: 'bufferSuggestionsList', knowledge: 'knowledgeSuggestionsList', ct: 'ctSuggestionsList', cr: 'crSuggestionsList' };
+            const prefixMap = { buffer: 'buffer', knowledge: 'knowledge', ct: 'ct', cr: 'cr' };
+            const listContainer = document.getElementById(listMap[targetType]);
+            const p = prefixMap[targetType];
+
+            renderMasterDropdown(listContainer, keyword, (m) => {
+                document.getElementById(`${p}ItemNumber`).value = m.itemNumber;
+                document.getElementById(`${p}Desc`).value = m.desc;
+                document.getElementById(`modal${targetType.charAt(0).toUpperCase() + targetType.slice(1)}MasterSearch`).value = `${m.itemNumber} - ${m.desc}`;
+                showToast('Auto-Fill', 'Item berhasil dipilih dari Data Master.', 'info');
+            });
+        }
+
+        function openModalAddItem() {
+            ['modalMasterSearch', 'newItemNumber', 'newItemName'].forEach(id => { document.getElementById(id).value = ''; });
+            document.getElementById('newItemQty').value = '1';
+            const listEl = document.getElementById('masterSuggestionsList');
+            listEl.classList.add('hidden');
+            listEl.innerHTML = '';
+            document.getElementById('modalAddItem').classList.remove('hidden');
         }
 
         function startBarcodeScanner() {
             document.getElementById('scannerModal').classList.remove('hidden');
             html5QrCode = new Html5Qrcode("reader");
-            const config = { fps: 10, qrbox: { width: 250, height: 150 } };
-
+            const config = { fps: 15, qrbox: { width: 280, height: 160 }, videoConstraints: { facingMode: "environment" } };
             html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
-                document.getElementById('modalMasterSearch').value = decodedText;
-                document.getElementById('newItemNumber').value = decodedText;
-
-                let foundDesc = "";
-                masterTables.forEach(table => {
-                    if(table.rows) {
-                        const row = table.rows.find(r => r && String(r.itemNumber || '').trim().toLowerCase() === decodedText.trim().toLowerCase());
-                        if(row) foundDesc = row.desc;
-                    }
-                });
-                if(foundDesc) document.getElementById('newItemName').value = foundDesc;
-
-                closeScannerModal();
-                showToast('Scan Berhasil', `Barcode ${decodedText} terbaca.`, 'success');
-            }, () => {}).catch(() => {});
+                handleScanSuccess(decodedText.trim());
+            }, (err) => {}).catch(err => { alert("Gagal kamera: " + err); closeScannerModal(); });
         }
 
         function closeScannerModal() {
             if(html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                    document.getElementById('scannerModal').classList.add('hidden');
-                }).catch(() => { document.getElementById('scannerModal').classList.add('hidden'); });
+                html5QrCode.stop().then(() => { html5QrCode.clear(); document.getElementById('scannerModal').classList.add('hidden'); }).catch(e => { document.getElementById('scannerModal').classList.add('hidden'); });
             } else { document.getElementById('scannerModal').classList.add('hidden'); }
+        }
+
+        function handleScanSuccess(scannedCode) {
+            closeScannerModal();
+            document.getElementById('modalMasterSearch').value = scannedCode;
+            const matches = getMasterMatches(scannedCode);
+            const foundMatch = matches.find(m => m.itemNumber && m.itemNumber.trim().toUpperCase() === scannedCode.toUpperCase());
+            if(foundMatch) {
+                document.getElementById('newItemNumber').value = foundMatch.itemNumber;
+                document.getElementById('newItemName').value = foundMatch.desc;
+                showToast('Scan Berhasil!', `Item ${foundMatch.itemNumber} ditemukan di Master.`, 'success');
+            } else {
+                document.getElementById('newItemNumber').value = scannedCode;
+                document.getElementById('newItemName').value = "Tool Manual (" + scannedCode + ")";
+                showToast('Scan Selesai', `Barcode: ${scannedCode}`, 'info');
+            }
+        }
+
+        function filterMasterSuggestions(keyword) {
+            const listContainer = document.getElementById('masterSuggestionsList');
+            renderMasterDropdown(listContainer, keyword, (m) => {
+                document.getElementById('newItemNumber').value = m.itemNumber;
+                document.getElementById('newItemName').value = m.desc;
+                document.getElementById('modalMasterSearch').value = `${m.itemNumber} - ${m.desc}`;
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            ['modalMasterSearch', 'modalBufferMasterSearch', 'modalKnowledgeMasterSearch', 'modalCtMasterSearch', 'modalCrMasterSearch'].forEach(id => {
+                const inputEl = document.getElementById(id);
+                const listId = id.replace('modal', '').replace('Search', 'SuggestionsList');
+                const listEl = document.getElementById(listId);
+                if(inputEl && listEl && !inputEl.contains(e.target) && !listEl.contains(e.target)) listEl.classList.add('hidden');
+            });
+        });
+
+        function refreshAllAppViews() {
+            renderTables();
+            renderSpecialRepairTable();
+            renderMasterTablesContainer();
+            renderStockAndScrap();
+            renderCRDatabase();
+            populateCRSelect();
+            if(!monthlyChartInstance) initMonthlyChart();
+            else updateMonthlyChart();
+            renderYearlyTable();
+            renderKnowledgeCategoriesContainer();
+            renderCycleTimeCategoriesContainer();
+            renderAuditTrailTable();
+            renderTrialProsesContainer();
+        }
+
+        function completeLoginSession(displayName, role, npk) {
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Memproses...</span>`;
+            setTimeout(() => {
+                btn.innerHTML = `<span>Masuk ke Sistem</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
+                showToast('Login Berhasil', `Selamat datang, ${displayName}!`, 'success');
+                setTimeout(() => {
+                    togglePopup(false);
+                    currentUser = displayName;
+                    currentRole = role;
+                    currentNpk = npk || null;
+
+                    sessionStorage.setItem('wks_current_user', currentUser);
+                    sessionStorage.setItem('wks_current_role', currentRole);
+                    if (currentNpk) sessionStorage.setItem('wks_current_npk', currentNpk);
+                    else sessionStorage.removeItem('wks_current_npk');
+
+                    setupUIRoles();
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+
+                    logAuditActivity('LOGIN', currentNpk || '-', `Login ke sistem sebagai ${getActorLabel()}`);
+                    refreshAllAppViews();
+                }, 700);
+            }, 500);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const rawUser = document.getElementById('loginUser').value.trim();
+            const rawPass = document.getElementById('loginPass').value.trim();
+            const upperUser = rawUser.toUpperCase();
+
+            if (upperUser === 'USER') {
+                if (rawPass === authCredentials.USER) {
+                    completeLoginSession('USER', 'ADMIN_USER', null);
+                } else {
+                    showToast('Login Gagal', 'Password USER salah!', 'error');
+                }
+                return;
+            }
+
+            const matchedAccount = registeredAccounts.find(acc =>
+                String(acc.fullName || '').trim().toLowerCase() === rawUser.toLowerCase() &&
+                String(acc.npk || '').trim().toLowerCase() === rawPass.toLowerCase()
+            );
+
+            if (!matchedAccount) {
+                showToast('Akun Belum Terdaftar', 'Nama atau NPK/NIK tidak ditemukan. Klik Create Account untuk mendaftar.', 'error');
+                return;
+            }
+
+            if (matchedAccount.status === 'PENDING' || matchedAccount.approved === false) {
+                showToast('Menunggu Konfirmasi USER', 'Akun Anda masih menunggu persetujuan dari USER sebelum bisa login.', 'info');
+                return;
+            }
+
+            completeLoginSession(matchedAccount.fullName, 'OPERATOR', matchedAccount.npk);
+        }
+
+        function setupUIRoles() {
+            const nameEl = document.getElementById('navAccountName');
+            const roleEl = document.getElementById('navUserRole');
+            const headerCrBtn = document.getElementById('btnHeaderCR');
+
+            if (nameEl) {
+                nameEl.innerText = currentRole === 'OPERATOR' && currentNpk
+                    ? `${currentUser} (${currentNpk})`
+                    : (currentUser || 'USER');
+            }
+            if (roleEl) {
+                if (currentRole === 'ADMIN_USER') {
+                    roleEl.innerText = 'Role: USER';
+                } else {
+                    const unlockedCount = controllablePageDefs.filter(p => operatorUnlockedViews[p.key]).length;
+                    roleEl.innerText = unlockedCount > 0 ? `Nama & NPK (${unlockedCount} Menu)` : 'Nama & NPK';
+                }
+            }
+
+            const isAdmin = currentRole === 'ADMIN_USER';
+            const canAccessMaster = isAdmin || Boolean(operatorUnlockedViews.master);
+            const canAccessCR = isAdmin || Boolean(operatorUnlockedViews.costReduction);
+            const canAccessTrial = isAdmin || Boolean(operatorUnlockedViews.trial);
+            const canAccessKC = isAdmin || Boolean(operatorUnlockedViews.knowledgeCycle);
+            const canAccessLog = isAdmin || Boolean(operatorUnlockedViews.auditTrail);
+
+            document.getElementById('btnAddItem').classList.remove('hidden');
+            document.getElementById('btnNavMaster').classList.toggle('hidden', !canAccessMaster);
+            document.getElementById('btnNavCR').classList.toggle('hidden', !canAccessCR);
+            document.getElementById('btnNavTrial').classList.toggle('hidden', !canAccessTrial);
+            document.getElementById('btnNavKnowledgeCycle').classList.toggle('hidden', !canAccessKC);
+            document.getElementById('btnNavLog').classList.toggle('hidden', !canAccessLog);
+            document.getElementById('btnBuilder').classList.toggle('hidden', !isAdmin);
+
+            if (headerCrBtn) {
+                headerCrBtn.classList.toggle('hidden', !canAccessCR);
+                headerCrBtn.classList.toggle('flex', canAccessCR);
+            }
+
+            updateAccessControlBadgesUI();
+
+            if (isOperatorRestrictedView(currentMainView)) {
+                switchMainView('progress');
+            }
+        }
+
+        function logout() {
+            if (currentUser) {
+                logAuditActivity('LOGOUT', currentNpk || '-', `Keluar dari sistem (${getActorLabel()})`);
+            }
+            currentUser = null;
+            currentRole = null;
+            currentNpk = null;
+            sessionStorage.removeItem('wks_current_user');
+            sessionStorage.removeItem('wks_current_role');
+            sessionStorage.removeItem('wks_current_npk');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+            if(builderModeActive) toggleBuilderMode();
         }
     </script>
 </body>
