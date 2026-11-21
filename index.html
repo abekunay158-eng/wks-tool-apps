@@ -2049,6 +2049,48 @@
             });
             doc.save(filename);
         }
+function normalizeMasterTables(rawVal) {
+    if (!rawVal) return [];
+    const list = Array.isArray(rawVal) ? rawVal : Object.values(rawVal);
+    return list
+        .filter(t => t && typeof t === 'object')
+        .map((t, idx) => {
+            const rawRows = t.rows
+                ? (Array.isArray(t.rows) ? t.rows : Object.values(t.rows))
+                : [];
+            const cleanRows = rawRows.filter(
+                r => r && typeof r === 'object' && r.id !== undefined && r.id !== null
+            );
+            return {
+                ...t,
+                id: String(t.id || ('table_' + (idx + 1))),
+                tableName: t.tableName || t.categoryName || `Tabel Master ${idx + 1}`,
+                expanded: t.expanded !== undefined ? Boolean(t.expanded) : true,
+                rows: cleanRows
+            };
+        });
+}
+function normalizeCategoryList(rawVal, defaultPrefix = 'cat') {
+    if (!rawVal) return [];
+    const list = Array.isArray(rawVal) ? rawVal : Object.values(rawVal);
+    return list
+        .filter(c => c && typeof c === 'object')
+        .map((c, idx) => {
+            const rawRows = c.rows
+                ? (Array.isArray(c.rows) ? c.rows : Object.values(c.rows))
+                : [];
+            const cleanRows = rawRows.filter(
+                r => r && typeof r === 'object' && r.id !== undefined && r.id !== null
+            );
+            return {
+                ...c,
+                id: String(c.id || (`${defaultPrefix}_${idx + 1}`)),
+                categoryName: c.categoryName || c.tableName || `Kategori ${idx + 1}`,
+                expanded: c.expanded !== undefined ? Boolean(c.expanded) : true,
+                rows: cleanRows
+            };
+        });
+}
 
         window.initFirebaseSync = function() {
             const indicator = document.getElementById('syncIndicator');
@@ -2111,23 +2153,23 @@
             });
 
             window.dbOnValue(window.dbRef(window.db, 'master_tables'), (snapshot) => {
-                if(snapshot.exists()) {
-                    const val = snapshot.val();
-                    masterTables = Array.isArray(val) ? val : Object.values(val);
-                    masterTables.forEach(t => { if(!t.rows) t.rows = []; else if(!Array.isArray(t.rows)) t.rows = Object.values(t.rows); });
-                } else {
-                    const defaultMasters = [
-                        {
-                            id: "table_1",
-                            tableName: "Katalog Endmill Standard",
-                            rows: [{ id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }]
-                        }
-                    ];
-                    syncToDb('master_tables', defaultMasters);
-                    masterTables = defaultMasters;
-                }
-                if(currentUser) renderMasterTablesContainer();
-            });
+    if (snapshot.exists()) {
+        masterTables = normalizeMasterTables(snapshot.val());
+    } else {
+        const defaultMasters = [
+            {
+                id: "table_1",
+                tableName: "Katalog Endmill Standard",
+                expanded: true,
+                rows: [{ id: "r1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide", toolLife: "500 Pcs", note: "Stok Utama WKS" }]
+            }
+        ];
+        syncToDb('master_tables', defaultMasters);
+        masterTables = defaultMasters;
+    }
+    if (currentUser) renderMasterTablesContainer();
+});
+
 
             window.dbOnValue(window.dbRef(window.db, 'buffer_stock'), (snapshot) => {
                 if(snapshot.exists()) {
@@ -2185,44 +2227,40 @@
             });
 
             window.dbOnValue(window.dbRef(window.db, 'knowledge_categories'), (snapshot) => {
-                if(snapshot.exists()) {
-                    const val = snapshot.val();
-                    knowledgeCategories = Array.isArray(val) ? val : Object.values(val);
-                    knowledgeCategories.forEach(c => { if(!c.rows) c.rows = []; else if(!Array.isArray(c.rows)) c.rows = Object.values(c.rows); });
-                } else {
-                    const defaultKnowledgeCat = [
-                        {
-                            id: "kcat_1",
-                            categoryName: "Drawing Standard Endmill",
-                            expanded: true,
-                            rows: [{ id: "k1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide D10", drawing: "" }]
-                        }
-                    ];
-                    syncToDb('knowledge_categories', defaultKnowledgeCat);
-                    knowledgeCategories = defaultKnowledgeCat;
-                }
-                if(currentUser) renderKnowledgeCategoriesContainer();
-            });
+    if (snapshot.exists()) {
+        knowledgeCategories = normalizeCategoryList(snapshot.val(), 'kcat');
+    } else {
+        const defaultKnowledgeCat = [
+            {
+                id: "kcat_1",
+                categoryName: "Drawing Standard Endmill",
+                expanded: true,
+                rows: [{ id: "k1", itemNumber: "WKS-2026-001", desc: "Endmill 4-Flute Carbide D10", drawing: "" }]
+            }
+        ];
+        syncToDb('knowledge_categories', defaultKnowledgeCat);
+        knowledgeCategories = normalizeCategoryList(defaultKnowledgeCat, 'kcat');
+    }
+    if (currentUser) renderKnowledgeCategoriesContainer();
+});
 
             window.dbOnValue(window.dbRef(window.db, 'cycle_time_categories'), (snapshot) => {
-                if(snapshot.exists()) {
-                    const val = snapshot.val();
-                    cycleTimeCategories = Array.isArray(val) ? val : Object.values(val);
-                    cycleTimeCategories.forEach(c => { if(!c.rows) c.rows = []; else if(!Array.isArray(c.rows)) c.rows = Object.values(c.rows); });
-                } else {
-                    const defaultCycleCat = [
-                        {
-                            id: "ctcat_1",
-                            categoryName: "Line CNC Grinding Utama",
-                            expanded: true,
-                            rows: [{ id: "ct1", itemNumber: "WKS-2026-001", deskripsiTool: "Endmill 4-Flute Carbide D10", p1: "Setup", t1: "45", p2: "Roughing", t2: "120", p3: "Finishing", t3: "90", p4: "-", t4: "0", p5: "-", t5: "0", p6: "-", t6: "0", p7: "-", t7: "0", p8: "-", t8: "0" }]
-                        }
-                    ];
-                    syncToDb('cycle_time_categories', defaultCycleCat);
-                    cycleTimeCategories = defaultCycleCat;
-                }
-                if(currentUser) renderCycleTimeCategoriesContainer();
-            });
+    if (snapshot.exists()) {
+        cycleTimeCategories = normalizeCategoryList(snapshot.val(), 'ctcat');
+    } else {
+        const defaultCycleCat = [
+            {
+                id: "ctcat_1",
+                categoryName: "Line CNC Grinding Utama",
+                expanded: true,
+                rows: [{ id: "ct1", itemNumber: "WKS-2026-001", deskripsiTool: "Endmill 4-Flute Carbide D10", p1: "Setup", t1: "45", p2: "Roughing", t2: "120", p3: "Finishing", t3: "90", p4: "-", t4: "0", p5: "-", t5: "0", p6: "-", t6: "0", p7: "-", t7: "0", p8: "-", t8: "0" }]
+            }
+        ];
+        syncToDb('cycle_time_categories', defaultCycleCat);
+        cycleTimeCategories = normalizeCategoryList(defaultCycleCat, 'ctcat');
+    }
+    if (currentUser) renderCycleTimeCategoriesContainer();
+});
 
             window.dbOnValue(window.dbRef(window.db, 'audit_trail_logs'), (snapshot) => {
                 if(snapshot.exists()) {
@@ -2690,13 +2728,21 @@
         }
 
         function handleCreateKnowledgeCategory(e) {
-            e.preventDefault();
-            const name = document.getElementById('inputKnowledgeCategoryName').value.trim();
-            knowledgeCategories.push({ id: 'kcat_' + Date.now(), categoryName: name, expanded: true, rows: [] });
-            syncToDb('knowledge_categories', knowledgeCategories);
-            closeModal('modalAddKnowledgeCategory');
-            showToast('Berhasil', 'Kategori drawing baru berhasil dibuat.', 'success');
-        }
+    e.preventDefault();
+    const name = document.getElementById('inputKnowledgeCategoryName').value.trim();
+    const normalizedCats = normalizeCategoryList(knowledgeCategories, 'kcat');
+    normalizedCats.push({
+        id: 'kcat_' + Date.now(),
+        categoryName: name,
+        expanded: true,
+        rows: []
+    });
+    knowledgeCategories = normalizeCategoryList(normalizedCats, 'kcat');
+    syncToDb('knowledge_categories', knowledgeCategories);
+    closeModal('modalAddKnowledgeCategory');
+    renderKnowledgeCategoriesContainer();
+    showToast('Berhasil', 'Kategori drawing baru berhasil dibuat.', 'success');
+}
 
         function deleteKnowledgeCategory(catId) {
             deleteRecordWithAudit({
@@ -2719,42 +2765,67 @@
         }
 
         function handleSaveKnowledgeRow(e) {
-            e.preventDefault();
-            const catId = document.getElementById('activeKnowledgeCatId').value;
-            const itemNumber = document.getElementById('knowledgeItemNumber').value.trim();
-            const desc = document.getElementById('knowledgeDesc').value.trim();
-            const fileInput = document.getElementById('knowledgeImageFile');
+    e.preventDefault();
+    const catId = document.getElementById('activeKnowledgeCatId').value;
+    const itemNumber = document.getElementById('knowledgeItemNumber').value.trim();
+    const desc = document.getElementById('knowledgeDesc').value.trim();
+    const fileInput = document.getElementById('knowledgeImageFile');
 
-            readFileAsDataURL(fileInput.files && fileInput.files[0], (drawingBase64) => {
-                appendRowToCategory(
-                    knowledgeCategories,
-                    catId,
-                    'knowledge_categories',
-                    { id: 'k_' + Date.now(), itemNumber, desc, drawing: drawingBase64 || "" },
-                    (cat) => {
-                        logAuditActivity('CREATE', itemNumber, `Menambah Data Drawing ke Kategori ${cat.categoryName}`);
-                        closeModal('modalAddKnowledgeRow');
-                        showToast('Berhasil', 'Data drawing berhasil disimpan.', 'success');
-                    }
-                );
-            });
-        }
+    readFileAsDataURL(fileInput.files && fileInput.files[0], (drawingBase64) => {
+        const normalizedCats = normalizeCategoryList(knowledgeCategories, 'kcat');
+        const catIndex = normalizedCats.findIndex(c => String(c.id) === String(catId));
+        if (catIndex === -1) return;
+
+        const cat = normalizedCats[catIndex];
+        const currentRows = Array.isArray(cat.rows) ? cat.rows.filter(Boolean) : [];
+        const newRow = {
+            id: 'k_' + Date.now(),
+            itemNumber,
+            desc,
+            drawing: drawingBase64 || ""
+        };
+
+        normalizedCats[catIndex] = {
+            ...cat,
+            rows: [...currentRows, newRow]
+        };
+
+        knowledgeCategories = normalizeCategoryList(normalizedCats, 'kcat');
+        syncToDb('knowledge_categories', knowledgeCategories);
+        logAuditActivity('CREATE', itemNumber, `Menambah Data Drawing ke Kategori ${cat.categoryName}`);
+        closeModal('modalAddKnowledgeRow');
+        renderKnowledgeCategoriesContainer();
+        showToast('Berhasil', 'Data drawing berhasil disimpan.', 'success');
+    });
+}
 
         function deleteKnowledgeRow(catId, rowId) {
-            const cat = knowledgeCategories.find(c => c.id === catId);
-            if(!cat) return;
-            deleteRecordWithAudit({
-                confirmMsg: 'Hapus data drawing ini?',
-                getArray: () => cat.rows || [],
-                setArray: (next) => { cat.rows = next; },
-                matchFn: (r) => r.id === rowId,
-                dbPath: 'knowledge_categories',
-                auditType: 'DELETE',
-                getItemNumber: (r) => r.itemNumber,
-                getAuditDetail: (r) => `Menghapus Drawing ${r.desc} dari ${cat.categoryName}`,
-                onAfterDelete: () => renderKnowledgeCategoriesContainer()
-            });
-        }
+    const normalizedCats = normalizeCategoryList(knowledgeCategories, 'kcat');
+    const catIndex = normalizedCats.findIndex(c => String(c.id) === String(catId));
+    if (catIndex === -1) return;
+
+    const cat = normalizedCats[catIndex];
+    const currentRows = Array.isArray(cat.rows) ? cat.rows.filter(Boolean) : [];
+    const targetRow = currentRows.find(r => String(r.id) === String(rowId));
+    if (!targetRow) return;
+
+    if (!confirm(`Hapus data drawing "${targetRow.desc || targetRow.itemNumber || '-'}"?`)) return;
+
+    normalizedCats[catIndex] = {
+        ...cat,
+        rows: currentRows.filter(r => String(r.id) !== String(rowId))
+    };
+
+    knowledgeCategories = normalizeCategoryList(normalizedCats, 'kcat');
+    syncToDb('knowledge_categories', knowledgeCategories);
+    logAuditActivity(
+        'DELETE',
+        targetRow.itemNumber || '-',
+        `Menghapus Drawing ${targetRow.desc || '-'} dari ${cat.categoryName}`
+    );
+    renderKnowledgeCategoriesContainer();
+    showToast('Berhasil', 'Data drawing berhasil dihapus.', 'info');
+}
 
         function toggleKnowledgeAccordion(catId) {
             toggleCategoryAccordion(knowledgeCategories, catId, renderKnowledgeCategoriesContainer);
@@ -2824,37 +2895,36 @@
         }
 
         function uploadDrawingCat(e, catId, rowId) {
-            const file = e.target.files[0];
-            if(!file) return;
-            readFileAsDataURL(file, (base64String) => {
-                const cat = knowledgeCategories.find(c => c.id === catId);
-                if(cat && cat.rows) {
-                    const row = cat.rows.find(r => r.id === rowId);
-                    if(row) {
-                        row.drawing = base64String;
-                        syncToDb('knowledge_categories', knowledgeCategories);
-                        showToast('Berhasil', 'Gambar drawing diperbarui!', 'success');
-                    }
-                }
-            });
-        }
+    const file = e.target.files[0];
+    if (!file) return;
+    readFileAsDataURL(file, (base64String) => {
+        const normalizedCats = normalizeCategoryList(knowledgeCategories, 'kcat');
+        const catIndex = normalizedCats.findIndex(c => String(c.id) === String(catId));
+        if (catIndex === -1) return;
 
-        function viewDrawing(catId, rowId) {
-            const cat = knowledgeCategories.find(c => c.id === catId);
-            if(cat && cat.rows) {
-                const item = cat.rows.find(r => r.id === rowId);
-                if(item && item.drawing) {
-                    const newWindow = window.open();
-                    newWindow.document.write(`
-                        <html><head><title>Drawing - ${item.itemNumber}</title></head>
-                        <body style="margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; color:white; font-family:sans-serif;">
-                            <h2 style="margin-bottom:10px;">${item.itemNumber} — ${item.desc}</h2>
-                            <img src="${item.drawing}" style="max-width:90%; max-height:80vh; border:2px solid #334155; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
-                        </body></html>
-                    `);
-                }
-            }
-        }
+        const cat = normalizedCats[catIndex];
+        const currentRows = Array.isArray(cat.rows) ? cat.rows.filter(Boolean) : [];
+        const rowIndex = currentRows.findIndex(r => String(r.id) === String(rowId));
+        if (rowIndex === -1) return;
+
+        currentRows[rowIndex] = {
+            ...currentRows[rowIndex],
+            drawing: base64String,
+            id: currentRows[rowIndex].id
+        };
+
+        normalizedCats[catIndex] = {
+            ...cat,
+            rows: currentRows
+        };
+
+        knowledgeCategories = normalizeCategoryList(normalizedCats, 'kcat');
+        syncToDb('knowledge_categories', knowledgeCategories);
+        logAuditActivity('EDIT', currentRows[rowIndex].itemNumber || '-', `Update gambar drawing di ${cat.categoryName}`);
+        renderKnowledgeCategoriesContainer();
+        showToast('Berhasil', 'Gambar drawing diperbarui!', 'success');
+    });
+}
 
         function printKnowledgePDF(catId, rowId) {
             const cat = knowledgeCategories.find(c => c.id === catId);
@@ -2892,13 +2962,21 @@
         }
 
         function handleCreateCycleTimeCategory(e) {
-            e.preventDefault();
-            const name = document.getElementById('inputCycleTimeCategoryName').value.trim();
-            cycleTimeCategories.push({ id: 'ctcat_' + Date.now(), categoryName: name, expanded: true, rows: [] });
-            syncToDb('cycle_time_categories', cycleTimeCategories);
-            closeModal('modalAddCycleTimeCategory');
-            showToast('Berhasil', 'Kategori cycle time baru berhasil dibuat.', 'success');
-        }
+    e.preventDefault();
+    const name = document.getElementById('inputCycleTimeCategoryName').value.trim();
+    const normalizedCats = normalizeCategoryList(cycleTimeCategories, 'ctcat');
+    normalizedCats.push({
+        id: 'ctcat_' + Date.now(),
+        categoryName: name,
+        expanded: true,
+        rows: []
+    });
+    cycleTimeCategories = normalizeCategoryList(normalizedCats, 'ctcat');
+    syncToDb('cycle_time_categories', cycleTimeCategories);
+    closeModal('modalAddCycleTimeCategory');
+    renderCycleTimeCategoriesContainer();
+    showToast('Berhasil', 'Kategori cycle time baru berhasil dibuat.', 'success');
+}
 
         function deleteCycleTimeCategory(catId) {
             deleteRecordWithAudit({
@@ -2925,38 +3003,68 @@
         }
 
         function handleSaveCycleTimeRow(e) {
-            e.preventDefault();
-            const catId = document.getElementById('activeCycleTimeCatId').value;
-            const newCt = {
-                id: 'ct_' + Date.now(),
-                itemNumber: document.getElementById('ctItemNumber').value.trim(),
-                deskripsiTool: document.getElementById('ctDesc').value.trim()
-            };
-            for (let i = 1; i <= 8; i++) {
-                newCt[`p${i}`] = document.getElementById(`ctP${i}`).value.trim() || '-';
-                newCt[`t${i}`] = document.getElementById(`ctT${i}`).value || '0';
-            }
-            appendRowToCategory(cycleTimeCategories, catId, 'cycle_time_categories', newCt, () => {
-                closeModal('modalAddCycleTimeRow');
-                showToast('Berhasil', 'Data cycle time berhasil disimpan ke kategori.', 'success');
-            });
-        }
+    e.preventDefault();
+    const catId = document.getElementById('activeCycleTimeCatId').value;
+    const itemNumber = document.getElementById('ctItemNumber').value.trim();
+    const deskripsiTool = document.getElementById('ctDesc').value.trim();
+
+    const normalizedCats = normalizeCategoryList(cycleTimeCategories, 'ctcat');
+    const catIndex = normalizedCats.findIndex(c => String(c.id) === String(catId));
+    if (catIndex === -1) return;
+
+        const cat = normalizedCats[catIndex];
+    const currentRows = Array.isArray(cat.rows) ? cat.rows.filter(Boolean) : [];
+
+    const newCt = {
+        id: 'ct_' + Date.now(),
+        itemNumber,
+        deskripsiTool
+    };
+    for (let i = 1; i <= 8; i++) {
+        newCt[`p${i}`] = document.getElementById(`ctP${i}`).value.trim() || '-';
+        newCt[`t${i}`] = document.getElementById(`ctT${i}`).value || '0';
+    }
+
+    normalizedCats[catIndex] = {
+        ...cat,
+        rows: [...currentRows, newCt]
+    };
+
+    cycleTimeCategories = normalizeCategoryList(normalizedCats, 'ctcat');
+    syncToDb('cycle_time_categories', cycleTimeCategories);
+    logAuditActivity('CREATE', itemNumber, `Menambah Cycle Time ${deskripsiTool || '-'} ke ${cat.categoryName}`);
+    closeModal('modalAddCycleTimeRow');
+    renderCycleTimeCategoriesContainer();
+    showToast('Berhasil', 'Data cycle time berhasil disimpan ke kategori.', 'success');
+}
 
         function deleteCycleTimeRow(catId, rowId) {
-            const cat = cycleTimeCategories.find(c => c.id === catId);
-            if(!cat) return;
-            deleteRecordWithAudit({
-                confirmMsg: 'Hapus data cycle time ini?',
-                getArray: () => cat.rows || [],
-                setArray: (next) => { cat.rows = next; },
-                matchFn: (r) => r.id === rowId,
-                dbPath: 'cycle_time_categories',
-                auditType: 'DELETE',
-                getItemNumber: (r) => r.itemNumber,
-                getAuditDetail: (r) => `Menghapus Cycle Time ${r.deskripsiTool} dari ${cat.categoryName}`,
-                onAfterDelete: () => renderCycleTimeCategoriesContainer()
-            });
-        }
+    const normalizedCats = normalizeCategoryList(cycleTimeCategories, 'ctcat');
+    const catIndex = normalizedCats.findIndex(c => String(c.id) === String(catId));
+    if (catIndex === -1) return;
+
+    const cat = normalizedCats[catIndex];
+    const currentRows = Array.isArray(cat.rows) ? cat.rows.filter(Boolean) : [];
+    const targetRow = currentRows.find(r => String(r.id) === String(rowId));
+    if (!targetRow) return;
+
+    if (!confirm(`Hapus data cycle time "${targetRow.deskripsiTool || targetRow.itemNumber || '-'}"?`)) return;
+
+    normalizedCats[catIndex] = {
+        ...cat,
+        rows: currentRows.filter(r => String(r.id) !== String(rowId))
+    };
+
+    cycleTimeCategories = normalizeCategoryList(normalizedCats, 'ctcat');
+    syncToDb('cycle_time_categories', cycleTimeCategories);
+    logAuditActivity(
+        'DELETE',
+        targetRow.itemNumber || '-',
+        `Menghapus Cycle Time ${targetRow.deskripsiTool || '-'} dari ${cat.categoryName}`
+    );
+    renderCycleTimeCategoriesContainer();
+    showToast('Berhasil', 'Data cycle time berhasil dihapus.', 'info');
+}
 
         function toggleCycleTimeAccordion(catId) {
             toggleCategoryAccordion(cycleTimeCategories, catId, renderCycleTimeCategoriesContainer);
@@ -3552,20 +3660,39 @@
         }
 
         function deleteMasterRow(tableId, rowId) {
-            const table = masterTables.find(t => t.id === tableId);
-            if(!table) return;
-            deleteRecordWithAudit({
-                confirmMsg: 'Hapus baris dari tabel master ini?',
-                getArray: () => table.rows || [],
-                setArray: (next) => { table.rows = next; },
-                matchFn: (r) => r.id === rowId,
-                dbPath: 'master_tables',
-                auditType: 'DELETE',
-                getItemNumber: (r) => r.itemNumber,
-                getAuditDetail: (r) => `Menghapus baris dari master ${table.tableName}`,
-                onAfterDelete: () => renderMasterTablesContainer()
-            });
-        }
+    const normalizedTables = normalizeMasterTables(masterTables);
+    const tableIndex = normalizedTables.findIndex(t => String(t.id) === String(tableId));
+    if (tableIndex === -1) {
+        showToast('Error', 'Tabel master tidak ditemukan.', 'error');
+        return;
+    }
+
+    const table = normalizedTables[tableIndex];
+    const currentRows = Array.isArray(table.rows) ? table.rows.filter(Boolean) : [];
+    const targetRow = currentRows.find(r => String(r.id) === String(rowId));
+    if (!targetRow) {
+        showToast('Info', 'Baris sudah tidak ada atau sudah terhapus.', 'info');
+        return;
+    }
+
+    if (!confirm(`Hapus baris "${targetRow.itemNumber || '-'}" dari tabel "${table.tableName}"?`)) return;
+
+    const updatedRows = currentRows.filter(r => String(r.id) !== String(rowId));
+    normalizedTables[tableIndex] = {
+        ...table,
+        rows: updatedRows
+    };
+
+    masterTables = normalizeMasterTables(normalizedTables);
+    syncToDb('master_tables', masterTables);
+    logAuditActivity(
+        'DELETE',
+        targetRow.itemNumber || '-',
+        `Menghapus baris ${targetRow.itemNumber || '-'} dari master ${table.tableName}`
+    );
+    renderMasterTablesContainer();
+    showToast('Berhasil', `Baris ${targetRow.itemNumber || '-'} dihapus.`, 'info');
+}
 
         function downloadTableTemplate(tableName) {
             let wb = XLSX.utils.book_new();
