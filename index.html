@@ -2066,31 +2066,14 @@ function normalizeMasterTables(rawVal) {
             const rawRows = t.rows
                 ? (Array.isArray(t.rows) ? t.rows : Object.values(t.rows))
                 : [];
-            const cleanRows = rawRows.filter(r => r && typeof r === 'object' && r.itemNumber);
+            const cleanRows = rawRows.filter(
+                r => r && typeof r === 'object' && r.id && r.itemNumber
+            );
             return {
                 ...t,
-                id: t.id || ('table_' + (idx + 1)),
+                id: String(t.id || ('table_' + (idx + 1))),
                 tableName: t.tableName || t.categoryName || `Tabel Master ${idx + 1}`,
                 expanded: t.expanded !== undefined ? Boolean(t.expanded) : true,
-                rows: cleanRows
-            };
-        });
-}
-function normalizeCategoryList(rawVal, defaultPrefix) {
-    if (!rawVal) return [];
-    const list = Array.isArray(rawVal) ? rawVal : Object.values(rawVal);
-    return list
-        .filter(c => c && typeof c === 'object')
-        .map((c, idx) => {
-            const rawRows = c.rows
-                ? (Array.isArray(c.rows) ? c.rows : Object.values(c.rows))
-                : [];
-            const cleanRows = rawRows.filter(r => r && typeof r === 'object' && (r.itemNumber || r.deskripsiTool || r.desc));
-            return {
-                ...c,
-                id: c.id || `${defaultPrefix}_${idx + 1}`,
-                categoryName: c.categoryName || c.tableName || `Kategori ${idx + 1}`,
-                expanded: c.expanded !== undefined ? Boolean(c.expanded) : true,
                 rows: cleanRows
             };
         });
@@ -3623,28 +3606,36 @@ function normalizeMonthlyOrYearlyList(rawVal) {
 
         function deleteMasterRow(tableId, rowId) {
     const tableIndex = masterTables.findIndex(t => String(t.id) === String(tableId));
-    if (tableIndex === -1) return;
+    if (tableIndex === -1) {
+        showToast('Error', 'Tabel master tidak ditemukan.', 'error');
+        return;
+    }
 
     const table = masterTables[tableIndex];
     const currentRows = Array.isArray(table.rows) ? table.rows.filter(Boolean) : [];
     const targetRow = currentRows.find(r => String(r.id) === String(rowId));
-    if (!targetRow) return;
+    if (!targetRow) {
+        showToast('Info', 'Baris sudah tidak ada atau sudah terhapus.', 'info');
+        return;
+    }
 
     if (!confirm(`Hapus baris "${targetRow.itemNumber}" dari tabel "${table.tableName}"?`)) return;
 
     const updatedRows = currentRows.filter(r => String(r.id) !== String(rowId));
-    masterTables[tableIndex] = {
-        ...table,
-        rows: updatedRows
-    };
+    const nextMasterTables = masterTables.map((t, idx) =>
+        idx === tableIndex ? { ...t, rows: updatedRows } : t
+    );
 
-    masterTables = normalizeMasterTables(masterTables);
+    masterTables = normalizeMasterTables(nextMasterTables);
     syncToDb('master_tables', masterTables);
-    logAuditActivity('DELETE', targetRow.itemNumber, `Menghapus baris ${targetRow.itemNumber} dari master ${table.tableName}`);
+    logAuditActivity(
+        'DELETE',
+        targetRow.itemNumber,
+        `Menghapus baris ${targetRow.itemNumber} dari master ${table.tableName}`
+    );
     renderMasterTablesContainer();
     showToast('Berhasil', `Baris ${targetRow.itemNumber} dihapus.`, 'info');
 }
-
 
         function downloadTableTemplate(tableName) {
             let wb = XLSX.utils.book_new();
